@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -30,7 +30,16 @@ interface SearchRadioScreenProps {
 export const SearchRadioScreen: React.FC<SearchRadioScreenProps> = ({ route, navigation }) => {
   const { onSelectStation, selectedStation } = route.params;
   const { theme } = useTheme();
-  const { countries, tags, loadCountries, loadTags } = useRadio();
+  const { 
+    searchStations, 
+    loadCountries, 
+    loadTags, 
+    stations, 
+    countries, 
+    tags, 
+    loading,
+    error 
+  } = useRadio();
   
   const [searchParams, setSearchParams] = useState<RadioSearchParams>({
     hidebroken: true,
@@ -40,21 +49,38 @@ export const SearchRadioScreen: React.FC<SearchRadioScreenProps> = ({ route, nav
   });
   
   const [showFavorites, setShowFavorites] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
-  // Charger les pays et tags au démarrage
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
+    // Charger les données initiales
+    loadInitialData();
+  }, []);
+  
+  useEffect(() => {
+    // Afficher une alerte en cas d'erreur
+    if (error) {
+      Alert.alert(
+        'Erreur',
+        error,
+        [{ text: 'OK' }]
+      );
+    }
+  }, [error]);
+  
+  const loadInitialData = async () => {
+    try {
       await Promise.all([
         loadCountries(),
-        loadTags(),
+        loadTags()
       ]);
-      setIsLoading(false);
-    };
-    
-    loadData();
-  }, []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      Alert.alert(
+        'Erreur de chargement',
+        'Impossible de charger les données. Veuillez vérifier votre connexion et réessayer.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
   
   // Gérer la recherche
   const handleSearch = async (params: RadioSearchParams): Promise<void> => {
@@ -99,7 +125,7 @@ export const SearchRadioScreen: React.FC<SearchRadioScreenProps> = ({ route, nav
             onSearch={handleSearch}
             countries={countries}
             tags={tags}
-            isLoading={isLoading}
+            isLoading={loading}
           />
         )}
         
@@ -116,6 +142,23 @@ export const SearchRadioScreen: React.FC<SearchRadioScreenProps> = ({ route, nav
           />
         )}
       </View>
+      
+      {/* Afficher un indicateur de chargement si nécessaire */}
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={styles.loadingText}>Recherche en cours...</Text>
+        </View>
+      )}
+      
+      {/* Afficher un message si aucune station n'est trouvée */}
+      {!loading && stations.length === 0 && (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            Aucune station trouvée. Veuillez modifier vos critères de recherche.
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -149,5 +192,26 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 }); 

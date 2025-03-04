@@ -10,6 +10,7 @@ import {
   Switch,
   Modal,
   FlatList,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RadioStation, Country, Tag, RadioSearchParams } from '../types';
@@ -62,36 +63,45 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
   }, [selectedCountry]);
   
   const handleSearch = () => {
-    const params: RadioSearchParams = {
-      hidebroken,
-      is_https: isHttps,
-      order: sortOrder,
-      reverse: sortReverse,
-    };
-    
-    if (searchName.trim()) {
-      params.name = searchName.trim();
+    try {
+      const params: RadioSearchParams = {
+        hidebroken,
+        is_https: isHttps,
+        order: sortOrder,
+        reverse: sortReverse,
+      };
+      
+      if (searchName.trim()) {
+        params.name = searchName.trim();
+      }
+      
+      if (selectedCountry) {
+        console.log('============================= selectedCountry START=============================');
+        console.log(selectedCountry);
+        console.log('============================= selectedCountry END=============================');
+        params.countrycode = selectedCountry.iso_3166_1;
+        console.log('Code pays ajouté à la recherche:', selectedCountry.iso_3166_1);
+      }
+      
+      if (selectedTags.length > 0) {
+        params.tagList = selectedTags.map(tag => tag.name);
+      }
+      
+      if (minBitrate && !isNaN(parseInt(minBitrate))) {
+        params.bitrateMin = parseInt(minBitrate);
+      }
+      
+      console.log('Paramètres de recherche:', params);
+      onSearch(params);
+      setIsAdvancedVisible(false);
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      Alert.alert(
+        'Erreur de recherche',
+        'Une erreur est survenue lors de la recherche. Veuillez réessayer.',
+        [{ text: 'OK' }]
+      );
     }
-    
-    if (selectedCountry) {
-      console.log('============================= selectedCountry START=============================');
-      console.log(selectedCountry);
-      console.log('============================= selectedCountry END=============================');
-      params.countrycode = selectedCountry.iso_3166_1;
-      console.log('Code pays ajouté à la recherche:', selectedCountry.iso_3166_1);
-    }
-    
-    if (selectedTags.length > 0) {
-      params.tagList = selectedTags.map(tag => tag.name);
-    }
-    
-    if (minBitrate && !isNaN(parseInt(minBitrate))) {
-      params.bitrateMin = parseInt(minBitrate);
-    }
-    
-    console.log('Paramètres de recherche:', params);
-    onSearch(params);
-    setIsAdvancedVisible(false);
   };
   
   const resetFilters = () => {
@@ -257,14 +267,14 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
         />
         
         <TouchableOpacity
-          style={[styles.searchButton, { backgroundColor: theme.primary }]}
+          style={[styles.searchButton, isLoading && styles.disabledButton]}
           onPress={handleSearch}
           disabled={isLoading}
         >
           {isLoading ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Ionicons name="search" size={20} color="#fff" />
+            <Text style={styles.searchButtonText}>Rechercher</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -596,5 +606,9 @@ const styles = StyleSheet.create({
   modalButtonText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.7,
+    backgroundColor: '#888',
   },
 }); 

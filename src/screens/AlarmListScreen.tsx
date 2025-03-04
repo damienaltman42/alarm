@@ -105,6 +105,12 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: theme.text }]}>Mes alarmes</Text>
+        <TouchableOpacity
+          style={[styles.headerAddButton, { backgroundColor: theme.primary }]}
+          onPress={() => navigation.navigate('AddAlarm')}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -115,6 +121,7 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
             alarm={item}
             onToggle={handleToggleAlarm}
             onPress={() => handleEditAlarm(item)}
+            onDelete={handleDeleteAlarm}
           />
         )}
         contentContainerStyle={[
@@ -125,13 +132,6 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
         refreshing={isRefreshing}
         onRefresh={handleRefresh}
       />
-
-      <TouchableOpacity
-        style={[styles.addButton, { backgroundColor: theme.primary }]}
-        onPress={() => navigation.navigate('AddAlarm')}
-      >
-        <Ionicons name="add" size={24} color="#fff" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -154,10 +154,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  addButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  headerAddButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#0066cc',
     justifyContent: 'center',
     alignItems: 'center',

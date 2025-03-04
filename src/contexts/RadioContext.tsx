@@ -71,14 +71,47 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
   // Rechercher des stations
   const searchStations = async (params: RadioSearchParams): Promise<RadioStation[]> => {
     setLoading(true);
-    setError(null);
+    setError('');
+    
     try {
-      const results = await radioService.searchStations(params);
-      setStations(results);
-      return results;
+      const maxRetries = 3;
+      let retryCount = 0;
+      let stations: RadioStation[] = [];
+      
+      while (retryCount < maxRetries) {
+        try {
+          stations = await radioService.searchStations(params);
+          
+          if (stations.length > 0) {
+            // Si nous avons des stations, sortir de la boucle
+            break;
+          } else if (retryCount < maxRetries - 1) {
+            // Si aucune station trouvée mais qu'il reste des essais, attendre et réessayer
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        } catch (error) {
+          if (retryCount < maxRetries - 1) {
+            // Attendre avant de réessayer
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            // Dernière tentative échouée, propager l'erreur
+            throw error;
+          }
+        }
+        
+        retryCount++;
+      }
+      
+      setStations(stations);
+      
+      if (stations.length === 0) {
+        setError('Aucune station trouvée. Veuillez modifier vos critères de recherche ou réessayer plus tard.');
+      }
+      
+      return stations;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      setError(`Erreur lors de la recherche: ${errorMessage}`);
+      ErrorService.handleError(error as Error, 'RadioContext.searchStations');
+      setError('Impossible de se connecter aux serveurs radio. Veuillez vérifier votre connexion internet et réessayer.');
       return [];
     } finally {
       setLoading(false);

@@ -19,15 +19,22 @@ const baseHeaders = {
   'Content-Type': 'application/json',
 };
 
+// Nombre maximum de tentatives par serveur
+const MAX_RETRIES_PER_SERVER = 2;
+// Délai entre les tentatives (en ms)
+const RETRY_DELAY = 1000;
+
 /**
  * Service responsable de la communication avec l'API Radio Browser
  */
 export class RadioApi {
   private baseUrl: string;
   private serverFailures: Record<string, number> = {};
+  private serversToTry: string[] = [];
 
   constructor() {
     this.baseUrl = this.getRandomServer();
+    this.serversToTry = [...API_SERVERS]; // Copie de tous les serveurs disponibles
   }
 
   /**
@@ -35,7 +42,7 @@ export class RadioApi {
    */
   private getRandomServer(): string {
     const availableServers = API_SERVERS.filter(
-      server => !this.serverFailures[server] || this.serverFailures[server] < 3
+      server => !this.serverFailures[server] || this.serverFailures[server] < MAX_RETRIES_PER_SERVER
     );
     
     if (availableServers.length === 0) {
@@ -63,73 +70,85 @@ export class RadioApi {
   }
 
   /**
-   * Effectue une requête à l'API
+   * Réinitialise la liste des serveurs à essayer
+   */
+  private resetServersToTry(): void {
+    this.serversToTry = [...API_SERVERS];
+    // Mélanger le tableau pour essayer les serveurs dans un ordre aléatoire
+    this.serversToTry.sort(() => Math.random() - 0.5);
+  }
+
+  /**
+   * Obtient le prochain serveur à essayer
+   */
+  private getNextServer(): string | null {
+    if (this.serversToTry.length === 0) {
+      this.resetServersToTry();
+    }
+    return this.serversToTry.shift() || null;
+  }
+
+  /**
+   * Effectue une requête à l'API avec plusieurs tentatives sur différents serveurs
    * @param endpoint Point de terminaison de l'API
    * @param params Paramètres de la requête
    * @returns Résultat de la requête
    */
   private async fetchFromApi<T>(endpoint: string, params: Record<string, any> = {}): Promise<T> {
-    try {
-      // Construire l'URL avec les paramètres
-      const queryParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
+    // Réinitialiser la liste des serveurs à essayer
+    this.resetServersToTry();
+    
+    // Construire les paramètres de requête
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, String(value));
+      }
+    });
+    
+    const queryString = queryParams.toString();
+    let lastError: Error | null = null;
+    
+    // Essayer tous les serveurs jusqu'à ce qu'un fonctionne
+    while (this.serversToTry.length > 0) {
+      const server = this.getNextServer();
+      if (!server) break;
       
-      const url = `${this.baseUrl}${endpoint}?${queryParams.toString()}`;
+      this.baseUrl = server;
+      const url = `${this.baseUrl}${endpoint}?${queryString}`;
+      
       console.log('============================= URL START=============================');
       console.log(url);
       console.log('============================= URL END=============================');
-      // Effectuer la requête
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: baseHeaders,
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
-      }
-      
-      return await response.json() as T;
-    } catch (error) {
-      // En cas d'erreur, changer de serveur et réessayer une fois
-      console.error('Erreur lors de la requête API:', error);
-      
-      // Changer de serveur
-      this.changeServer();
-      
-      // Attendre un court délai avant de réessayer
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Réessayer avec le nouveau serveur
-      const queryParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
-      
-      const retryUrl = `${this.baseUrl}${endpoint}?${queryParams.toString()}`;
-      console.log(`Nouvelle tentative avec: ${retryUrl}`);
       
       try {
-        const retryResponse = await fetch(retryUrl, {
+        // Effectuer la requête
+        const response = await fetch(url, {
           method: 'GET',
           headers: baseHeaders,
         });
         
-        if (!retryResponse.ok) {
-          throw new Error(`Erreur API (retry): ${retryResponse.status} ${retryResponse.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
         }
         
-        return await retryResponse.json() as T;
-      } catch (retryError) {
-        ErrorService.handleError(retryError as Error, 'RadioApi.fetchFromApi');
-        throw retryError;
+        // Si la requête réussit, mettre à jour le serveur de base et retourner les données
+        return await response.json() as T;
+      } catch (error) {
+        console.error('Erreur lors de la requête API:', error);
+        lastError = error as Error;
+        
+        // Attendre un court délai avant d'essayer le prochain serveur
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
       }
     }
+    
+    // Si tous les serveurs ont échoué, enregistrer l'erreur et retourner un tableau vide
+    if (lastError) {
+      ErrorService.handleError(lastError, 'RadioApi.fetchFromApi');
+    }
+    
+    throw new Error('Tous les serveurs API ont échoué');
   }
 
   /**
@@ -139,6 +158,7 @@ export class RadioApi {
    */
   async searchStations(params: RadioSearchParams): Promise<RadioStation[]> {
     try {
+      console.log('Paramètres de recherche:', params);
       const endpoint = '/json/stations/search';
       
       // Paramètres de recherche de base

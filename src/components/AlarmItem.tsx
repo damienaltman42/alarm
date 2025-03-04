@@ -1,16 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Alarm } from '../types';
 
 interface AlarmItemProps {
   alarm: Alarm;
   onPress: (alarm: Alarm) => void;
   onToggle: (id: string, enabled: boolean) => void;
+  onDelete: (alarm: Alarm) => void;
 }
 
 const daysOfWeek = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
-export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle }) => {
+export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, onDelete }) => {
   // Formater l'heure pour l'affichage
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(':');
@@ -35,6 +37,12 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle }
   // Gérer le changement d'état du switch
   const handleToggle = () => {
     onToggle(alarm.id, !alarm.enabled);
+  };
+
+  // Gérer la suppression
+  const handleDelete = (e: any) => {
+    e.stopPropagation(); // Empêcher la propagation pour éviter d'activer onPress
+    onDelete(alarm);
   };
 
   return (
@@ -67,13 +75,22 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle }
         </View>
       </View>
       
-      <Switch
-        value={alarm.enabled}
-        onValueChange={handleToggle}
-        trackColor={{ false: '#767577', true: '#81b0ff' }}
-        thumbColor={alarm.enabled ? '#f5dd4b' : '#f4f3f4'}
-        ios_backgroundColor="#3e3e3e"
-      />
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={handleDelete}
+        >
+          <Ionicons name="trash-outline" size={22} color="#FF3B30" />
+        </TouchableOpacity>
+        
+        <Switch
+          value={alarm.enabled}
+          onValueChange={handleToggle}
+          trackColor={{ false: '#767577', true: '#81b0ff' }}
+          thumbColor={alarm.enabled ? '#f5dd4b' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+        />
+      </View>
     </TouchableOpacity>
   );
 };
@@ -126,5 +143,13 @@ const styles = StyleSheet.create({
   },
   disabledText: {
     color: '#999',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    padding: 8,
+    marginRight: 8,
   },
 }); 
