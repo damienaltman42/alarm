@@ -57,10 +57,6 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
     { label: 'Qualité audio', value: 'bitrate' },
   ];
   
-  // Ajouter un effet pour déboguer la sélection des pays
-  useEffect(() => {
-    console.log('Pays sélectionné:', selectedCountry);
-  }, [selectedCountry]);
   
   const handleSearch = () => {
     try {

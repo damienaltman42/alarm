@@ -64,7 +64,6 @@ export class RadioApi {
     
     // Sélectionner un nouveau serveur
     this.baseUrl = this.getRandomServer();
-    console.log(`Changement de serveur API: ${this.baseUrl}`);
     
     return this.baseUrl;
   }
@@ -117,10 +116,6 @@ export class RadioApi {
       this.baseUrl = server;
       const url = `${this.baseUrl}${endpoint}?${queryString}`;
       
-      console.log('============================= URL START=============================');
-      console.log(url);
-      console.log('============================= URL END=============================');
-      
       try {
         // Effectuer la requête
         const response = await fetch(url, {
@@ -158,7 +153,6 @@ export class RadioApi {
    */
   async searchStations(params: RadioSearchParams): Promise<RadioStation[]> {
     try {
-      console.log('Paramètres de recherche:', params);
       const endpoint = '/json/stations/search';
       
       // Paramètres de recherche de base

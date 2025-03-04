@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { RadioStation, Country, Tag, RadioSearchParams } from '../types';
 import { radioService } from '../services/radio';
 import { ErrorService } from '../utils/errorHandling';
@@ -6,9 +6,9 @@ import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Délai avant de réessayer une opération audio en cas d'erreur (en ms)
-const AUDIO_RETRY_DELAY = 300;
+const AUDIO_RETRY_DELAY = 2000;
 // Délai entre l'arrêt et le démarrage d'une nouvelle radio (en ms)
-const AUDIO_TRANSITION_DELAY = 200;
+const AUDIO_TRANSITION_DELAY = 100;
 
 // Type pour le contexte de radio
 interface RadioContextType {
@@ -20,6 +20,8 @@ interface RadioContextType {
   error: string | null;
   currentPlayingStation: string | null;
   loadingAudio: boolean;
+  currentStation: RadioStation | null;
+  currentStationRef: React.RefObject<RadioStation | null>;
   searchStations: (params: RadioSearchParams) => Promise<RadioStation[]>;
   loadCountries: (forceRefresh?: boolean) => Promise<Country[]>;
   loadTags: (forceRefresh?: boolean) => Promise<Tag[]>;
@@ -52,6 +54,14 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [currentPlayingStation, setCurrentPlayingStation] = useState<string | null>(null);
   const [loadingAudio, setLoadingAudio] = useState<boolean>(false);
+  const [currentStation, setCurrentStation] = useState<RadioStation | null>(null);
+  
+  // Référence pour suivre si une opération de lecture est en cours
+  const playOperationInProgress = useRef<boolean>(false);
+  // Référence pour suivre la station en cours pendant les transitions
+  const currentStationRef = useRef<RadioStation | null>(null);
+  // Référence pour suivre si nous sommes en mode transition ou arrêt complet
+  const isTransitioningRef = useRef<boolean>(false);
 
   // Charger les favoris au montage du composant
   useEffect(() => {
@@ -197,93 +207,6 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
     }
   };
 
-  // Lecture d'un aperçu de la radio
-  const playPreview = async (station: RadioStation) => {
-    try {
-      // Si c'est la même station qui est déjà en cours de lecture, on l'arrête simplement
-      if (currentPlayingStation === station.stationuuid) {
-        await stopPreview();
-        return;
-      }
-      
-      // Indiquer que l'audio est en cours de chargement
-      setLoadingAudio(true);
-      setCurrentPlayingStation(station.stationuuid);
-      
-      // Arrêter la lecture en cours si elle existe
-      await safeStopAudio();
-      
-      // Attendre un court instant pour éviter les conflits entre l'arrêt et le démarrage
-      await new Promise(resolve => setTimeout(resolve, AUDIO_TRANSITION_DELAY));
-      
-      // Créer et charger un nouvel objet Sound
-      console.log(`Démarrage de la lecture pour ${station.name}`);
-      
-      try {
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: station.url_resolved },
-          { shouldPlay: true }
-        );
-        
-        // Configurer un gestionnaire d'événements pour détecter la fin de la lecture
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded) {
-            // Si le son est chargé et en cours de lecture, désactiver l'indicateur de chargement
-            if (status.isPlaying) {
-              setLoadingAudio(false);
-              // S'assurer que currentPlayingStation est toujours défini
-              if (currentPlayingStation !== station.stationuuid) {
-                setCurrentPlayingStation(station.stationuuid);
-              }
-            }
-            
-            if (status.didJustFinish) {
-              stopPreview();
-            }
-          }
-        });
-        
-        setSound(newSound);
-      } catch (audioError) {
-        console.error('Erreur lors de la création du son:', audioError);
-        setCurrentPlayingStation(null);
-        setLoadingAudio(false);
-        
-        // Attendre un court instant et réessayer une fois
-        setTimeout(async () => {
-          try {
-            setLoadingAudio(true);
-            setCurrentPlayingStation(station.stationuuid);
-            const { sound: retrySound } = await Audio.Sound.createAsync(
-              { uri: station.url_resolved },
-              { shouldPlay: true }
-            );
-            
-            retrySound.setOnPlaybackStatusUpdate((status) => {
-              if (status.isLoaded && status.isPlaying) {
-                setLoadingAudio(false);
-                // S'assurer que currentPlayingStation est toujours défini
-                if (currentPlayingStation !== station.stationuuid) {
-                  setCurrentPlayingStation(station.stationuuid);
-                }
-              }
-            });
-            
-            setSound(retrySound);
-          } catch (retryError) {
-            console.error('Échec de la seconde tentative de lecture:', retryError);
-            setCurrentPlayingStation(null);
-            setLoadingAudio(false);
-          }
-        }, AUDIO_RETRY_DELAY);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la lecture de la radio:', error);
-      setCurrentPlayingStation(null);
-      setLoadingAudio(false);
-    }
-  };
-
   // Fonction sécurisée pour arrêter l'audio
   const safeStopAudio = async () => {
     if (sound) {
@@ -305,6 +228,7 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
         // Ensuite, décharger le son
         try {
           await sound.unloadAsync();
+          console.log("Déchargement audio réussi");
         } catch (error) {
           console.error('Erreur lors du déchargement du son:', error);
           // Continuer malgré l'erreur
@@ -317,16 +241,176 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
         }
       } finally {
         setSound(null);
-        // Ne pas réinitialiser currentPlayingStation ici, cela sera géré par playPreview
       }
     }
   };
 
-  // Arrêter la lecture
+  // Arrêter la lecture complètement
   const stopPreview = async () => {
-    await safeStopAudio();
-    // Ne pas réinitialiser loadingAudio ici, cela sera fait par playPreview
-    // lorsque le nouvel audio sera chargé
+    // Marquer qu'une opération est en cours
+    playOperationInProgress.current = true;
+    // Indiquer que nous ne sommes PAS en transition
+    isTransitioningRef.current = false;
+    
+    try {
+      // Arrêter l'audio d'abord
+      await safeStopAudio();
+      
+      // Puis réinitialiser les états
+      setCurrentPlayingStation(null);
+      setCurrentStation(null);
+      setLoadingAudio(false);
+    } finally {
+      // Marquer que l'opération est terminée
+      playOperationInProgress.current = false;
+    }
+  };
+
+  // Arrêter uniquement l'audio sans réinitialiser currentStation (pour les transitions)
+  const stopAudioOnly = async () => {
+    // Indiquer que nous sommes en transition
+    isTransitioningRef.current = true;
+    
+    try {
+      // Arrêter l'audio sans réinitialiser currentStation
+      await safeStopAudio();
+      setCurrentPlayingStation(null);
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt de l\'audio pour transition:', error);
+    }
+  };
+
+  // Lecture d'un aperçu de la radio
+  const playPreview = async (station: RadioStation) => {
+    // Si une opération est déjà en cours, ne pas en démarrer une nouvelle
+    if (playOperationInProgress.current) {
+      return;
+    }
+    
+    // Marquer qu'une opération est en cours
+    playOperationInProgress.current = true;
+    
+    try {
+      // Si c'est la même station qui est déjà en cours de lecture, on l'arrête simplement
+      if (currentPlayingStation === station.stationuuid) {
+        isTransitioningRef.current = false; // Ce n'est pas une transition
+        await stopPreview();
+        return;
+      }
+      
+      // Garder une copie locale de la station pour la restaurer si nécessaire
+      const stationCopy = { ...station };
+      
+      // Marquer que nous sommes en transition
+      isTransitioningRef.current = true;
+      
+      // Mettre à jour les états immédiatement pour l'interface utilisateur
+      setLoadingAudio(true);
+      setCurrentStation(stationCopy);
+      currentStationRef.current = stationCopy;
+      
+      // Arrêter la lecture en cours sans réinitialiser currentStation
+      await stopAudioOnly();
+      
+      // Vérifier si currentStation a été réinitialisé par un effet secondaire
+      if (!currentStation && currentStationRef.current) {
+        setCurrentStation(currentStationRef.current);
+      }
+      
+      // Mettre à jour l'ID de la station en cours de lecture
+      setCurrentPlayingStation(station.stationuuid);
+      
+      // Attendre un court instant pour éviter les conflits entre l'arrêt et le démarrage
+      await new Promise(resolve => setTimeout(resolve, AUDIO_TRANSITION_DELAY));
+      
+      // Vérifier que currentStation est toujours défini
+      if (!currentStation) {
+        // Restaurer la station depuis la référence
+        if (currentStationRef.current) {
+          setCurrentStation(currentStationRef.current);
+        } else {
+          // Si même la référence est nulle, restaurer depuis la copie locale
+          setCurrentStation(stationCopy);
+          currentStationRef.current = stationCopy;
+        }
+      }
+      
+      // Toujours en mode transition pendant la création du son
+      isTransitioningRef.current = true;
+      
+      // Créer et charger un nouvel objet Sound
+      
+      try {
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: station.url_resolved },
+          { shouldPlay: true }
+        );
+        
+        // Configurer un gestionnaire d'événements pour détecter la fin de la lecture
+        newSound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded) {
+            // Si le son est chargé et en cours de lecture, désactiver l'indicateur de chargement
+            if (status.isPlaying) {
+              setLoadingAudio(false);
+              // Nous ne sommes plus en transition une fois que la lecture a démarré
+              isTransitioningRef.current = false;
+            }
+            
+            if (status.didJustFinish) {
+              isTransitioningRef.current = false; // Pas de transition à la fin
+              stopPreview();
+            }
+          }
+        });
+        
+        // Mettre à jour l'objet sound
+        setSound(newSound);
+        
+      } catch (audioError) {
+        console.error('Erreur lors de la création du son:', audioError);
+        
+        // Attendre un court instant et réessayer une fois
+        setTimeout(async () => {
+          try {
+            // Vérifier si la station est toujours celle qu'on veut jouer
+            if (currentPlayingStation !== station.stationuuid) {
+              return;
+            }
+            
+            // Réessayer de créer le son
+            const { sound: retrySound } = await Audio.Sound.createAsync(
+              { uri: station.url_resolved },
+              { shouldPlay: true }
+            );
+            
+            retrySound.setOnPlaybackStatusUpdate((status) => {
+              if (status.isLoaded && status.isPlaying) {
+                setLoadingAudio(false);
+              }
+            });
+            
+            setSound(retrySound);
+          } catch (retryError) {
+            console.error('Échec de la seconde tentative de lecture:', retryError);
+            
+            // En cas d'échec, réinitialiser les états
+            setCurrentPlayingStation(null);
+            setCurrentStation(null);
+            setLoadingAudio(false);
+          }
+        }, AUDIO_RETRY_DELAY);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la lecture de la radio:', error);
+      
+      // En cas d'erreur, réinitialiser les états
+      setCurrentPlayingStation(null);
+      setCurrentStation(null);
+      setLoadingAudio(false);
+    } finally {
+      // Marquer que l'opération est terminée
+      playOperationInProgress.current = false;
+    }
   };
 
   // Nettoyer le son lors du démontage du composant
@@ -338,8 +422,14 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
         } catch (error) {
           console.error('Erreur lors du nettoyage du son:', error);
         }
+        
+        // Ne pas réinitialiser les états si nous sommes en transition
         setSound(null);
-        setCurrentPlayingStation(null);
+        
+        if (!isTransitioningRef.current) {
+          setCurrentPlayingStation(null);
+          setCurrentStation(null);
+        }
       }
     };
   }, [sound]);
@@ -355,6 +445,8 @@ export const RadioProvider: React.FC<RadioProviderProps> = ({ children }) => {
         error,
         currentPlayingStation,
         loadingAudio,
+        currentStation,
+        currentStationRef,
         searchStations,
         loadCountries,
         loadTags,

@@ -159,19 +159,15 @@ class AlarmManager {
   // Programmer une alarme
   private async scheduleAlarm(alarm: Alarm): Promise<void> {
     try {
-      console.log(`Programmation de l'alarme ${alarm.id} pour ${alarm.time}`);
-      
       // Annuler toute notification existante pour cette alarme
       await this.cancelAlarm(alarm.id);
       
       // Calculer la prochaine occurrence de l'alarme
       const nextOccurrence = this.calculateNextOccurrence(alarm);
       if (!nextOccurrence) {
-        console.log(`Aucune occurrence future trouvée pour l'alarme ${alarm.id}`);
         return;
       }
       
-      console.log(`Prochaine occurrence de l'alarme ${alarm.id}: ${nextOccurrence.toLocaleString()}`);
       
       // Programmer la notification
       await Notifications.scheduleNotificationAsync({
@@ -190,11 +186,8 @@ class AlarmManager {
         },
       });
       
-      console.log(`Alarme ${alarm.id} programmée avec succès`);
-      
       // Vérifier le nombre de notifications programmées
       const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
-      console.log(`Nombre total de notifications programmées: ${scheduledNotifications.length}`);
     } catch (error: any) {
       console.error(`Erreur lors de la programmation de l'alarme ${alarm.id}:`, error);
     }
@@ -216,7 +209,6 @@ class AlarmManager {
         await Notifications.cancelScheduledNotificationAsync(notification.identifier);
       }
       
-      console.log(`Notifications annulées pour l'alarme ${alarmId}`);
     } catch (error) {
       console.error(`Erreur lors de l'annulation de l'alarme ${alarmId}:`, error);
     }

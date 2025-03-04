@@ -18,6 +18,15 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ station, isLoading, onSt
   // Calculer la hauteur du mini-player en tenant compte de la barre de navigation
   const bottomPadding = Platform.OS === 'ios' ? Math.max(insets.bottom, 10) : 10;
   
+  // Fonction pour gérer l'arrêt de la lecture
+  const handleStop = async () => {
+    try {
+      await onStop();
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt de la lecture:', error);
+    }
+  };
+  
   return (
     <View 
       style={[
@@ -51,12 +60,16 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ station, isLoading, onSt
       
       <View style={styles.controls}>
         {isLoading ? (
-          <ActivityIndicator size="small" color={theme.primary} />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color={theme.primary} />
+            <Text style={[styles.loadingText, { color: theme.secondary }]}>Chargement...</Text>
+          </View>
         ) : (
           <TouchableOpacity 
             style={styles.stopButton} 
-            onPress={onStop}
+            onPress={handleStop}
             activeOpacity={0.7}
+            disabled={isLoading}
           >
             <Ionicons name="stop-circle" size={32} color={theme.primary} />
           </TouchableOpacity>
@@ -117,8 +130,19 @@ const styles = StyleSheet.create({
   controls: {
     flexDirection: 'row',
     alignItems: 'center',
+    minWidth: 80,
+    justifyContent: 'flex-end',
   },
   stopButton: {
     padding: 8,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  loadingText: {
+    fontSize: 12,
+    marginLeft: 6,
   },
 }); 
