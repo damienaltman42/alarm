@@ -1,4 +1,5 @@
-import { radioService } from '../src/modules/RadioService';
+import { radioService } from '../src/services/radio';
+import { radioApi } from '../src/api/radioApi';
 
 // Mock de fetch
 global.fetch = jest.fn();
@@ -9,10 +10,18 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
 }));
 
-// Mock d'ErrorManager
-jest.mock('../src/modules/ErrorManager', () => ({
-  errorManager: {
-    logError: jest.fn(),
+// Mock d'ErrorService
+jest.mock('../src/utils/errorHandling', () => ({
+  ErrorService: {
+    handleError: jest.fn(),
+  },
+}));
+
+// Mock de radioApi
+jest.mock('../src/api/radioApi', () => ({
+  radioApi: {
+    searchStations: jest.fn(),
+    getCountries: jest.fn(),
   },
 }));
 
@@ -21,60 +30,44 @@ describe('RadioService', () => {
     jest.clearAllMocks();
   });
 
-  test('getStations devrait récupérer les stations avec les paramètres corrects', async () => {
+  test('searchStations devrait appeler radioApi.searchStations avec les paramètres corrects', async () => {
     // Configurer le mock
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ([{ stationuuid: '1', name: 'Test Radio' }]),
-    });
+    const mockStations = [{ stationuuid: '1', name: 'Test Radio' }];
+    (radioApi.searchStations as jest.Mock).mockResolvedValueOnce(mockStations);
 
     // Appeler la méthode
-    const result = await radioService.getStations({ name: 'test' });
+    const result = await radioService.searchStations({ name: 'test' });
 
     // Vérifier les résultats
     expect(result).toHaveLength(1);
     expect(result[0].name).toBe('Test Radio');
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    
-    // Vérifier que l'URL contient les bons paramètres
-    const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0];
-    expect(fetchUrl).toContain('name=test');
-    expect(fetchUrl).toContain('hidebroken=true');
+    expect(radioApi.searchStations).toHaveBeenCalledTimes(1);
+    expect(radioApi.searchStations).toHaveBeenCalledWith({ name: 'test' });
   });
 
-  test('getStations devrait réessayer en cas d\'erreur', async () => {
-    // Configurer le mock pour échouer puis réussir
-    (global.fetch as jest.Mock)
-      .mockRejectedValueOnce(new Error('Erreur réseau'))
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ([{ stationuuid: '1', name: 'Test Radio' }]),
-      });
-
-    // Appeler la méthode
-    const result = await radioService.getStations({ name: 'test' });
-
-    // Vérifier les résultats
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe('Test Radio');
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-  });
-
-  test('getCountries devrait utiliser le cache si disponible', async () => {
-    // Forcer la mise en cache directement dans l'instance de radioService
+  test('getCountries devrait appeler radioApi.getCountries', async () => {
+    // Configurer le mock
     const mockCountries = [{ name: 'France', code: 'FR', stationcount: 100 }];
-    
-    // Accéder aux propriétés privées pour le test
-    const radioServiceAny = radioService as any;
-    radioServiceAny.cachedCountries = mockCountries;
-    radioServiceAny.cacheTimestamp.countries = Date.now();
+    (radioApi.getCountries as jest.Mock).mockResolvedValueOnce(mockCountries);
 
-    // Appeler la méthode
-    const result = await radioService.getCountries();
+    // Appeler la méthode avec forceRefresh pour éviter le cache
+    const result = await radioService.getCountries(true);
 
     // Vérifier les résultats
     expect(result).toHaveLength(1);
     expect(result[0].name).toBe('France');
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(radioApi.getCountries).toHaveBeenCalledTimes(1);
+  });
+
+  test('searchStations devrait gérer les erreurs', async () => {
+    // Configurer le mock pour échouer
+    (radioApi.searchStations as jest.Mock).mockRejectedValueOnce(new Error('Erreur API'));
+
+    // Appeler la méthode
+    const result = await radioService.searchStations({ name: 'test' });
+
+    // Vérifier les résultats
+    expect(result).toEqual([]);
+    expect(radioApi.searchStations).toHaveBeenCalledTimes(1);
   });
 }); 

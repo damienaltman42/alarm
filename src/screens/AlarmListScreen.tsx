@@ -1,79 +1,78 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  StatusBar,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alarm } from '../types';
 import { AlarmItem } from '../components/AlarmItem';
-import { alarmManager } from '../modules/AlarmManager';
+import { useAlarm, useTheme } from '../hooks';
 
 interface AlarmListScreenProps {
   navigation: any;
 }
 
 export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) => {
-  const [alarms, setAlarms] = useState<Alarm[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { theme } = useTheme();
+  const alarmHook = useAlarm();
+  const { alarms, loading } = alarmHook;
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Charger les alarmes à chaque fois que l'écran est affiché
+  // Charger les alarmes lorsque l'écran est affiché
   useFocusEffect(
     useCallback(() => {
-      loadAlarms();
+      // Les alarmes sont déjà chargées via le contexte
+      return () => {
+        // Nettoyage si nécessaire
+      };
     }, [])
   );
 
-  // Charger les alarmes depuis le gestionnaire d'alarmes
-  const loadAlarms = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const loadedAlarms = await alarmManager.getAlarms();
-      setAlarms(loadedAlarms);
-    } catch (error) {
-      console.error('Erreur lors du chargement des alarmes:', error);
-      Alert.alert('Erreur', 'Impossible de charger les alarmes.');
-    } finally {
-      setLoading(false);
-    }
+  // Rafraîchir la liste
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    // Attendre un peu pour simuler le rafraîchissement
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
   };
 
   // Gérer l'activation/désactivation d'une alarme
   const handleToggleAlarm = async (id: string, enabled: boolean): Promise<void> => {
     try {
-      await alarmManager.toggleAlarm(id, enabled);
-      // Mettre à jour la liste des alarmes
-      loadAlarms();
+      await alarmHook.toggleAlarm(id, enabled);
     } catch (error) {
       console.error('Erreur lors de la modification de l\'alarme:', error);
-      Alert.alert('Erreur', 'Impossible de modifier l\'alarme.');
+      Alert.alert('Erreur', 'Impossible de modifier l\'alarme');
     }
   };
 
   // Gérer la suppression d'une alarme
-  const handleDeleteAlarm = (alarm: Alarm): void => {
+  const handleDeleteAlarm = (alarm: Alarm) => {
     Alert.alert(
       'Supprimer l\'alarme',
-      'Êtes-vous sûr de vouloir supprimer cette alarme ?',
+      `Êtes-vous sûr de vouloir supprimer l'alarme de ${alarm.time} ?`,
       [
-        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
         {
           text: 'Supprimer',
           style: 'destructive',
           onPress: async () => {
             try {
-              await alarmManager.deleteAlarm(alarm.id);
-              // Mettre à jour la liste des alarmes
-              loadAlarms();
+              await alarmHook.deleteAlarm(alarm.id);
             } catch (error) {
               console.error('Erreur lors de la suppression de l\'alarme:', error);
-              Alert.alert('Erreur', 'Impossible de supprimer l\'alarme.');
+              Alert.alert('Erreur', 'Impossible de supprimer l\'alarme');
             }
           },
         },
@@ -103,27 +102,19 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'right', 'left']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8f8f8" />
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Mes Alarmes</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate('AddAlarm')}
-        >
-          <Ionicons name="add" size={24} color="#fff" />
-        </TouchableOpacity>
+        <Text style={[styles.title, { color: theme.text }]}>Mes alarmes</Text>
       </View>
-      
+
       <FlatList
         data={alarms}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <AlarmItem
             alarm={item}
-            onPress={handleEditAlarm}
             onToggle={handleToggleAlarm}
+            onPress={() => handleEditAlarm(item)}
           />
         )}
         contentContainerStyle={[
@@ -131,7 +122,16 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
           alarms.length === 0 && styles.emptyList,
         ]}
         ListEmptyComponent={renderEmptyList}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
       />
+
+      <TouchableOpacity
+        style={[styles.addButton, { backgroundColor: theme.primary }]}
+        onPress={() => navigation.navigate('AddAlarm')}
+      >
+        <Ionicons name="add" size={24} color="#fff" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };

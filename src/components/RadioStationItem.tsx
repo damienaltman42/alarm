@@ -2,9 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, GestureResponderEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RadioStation } from '../types';
-import { useTheme } from '../contexts/ThemeContext';
-import { alarmManager } from '../modules/AlarmManager';
-import { favoritesService } from '../modules/FavoritesService';
+import { useTheme, useAlarm, useRadio } from '../hooks';
 
 interface RadioStationItemProps {
   station: RadioStation;
@@ -19,7 +17,10 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
   isSelected = false,
   showControls = true,
 }) => {
-  const { theme, isDarkMode } = useTheme();
+  const { theme, isDark } = useTheme();
+  const { previewRadio, stopPreview } = useAlarm();
+  const { addToFavorites, removeFromFavorites, isFavorite: checkIsFavorite } = useRadio();
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -27,12 +28,12 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
   // Charger l'état des favoris au montage du composant
   useEffect(() => {
     const checkFavoriteStatus = async () => {
-      const favoriteStatus = await favoritesService.isFavorite(station.stationuuid);
+      const favoriteStatus = await checkIsFavorite(station.stationuuid);
       setIsFavorite(favoriteStatus);
     };
     
     checkFavoriteStatus();
-  }, [station.stationuuid]);
+  }, [station.stationuuid, checkIsFavorite]);
   
   // Fonction pour formater les tags
   const formatTags = (tags: string[] | string | undefined): string => {
@@ -71,11 +72,11 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
       
       if (isPlaying) {
         // Arrêter la lecture
-        await alarmManager.stopPreview();
+        await stopPreview();
         setIsPlaying(false);
       } else {
         // Démarrer la lecture
-        await alarmManager.previewRadio(station.url_resolved, station.name);
+        await previewRadio(station.url_resolved);
         setIsPlaying(true);
       }
     } catch (error) {
@@ -91,9 +92,9 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
     
     try {
       if (isFavorite) {
-        await favoritesService.removeFavorite(station.stationuuid);
+        await removeFromFavorites(station.stationuuid);
       } else {
-        await favoritesService.addFavorite(station);
+        await addToFavorites(station);
       }
       
       setIsFavorite(!isFavorite);
@@ -116,14 +117,14 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
       style={[
         styles.container, 
         { 
-          backgroundColor: theme.colors.radio.item,
-          shadowColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)',
+          backgroundColor: theme.card,
+          shadowColor: isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)',
         },
         isSelected && [
           styles.selectedContainer,
           { 
-            backgroundColor: theme.colors.radio.selected,
-            borderColor: theme.colors.primary,
+            backgroundColor: theme.primary + '20',
+            borderColor: theme.primary,
           }
         ],
         isPopular ? styles.popularContainer : undefined
@@ -141,7 +142,7 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
         ) : (
           <View style={[
             styles.placeholderIcon,
-            { backgroundColor: isDarkMode ? '#333' : '#f0f0f0' }
+            { backgroundColor: isDark ? '#333' : '#f0f0f0' }
           ]}>
             <Text style={styles.placeholderText}>📻</Text>
           </View>
@@ -151,7 +152,7 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
       <View style={styles.infoContainer}>
         <View style={styles.nameRow}>
           <Text 
-            style={[styles.name, { color: theme.colors.text }]} 
+            style={[styles.name, { color: theme.text }]} 
             numberOfLines={1} 
             ellipsizeMode="tail"
           >
@@ -159,8 +160,8 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
           </Text>
           
           {isPopular && (
-            <View style={[styles.popularBadge, { backgroundColor: theme.colors.notification }]}>
-              <Text style={styles.popularText}>Populaire</Text>
+            <View style={[styles.popularBadge, { backgroundColor: theme.error }]}>
+              <Text style={styles.popularText}>XYZ Populaire</Text>
             </View>
           )}
         </View>
@@ -168,9 +169,9 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
         <View style={styles.detailsRow}>
           {station.country && (
             <View style={styles.detailItem}>
-              <Ionicons name="location-outline" size={12} color={theme.colors.secondaryText} />
+              <Ionicons name="location-outline" size={12} color={theme.secondary} />
               <Text 
-                style={[styles.detailText, { color: theme.colors.secondaryText }]} 
+                style={[styles.detailText, { color: theme.secondary }]} 
                 numberOfLines={1}
               >
                 {station.country}
@@ -180,9 +181,9 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
           
           {station.bitrate && (
             <View style={styles.detailItem}>
-              <Ionicons name="wifi-outline" size={12} color={theme.colors.secondaryText} />
+              <Ionicons name="wifi-outline" size={12} color={theme.secondary} />
               <Text 
-                style={[styles.detailText, { color: theme.colors.secondaryText }]} 
+                style={[styles.detailText, { color: theme.secondary }]} 
                 numberOfLines={1}
               >
                 {formatBitrate(station.bitrate)}
@@ -192,9 +193,9 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
           
           {station.votes && (
             <View style={styles.detailItem}>
-              <Ionicons name="star-outline" size={12} color={theme.colors.secondaryText} />
+              <Ionicons name="star-outline" size={12} color={theme.secondary} />
               <Text 
-                style={[styles.detailText, { color: theme.colors.secondaryText }]} 
+                style={[styles.detailText, { color: theme.secondary }]} 
                 numberOfLines={1}
               >
                 {station.votes}
@@ -209,9 +210,9 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
               station.tags.split(',').slice(0, 3).map((tag, index) => (
                 <View 
                   key={index} 
-                  style={[styles.tagBadge, { backgroundColor: theme.colors.primary + '20' }]}
+                  style={[styles.tagBadge, { backgroundColor: theme.primary + '20' }]}
                 >
-                  <Text style={[styles.tagText, { color: theme.colors.primary }]}>
+                  <Text style={[styles.tagText, { color: theme.primary }]}>
                     {tag.trim()}
                   </Text>
                 </View>
@@ -219,9 +220,9 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
               Array.isArray(station.tags) && station.tags.slice(0, 3).map((tag, index) => (
                 <View 
                   key={index} 
-                  style={[styles.tagBadge, { backgroundColor: theme.colors.primary + '20' }]}
+                  style={[styles.tagBadge, { backgroundColor: theme.primary + '20' }]}
                 >
-                  <Text style={[styles.tagText, { color: theme.colors.primary }]}>
+                  <Text style={[styles.tagText, { color: theme.primary }]}>
                     {tag.trim()}
                   </Text>
                 </View>
@@ -234,7 +235,7 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
       {showControls && (
         <View style={styles.controlsContainer}>
           <TouchableOpacity 
-            style={[styles.controlButton, { backgroundColor: theme.colors.primary }]} 
+            style={[styles.controlButton, { backgroundColor: theme.primary }]} 
             onPress={handleToggleFavorite}
           >
             <Ionicons 
@@ -245,9 +246,8 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.controlButton, { backgroundColor: theme.colors.primary }]} 
+            style={[styles.controlButton, { backgroundColor: theme.primary }]} 
             onPress={handlePlayPreview}
-            disabled={isLoading}
           >
             {isLoading ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -259,15 +259,6 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
               />
             )}
           </TouchableOpacity>
-        </View>
-      )}
-
-      {isSelected && (
-        <View style={[
-          styles.selectedIndicator,
-          { backgroundColor: theme.colors.primary }
-        ]}>
-          <Text style={styles.selectedText}>✓</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -382,18 +373,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
-  },
-  selectedIndicator: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  selectedText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
 });
 

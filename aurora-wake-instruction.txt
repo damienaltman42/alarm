@@ -1,42 +1,91 @@
 # 📌 Projet de Réveil Intelligent avec Radio en React Native (Expo + TypeScript)
 
 **Contexte du projet**  
-Nous développons une application de réveil (aurora-wake) avancée en **React Native (Expo)** qui permettra aux utilisateurs de **configurer des alarmes réveil** avec une **station de radio** à la place d’une sonnerie classique.  
+Nous développons une application de réveil (aurora-wake) avancée en **React Native (Expo)** qui permettra aux utilisateurs de **configurer des alarmes réveil** avec une **station de radio** à la place d'une sonnerie classique.  
 
 ### **📌 Spécifications du projet**  
 1. **Gestion complète des alarmes**  
    - Ajouter, modifier et supprimer une alarme.  
-   - Sélectionner l’heure et les jours de répétition (ex: réveil chaque lundi et jeudi).  
+   - Sélectionner l'heure et les jours de répétition (ex: réveil chaque lundi et jeudi).  
    - Activer/désactiver une alarme avec un **switch toggle**.  
    - Stockage local des alarmes (AsyncStorage ou SQLite).  
 
 2. **Mode Radio**  Documentation dans le fichier "DOC-API-Radio-Browser.md"
-   - L’utilisateur choisit une station de radio pour chaque alarme.  
-   - Intégration de **l’API Radio-Browser** pour rechercher les radios en fonction (DOC-API-Radio-Browser.md):  
+   - L'utilisateur choisit une station de radio pour chaque alarme.  
+   - Intégration de **l'API Radio-Browser** pour rechercher les radios en fonction (DOC-API-Radio-Browser.md):  
      - Du genre musical 🎵  
      - Du pays 🌍  
      - Du nom de la station 🔎  
    - Lecture de la radio avec **expo-av**, support du mode **arrière-plan**.  
-   - La radio sélectionnée démarre automatiquement à l’heure de l’alarme.  
+   - La radio sélectionnée démarre automatiquement à l'heure de l'alarme.  
 
 3. **Notifications et réveil**  
-   - L’alarme déclenche une **notification locale** à l’heure prévue.  
-   - L’utilisateur peut **arrêter ou snoozer** via la notification.  
-   - L’**écran se réveille** si l’appareil le permet (iOS).  
+   - L'alarme déclenche une **notification locale** à l'heure prévue.  
+   - L'utilisateur peut **arrêter ou snoozer** via la notification.  
+   - L'**écran se réveille** si l'appareil le permet (iOS).  
 
 4. **Interface moderne et ergonomique**  
    - **Navigation fluide** avec React Navigation.  
    - Design minimaliste et **mode sombre/clair auto**.  
-   - Animations (ex: transition douce entre les écrans, animation du toggle d’alarme).  
+   - Animations (ex: transition douce entre les écrans, animation du toggle d'alarme).  
 
-### **📂 Structure du projet**  
-Le projet doit être bien organisé et modulaire :  
+### **📂 Structure du projet optimisée**  
+Le projet doit suivre une architecture modulaire et évolutive :
 
-/components → Composants UI réutilisables
-/screens → Écrans principaux (AlarmListScreen, AddAlarmScreen, SearchRadioScreen)
-/modules → Services (gestion des alarmes, intégration API Radio-Browser)
-/navigation → Configuration React Navigation
-
+```
+src/
+├── api/                  # Couche d'accès aux données externes
+│   ├── radioApi.ts       # API pour les stations de radio
+│   └── storageApi.ts     # API pour le stockage local
+│
+├── components/           # Composants UI réutilisables
+│   ├── common/           # Composants génériques (boutons, inputs, etc.)
+│   ├── alarm/            # Composants spécifiques aux alarmes
+│   └── radio/            # Composants spécifiques aux radios
+│
+├── hooks/                # Hooks personnalisés
+│   ├── useAlarm.ts
+│   ├── useRadio.ts
+│   └── useTheme.ts
+│
+├── services/             # Services métier
+│   ├── alarm/
+│   │   ├── alarmScheduler.ts
+│   │   ├── alarmStorage.ts
+│   │   └── alarmPlayer.ts
+│   ├── radio/
+│   │   ├── radioFinder.ts
+│   │   ├── radioPlayer.ts
+│   │   └── radioFavorites.ts
+│   └── notification/
+│       └── notificationService.ts
+│
+├── screens/              # Écrans de l'application
+│   ├── alarm/
+│   │   ├── AlarmListScreen.tsx
+│   │   └── AlarmEditScreen.tsx
+│   └── radio/
+│       └── RadioSearchScreen.tsx
+│
+├── navigation/           # Configuration de la navigation
+│   ├── AppNavigator.tsx
+│   └── navigationTypes.ts
+│
+├── contexts/             # Contextes React
+│   ├── AlarmContext.tsx
+│   ├── RadioContext.tsx
+│   └── ThemeContext.tsx
+│
+├── types/                # Types et interfaces
+│   ├── alarm.ts
+│   ├── radio.ts
+│   └── settings.ts
+│
+└── utils/                # Fonctions utilitaires
+    ├── dateUtils.ts
+    ├── audioUtils.ts
+    └── errorHandling.ts
+```
 
 ### **🔧 Contraintes Techniques**  
 - **React Native avec Expo (workflow géré).**  
@@ -46,30 +95,48 @@ Le projet doit être bien organisé et modulaire :
 - **API Radio-Browser** pour récupérer les stations de radio.  
 - **Stockage des alarmes** avec AsyncStorage ou SQLite.  
 
-### **🚀 Instructions pour générer l’application complète**  
-Claude, génère **toute l’application React Native complète** (Expo + TypeScript) correspondant aux spécifications ci-dessus.  
+### **🚀 Bonnes pratiques à suivre**  
+1. **Séparation des préoccupations**
+   - Séparer la logique métier de l'interface utilisateur
+   - Utiliser des hooks personnalisés pour encapsuler la logique réutilisable
+   - Limiter la taille des fichiers à 200-300 lignes maximum
 
-1. Crée tous les fichiers nécessaires :  
-   - **App.tsx** : point d’entrée de l’application.  
-   - **Navigation.tsx** : configuration de la navigation.  
-   - **AlarmListScreen.tsx** : affichage des alarmes programmées.  
-   - **AddAlarmScreen.tsx** : écran pour créer/modifier une alarme.  
-   - **SearchRadioScreen.tsx** : écran pour rechercher une radio via l’API.  
-   - **RadioService.ts** : module pour récupérer les radios depuis Radio-Browser.  
-   - **AlarmManager.ts** : gestion des alarmes et notifications locales.  
+2. **Gestion de l'état**
+   - Utiliser les contextes React pour l'état global
+   - Préférer les états locaux quand c'est possible
+   - Implémenter des reducers pour les logiques d'état complexes
 
-2. Génère le code en respectant les **bonnes pratiques** :  
-   - **Code modulaire et maintenable.**  
-   - **Utilisation d’interfaces TypeScript** pour structurer les données.  
-   - **Noms de variables explicites et commentaires** pour expliquer le code.  
-   - **Respect des conventions React Native** (hooks, séparation des préoccupations).  
+3. **Gestion des erreurs**
+   - Créer un service centralisé de gestion des erreurs
+   - Utiliser try/catch pour les opérations asynchrones
+   - Fournir des messages d'erreur clairs à l'utilisateur
 
-3. Assure-toi que le code généré est **prêt à l’emploi** :  
-   - Toutes les **dépendances installées** (`expo install react-navigation expo-av expo-notifications`).  
-   - L’application peut être exécutée immédiatement avec `expo start`.  
-   - Inclure un **README** expliquant comment tester et configurer l’API Radio-Browser.  
+4. **Tests**
+   - Écrire des tests unitaires pour les services critiques
+   - Tester les composants UI avec React Testing Library
+   - Viser une couverture de code d'au moins 70%
+
+### **📌 Refactorisation des fichiers volumineux**
+Pour les fichiers identifiés comme trop volumineux :
+
+1. **AlarmManager.ts**
+   - Diviser en services spécialisés (alarmScheduler.ts, alarmStorage.ts, alarmPlayer.ts)
+   - Utiliser des classes avec responsabilité unique
+   - Implémenter des interfaces claires
+
+2. **RadioService.ts**
+   - Séparer en services spécifiques (radioApi.ts, radioCache.ts, radioSearch.ts)
+   - Gérer le cache et les erreurs de manière centralisée
+   - Utiliser des patterns asynchrones modernes (async/await)
+
+3. **RadioSearch.tsx et AddAlarmScreen.tsx**
+   - Extraire des composants plus petits et réutilisables
+   - Utiliser la composition de composants
+   - Séparer la logique de présentation de la logique métier
 
 ### **📌 Livrable attendu**  
-Claude, génère **l’ensemble du code source** avec une structure propre et des explications. Fournis les fichiers séparément en Markdown pour une meilleure lisibilité (ex: `App.tsx`, `AlarmListScreen.tsx`, `RadioService.ts`).  
-
-
+Une application React Native complète avec :
+- Architecture modulaire suivant les bonnes pratiques
+- Code bien commenté et maintenable
+- Composants réutilisables et testables
+- Documentation claire pour les développeurs 

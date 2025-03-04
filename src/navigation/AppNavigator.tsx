@@ -5,24 +5,30 @@ import { AlarmListScreen } from '../screens/AlarmListScreen';
 import { AddAlarmScreen } from '../screens/AddAlarmScreen';
 import { SearchRadioScreen } from '../screens/SearchRadioScreen';
 import { Alarm, RadioStation } from '../types';
+import { useTheme } from '../hooks';
 
 // Définition des types pour la navigation
 type RootStackParamList = {
   AlarmList: undefined;
   AddAlarm: { alarm?: Alarm };
-  SearchRadio: { onSelectStation: (station: RadioStation) => void; selectedStation?: RadioStation | null };
+  SearchRadio: { 
+    onSelectStation: (station: RadioStation) => void; 
+    selectedStation?: RadioStation | null;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export const AppNavigator: React.FC = () => {
+  const { theme } = useTheme();
+  
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="AlarmList"
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: '#f8f8f8' },
+          cardStyle: { backgroundColor: theme.background },
         }}
       >
         <Stack.Screen name="AlarmList" component={AlarmListScreen} />

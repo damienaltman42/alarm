@@ -18,12 +18,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alarm, RadioStation } from '../types';
 import { TimeSelector } from '../components/TimeSelector';
 import { DaySelector } from '../components/DaySelector';
-import { alarmManager } from '../modules/AlarmManager';
+import { useTheme, useAlarm } from '../hooks';
 
 type RootStackParamList = {
   AlarmList: undefined;
   AddAlarm: { alarm?: Alarm };
-  SearchRadio: { onSelectStation: (station: RadioStation) => void; selectedStation?: RadioStation | null };
+  SearchRadio: { 
+    onSelectStation: (station: RadioStation) => void; 
+    selectedStation?: RadioStation | null;
+  };
 };
 
 type AddAlarmScreenRouteProp = RouteProp<RootStackParamList, 'AddAlarm'>;
@@ -35,6 +38,9 @@ interface AddAlarmScreenProps {
 }
 
 export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigation }) => {
+  const { theme } = useTheme();
+  const { addAlarm, updateAlarm } = useAlarm();
+  
   // Récupérer l'alarme à modifier si elle existe
   const editingAlarm = route.params?.alarm;
   const isEditing = !!editingAlarm;
@@ -52,14 +58,14 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
   const navigateToRadioSearch = (): void => {
     navigation.navigate('SearchRadio', {
       onSelectStation: handleSelectRadioStation,
-      selectedStation: radioStation,
+      selectedStation: radioStation
     });
   };
 
   // Gérer la sélection d'une station de radio
   const handleSelectRadioStation = (station: RadioStation): void => {
+    console.log('Station sélectionnée:', station.name);
     setRadioStation(station);
-    navigation.goBack();
   };
 
   // Gérer la suppression de la station de radio sélectionnée
@@ -95,13 +101,18 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
       console.log('Sauvegarde de l\'alarme avec ID:', alarm.id);
 
+      let success: boolean;
       if (isEditing) {
-        await alarmManager.updateAlarm(alarm);
+        success = await updateAlarm(alarm);
       } else {
-        await alarmManager.addAlarm(alarm);
+        success = await addAlarm(alarm);
       }
 
-      navigation.goBack();
+      if (success) {
+        navigation.goBack();
+      } else {
+        Alert.alert('Erreur', 'Impossible de sauvegarder l\'alarme.');
+      }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde de l\'alarme:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder l\'alarme.');
@@ -109,9 +120,9 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'right', 'left']}>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: theme.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={100}
       >
@@ -121,120 +132,119 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
-              <Ionicons name="arrow-back" size={24} color="#333" />
+              <Ionicons name="arrow-back" size={24} color={theme.text} />
             </TouchableOpacity>
-            <Text style={styles.title}>
+            <Text style={[styles.title, { color: theme.text }]}>
               {isEditing ? 'Modifier l\'alarme' : 'Nouvelle alarme'}
             </Text>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSaveAlarm}>
+            <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleSaveAlarm}>
               <Text style={styles.saveButtonText}>Enregistrer</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.formSection}>
+          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
             <TimeSelector time={time} onChange={setTime} />
           </View>
 
-          <View style={styles.formSection}>
-            <Text style={styles.sectionTitle}>Jours</Text>
+          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Jours</Text>
             <DaySelector selectedDays={days} onChange={setDays} />
           </View>
 
-          <View style={styles.formSection}>
-            <Text style={styles.sectionTitle}>Étiquette</Text>
+          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Étiquette</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
               placeholder="Étiquette (optionnel)"
+              placeholderTextColor={theme.secondary}
               value={label}
               onChangeText={setLabel}
               maxLength={30}
             />
           </View>
 
-          <View style={styles.formSection}>
-            <Text style={styles.sectionTitle}>Station de radio</Text>
+          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Radio</Text>
             {radioStation ? (
               <View style={styles.selectedRadioContainer}>
                 <View style={styles.selectedRadioInfo}>
-                  <Text style={styles.selectedRadioName}>{radioStation.name}</Text>
-                  <Text style={styles.selectedRadioCountry}>{radioStation.country}</Text>
+                  <Text style={[styles.radioName, { color: theme.text }]}>{radioStation.name}</Text>
+                  {radioStation.country && (
+                    <Text style={[styles.radioDetail, { color: theme.secondary }]}>
+                      {radioStation.country}
+                    </Text>
+                  )}
                 </View>
-                <View style={styles.radioButtonsContainer}>
+                <View style={styles.radioActions}>
                   <TouchableOpacity
-                    style={[styles.radioButton, styles.changeButton]}
+                    style={[styles.radioButton, { backgroundColor: theme.primary }]}
                     onPress={navigateToRadioSearch}
                   >
-                    <Text style={styles.radioButtonText}>Changer</Text>
+                    <Ionicons name="swap-horizontal" size={18} color="#fff" />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.radioButton, styles.clearButton]}
+                    style={[styles.radioButton, { backgroundColor: theme.error }]}
                     onPress={handleClearRadioStation}
                   >
-                    <Ionicons name="close" size={16} color="#cc0000" />
+                    <Ionicons name="close" size={18} color="#fff" />
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
               <TouchableOpacity
-                style={styles.selectRadioButton}
+                style={[styles.selectRadioButton, { borderColor: theme.primary }]}
                 onPress={navigateToRadioSearch}
               >
-                <Ionicons name="radio-outline" size={24} color="#0066cc" />
-                <Text style={styles.selectRadioText}>Sélectionner une station</Text>
+                <Ionicons name="radio-outline" size={24} color={theme.primary} />
+                <Text style={[styles.selectRadioText, { color: theme.primary }]}>
+                  Sélectionner une station
+                </Text>
               </TouchableOpacity>
             )}
           </View>
 
-          <View style={styles.formSection}>
+          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
             <View style={styles.switchRow}>
-              <Text style={styles.switchLabel}>Activer l'alarme</Text>
+              <Text style={[styles.switchLabel, { color: theme.text }]}>Activer l'alarme</Text>
               <Switch
                 value={enabled}
                 onValueChange={setEnabled}
-                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                thumbColor={enabled ? '#f5dd4b' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
+                trackColor={{ false: theme.border, true: theme.primary + '80' }}
+                thumbColor={enabled ? theme.primary : theme.secondary}
               />
             </View>
           </View>
 
-          <View style={styles.formSection}>
+          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
             <View style={styles.switchRow}>
-              <Text style={styles.switchLabel}>Activer le snooze</Text>
+              <Text style={[styles.switchLabel, { color: theme.text }]}>Activer le report</Text>
               <Switch
                 value={snoozeEnabled}
                 onValueChange={setSnoozeEnabled}
-                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                thumbColor={snoozeEnabled ? '#f5dd4b' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
+                trackColor={{ false: theme.border, true: theme.primary + '80' }}
+                thumbColor={snoozeEnabled ? theme.primary : theme.secondary}
               />
             </View>
             {snoozeEnabled && (
               <View style={styles.snoozeIntervalContainer}>
-                <Text style={styles.snoozeIntervalLabel}>
-                  Intervalle de snooze (minutes)
+                <Text style={[styles.snoozeIntervalLabel, { color: theme.text }]}>
+                  Intervalle de report (minutes)
                 </Text>
-                <View style={styles.snoozeButtonsContainer}>
-                  {[5, 10, 15, 20].map((interval) => (
-                    <TouchableOpacity
-                      key={interval}
-                      style={[
-                        styles.snoozeButton,
-                        snoozeInterval === interval && styles.selectedSnoozeButton,
-                      ]}
-                      onPress={() => setSnoozeInterval(interval)}
-                    >
-                      <Text
-                        style={[
-                          styles.snoozeButtonText,
-                          snoozeInterval === interval && styles.selectedSnoozeButtonText,
-                        ]}
-                      >
-                        {interval}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                <TextInput
+                  style={[styles.snoozeIntervalInput, { color: theme.text, borderColor: theme.border }]}
+                  value={snoozeInterval.toString()}
+                  onChangeText={(text) => {
+                    const value = parseInt(text);
+                    if (!isNaN(value) && value > 0) {
+                      setSnoozeInterval(value);
+                    } else if (text === '') {
+                      setSnoozeInterval(0);
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholderTextColor={theme.secondary}
+                />
               </View>
             )}
           </View>
@@ -322,28 +332,13 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 8,
   },
-  snoozeButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  snoozeButton: {
-    flex: 1,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+  snoozeIntervalInput: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 8,
-    marginHorizontal: 4,
-  },
-  selectedSnoozeButton: {
-    backgroundColor: '#0066cc',
-  },
-  snoozeButtonText: {
+    paddingHorizontal: 16,
     fontSize: 16,
-    color: '#333',
-  },
-  selectedSnoozeButtonText: {
-    color: '#fff',
   },
   selectRadioButton: {
     flexDirection: 'row',
@@ -369,17 +364,17 @@ const styles = StyleSheet.create({
   selectedRadioInfo: {
     flex: 1,
   },
-  selectedRadioName: {
+  radioName: {
     fontSize: 16,
     fontWeight: '500',
     color: '#333',
   },
-  selectedRadioCountry: {
+  radioDetail: {
     fontSize: 14,
     color: '#666',
     marginTop: 4,
   },
-  radioButtonsContainer: {
+  radioActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -388,17 +383,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     marginLeft: 8,
-  },
-  changeButton: {
-    backgroundColor: '#0066cc',
-  },
-  clearButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#cc0000',
-  },
-  radioButtonText: {
-    color: '#fff',
-    fontWeight: '500',
   },
 }); 

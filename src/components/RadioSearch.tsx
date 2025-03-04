@@ -10,10 +10,9 @@ import {
   Alert,
 } from 'react-native';
 import { RadioStation, Country, Tag } from '../types';
-import { radioService } from '../modules/RadioService';
+import { useRadio, useTheme } from '../hooks';
 import RadioStationItem from './RadioStationItem';
 import { FavoriteRadioList } from './FavoriteRadioList';
-import { useTheme } from '../contexts/ThemeContext';
 
 interface RadioSearchProps {
   onSelectStation: (station: RadioStation) => void; // Fonction pour sélectionner une station
@@ -28,6 +27,18 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   selectedStation,
 }) => {
   const { theme } = useTheme();
+  const { 
+    stations: radioStations, 
+    favorites,
+    countries: radioCountries,
+    tags: radioTags,
+    loading: radioLoading,
+    error: radioError,
+    searchStations,
+    loadCountries,
+    loadTags
+  } = useRadio();
+  
   const [searchMode, setSearchMode] = useState<SearchMode>('name');
   const [searchQuery, setSearchQuery] = useState('');
   const [stations, setStations] = useState<RadioStation[]>([]);
@@ -38,8 +49,8 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
 
   // Charger les pays et tags au démarrage
   useEffect(() => {
-    loadCountries();
-    loadTags();
+    loadCountriesData();
+    loadTagsData();
   }, []);
 
   // Réinitialiser les recherches lors du changement d'onglet
@@ -51,10 +62,10 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   }, [searchMode]);
 
   // Charger la liste des pays
-  const loadCountries = async (): Promise<void> => {
+  const loadCountriesData = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const countriesData = await radioService.getCountries();
+      const countriesData = await loadCountries();
       // Trier par nombre de stations (décroissant)
       setCountries(countriesData.sort((a, b) => b.stationcount - a.stationcount));
     } catch (error) {
@@ -66,10 +77,10 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   };
 
   // Charger la liste des tags
-  const loadTags = async (): Promise<void> => {
+  const loadTagsData = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const tagsData = await radioService.getTags();
+      const tagsData = await loadTags();
       // Trier par nombre de stations (décroissant)
       setTags(tagsData.sort((a, b) => b.stationcount - a.stationcount).slice(0, 100));
     } catch (error) {
@@ -101,13 +112,13 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
 
       switch (searchMode) {
         case 'name':
-          results = await radioService.searchStationsByName(searchQuery);
+          results = await searchStations({ name: searchQuery });
           break;
         case 'country':
-          results = await radioService.getStationsByCountry(searchQuery);
+          results = await searchStations({ country: searchQuery });
           break;
         case 'tag':
-          results = await radioService.getStationsByTag(searchQuery);
+          results = await searchStations({ tag: searchQuery });
           break;
       }
 
@@ -145,7 +156,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             styles.tab,
             searchMode === 'name' && [
               styles.activeTab,
-              { borderBottomColor: theme.colors.primary }
+              { borderBottomColor: theme.primary }
             ]
           ]}
           onPress={() => setSearchMode('name')}
@@ -155,7 +166,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
               styles.tabText,
               searchMode === 'name' && [
                 styles.activeTabText,
-                { color: theme.colors.primary }
+                { color: theme.primary }
               ]
             ]}
           >
@@ -168,7 +179,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             styles.tab,
             searchMode === 'country' && [
               styles.activeTab,
-              { borderBottomColor: theme.colors.primary }
+              { borderBottomColor: theme.primary }
             ]
           ]}
           onPress={() => setSearchMode('country')}
@@ -178,7 +189,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
               styles.tabText,
               searchMode === 'country' && [
                 styles.activeTabText,
-                { color: theme.colors.primary }
+                { color: theme.primary }
               ]
             ]}
           >
@@ -191,7 +202,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             styles.tab,
             searchMode === 'tag' && [
               styles.activeTab,
-              { borderBottomColor: theme.colors.primary }
+              { borderBottomColor: theme.primary }
             ]
           ]}
           onPress={() => setSearchMode('tag')}
@@ -201,7 +212,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
               styles.tabText,
               searchMode === 'tag' && [
                 styles.activeTabText,
-                { color: theme.colors.primary }
+                { color: theme.primary }
               ]
             ]}
           >
@@ -214,7 +225,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             styles.tab,
             searchMode === 'favorites' && [
               styles.activeTab,
-              { borderBottomColor: theme.colors.primary }
+              { borderBottomColor: theme.primary }
             ]
           ]}
           onPress={() => setSearchMode('favorites')}
@@ -224,7 +235,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
               styles.tabText,
               searchMode === 'favorites' && [
                 styles.activeTabText,
-                { color: theme.colors.primary }
+                { color: theme.primary }
               ]
             ]}
           >
@@ -250,8 +261,8 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     if (isLoading) {
       return (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={[styles.loadingText, { color: theme.colors.secondaryText }]}>
+          <ActivityIndicator size="large" color={theme.primary} />
+          <Text style={[styles.loadingText, { color: theme.secondary }]}>
             Recherche en cours...
           </Text>
         </View>
@@ -261,7 +272,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     if (error) {
       return (
         <View style={styles.centerContainer}>
-          <Text style={[styles.errorText, { color: theme.colors.notification }]}>
+          <Text style={[styles.errorText, { color: theme.error }]}>
             {error}
           </Text>
         </View>
@@ -294,20 +305,20 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             keyExtractor={(item) => item.name}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={[styles.suggestionItem, { backgroundColor: theme.colors.card }]}
+                style={[styles.suggestionItem, { backgroundColor: theme.card }]}
                 onPress={() => selectCountry(item)}
               >
-                <Text style={[styles.suggestionText, { color: theme.colors.text }]}>
+                <Text style={[styles.suggestionText, { color: theme.text }]}>
                   {item.name}
                 </Text>
-                <Text style={[styles.suggestionCount, { color: theme.colors.secondaryText }]}>
+                <Text style={[styles.suggestionCount, { color: theme.secondary }]}>
                   {item.stationcount} stations
                 </Text>
               </TouchableOpacity>
             )}
             contentContainerStyle={styles.listContent}
             ListHeaderComponent={
-              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
                 Pays populaires
               </Text>
             }
@@ -321,20 +332,20 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             keyExtractor={(item) => item.name}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={[styles.suggestionItem, { backgroundColor: theme.colors.card }]}
+                style={[styles.suggestionItem, { backgroundColor: theme.card }]}
                 onPress={() => selectTag(item)}
               >
-                <Text style={[styles.suggestionText, { color: theme.colors.text }]}>
+                <Text style={[styles.suggestionText, { color: theme.text }]}>
                   {item.name}
                 </Text>
-                <Text style={[styles.suggestionCount, { color: theme.colors.secondaryText }]}>
+                <Text style={[styles.suggestionCount, { color: theme.secondary }]}>
                   {item.stationcount} stations
                 </Text>
               </TouchableOpacity>
             )}
             contentContainerStyle={styles.listContent}
             ListHeaderComponent={
-              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
                 Genres populaires
               </Text>
             }
@@ -344,12 +355,12 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
       default:
         return (
           <View style={styles.centerContainer}>
-            <Text style={[styles.infoText, { color: theme.colors.secondaryText }]}>
+            <Text style={[styles.infoText, { color: theme.secondary }]}>
               {searchMode === 'name'
                 ? 'Recherchez des stations par nom'
                 : searchMode === 'country'
-                ? 'Recherchez des stations par pays'
-                : 'Recherchez des stations par genre musical'}
+                ? 'Sélectionnez un pays'
+                : 'Sélectionnez un genre musical'}
             </Text>
           </View>
         );
@@ -357,13 +368,13 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {renderSearchModeTabs()}
       
       {searchMode !== 'favorites' && (
         <View style={styles.searchContainer}>
           <TextInput
-            style={[styles.searchInput, { backgroundColor: theme.colors.card }]}
+            style={[styles.searchInput, { backgroundColor: theme.card }]}
             placeholder={
               searchMode === 'name'
                 ? 'Rechercher par nom de station...'
@@ -371,7 +382,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
                 ? 'Rechercher par pays...'
                 : 'Rechercher par genre musical...'
             }
-            placeholderTextColor={theme.colors.secondaryText}
+            placeholderTextColor={theme.secondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
             onSubmitEditing={performSearch}
@@ -379,7 +390,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
           />
           
           <TouchableOpacity 
-            style={[styles.searchButton, { backgroundColor: theme.colors.primary }]} 
+            style={[styles.searchButton, { backgroundColor: theme.primary }]} 
             onPress={performSearch}
           >
             <Text style={styles.searchButtonText}>Rechercher</Text>
