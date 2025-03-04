@@ -13,11 +13,13 @@ import { RadioStationCard } from './RadioStationCard';
 interface FavoriteRadioListProps {
   onSelectStation: (station: RadioStation) => void;
   selectedStation?: RadioStation | null;
+  isPlayerMode?: boolean;
 }
 
 export const FavoriteRadioList: React.FC<FavoriteRadioListProps> = ({
   onSelectStation,
   selectedStation,
+  isPlayerMode = false,
 }) => {
   const { theme } = useTheme();
   const { favorites, loading } = useRadio();
@@ -55,6 +57,7 @@ export const FavoriteRadioList: React.FC<FavoriteRadioListProps> = ({
           station={item}
           onSelect={onSelectStation}
           isSelected={selectedStation?.stationuuid === item.stationuuid}
+          showSelectButton={!isPlayerMode}
         />
       )}
       contentContainerStyle={styles.listContent}

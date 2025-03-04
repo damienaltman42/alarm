@@ -15,12 +15,14 @@ interface InfiniteRadioListProps {
   searchParams: RadioSearchParams;
   onSelectStation: (station: RadioStation) => void;
   selectedStation?: RadioStation | null;
+  isPlayerMode?: boolean;
 }
 
 export const InfiniteRadioList: React.FC<InfiniteRadioListProps> = ({
   searchParams,
   onSelectStation,
   selectedStation,
+  isPlayerMode = false,
 }) => {
   const { theme } = useTheme();
   const { searchStations } = useRadio();
@@ -150,6 +152,7 @@ export const InfiniteRadioList: React.FC<InfiniteRadioListProps> = ({
             station={item}
             onSelect={onSelectStation}
             isSelected={selectedStation?.stationuuid === item.stationuuid}
+            showSelectButton={!isPlayerMode}
           />
         )}
         contentContainerStyle={styles.listContent}

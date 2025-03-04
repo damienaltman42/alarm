@@ -15,12 +15,14 @@ interface RadioStationCardProps {
   station: RadioStation;
   onSelect: (station: RadioStation) => void;
   isSelected?: boolean;
+  showSelectButton?: boolean;
 }
 
 export const RadioStationCard: React.FC<RadioStationCardProps> = ({
   station,
   onSelect,
   isSelected = false,
+  showSelectButton = true,
 }) => {
   const { theme } = useTheme();
   const { isFavorite, addToFavorites, removeFromFavorites } = useRadio();
@@ -107,7 +109,7 @@ export const RadioStationCard: React.FC<RadioStationCardProps> = ({
       style={[
         styles.container,
         { backgroundColor: theme.card },
-        isSelected && { borderColor: theme.primary, borderWidth: 2 },
+        isSelected && showSelectButton && { borderColor: theme.primary, borderWidth: 2 },
       ]}
       onPress={() => onSelect(station)}
       activeOpacity={0.7}
@@ -178,16 +180,18 @@ export const RadioStationCard: React.FC<RadioStationCardProps> = ({
         </View>
         
         <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={[styles.selectButton, { backgroundColor: isSelected ? theme.primary : 'transparent' }]}
-            onPress={() => onSelect(station)}
-          >
-            <Ionicons
-              name={isSelected ? 'checkmark-circle' : 'add-circle-outline'}
-              size={28}
-              color={isSelected ? '#fff' : theme.primary}
-            />
-          </TouchableOpacity>
+          {showSelectButton && (
+            <TouchableOpacity
+              style={[styles.selectButton, { backgroundColor: isSelected ? theme.primary : 'transparent' }]}
+              onPress={() => onSelect(station)}
+            >
+              <Ionicons
+                name={isSelected ? 'checkmark-circle' : 'add-circle-outline'}
+                size={28}
+                color={isSelected ? '#fff' : theme.primary}
+              />
+            </TouchableOpacity>
+          )}
           
           <TouchableOpacity
             style={styles.favoriteButton}

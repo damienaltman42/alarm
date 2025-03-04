@@ -256,32 +256,34 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
   return (
     <View style={styles.container}>
       <View style={[styles.searchContainer, { backgroundColor: theme.card }]}>
-        <TextInput
-          style={[styles.searchInput, { color: theme.text }]}
-          placeholder="Rechercher une radio..."
-          placeholderTextColor={theme.secondary}
-          value={searchName}
-          onChangeText={setSearchName}
-          returnKeyType="search"
-          onSubmitEditing={handleSearch}
-        />
-        
-        <TouchableOpacity
-          style={[styles.searchButton, isLoading && styles.disabledButton]}
-          onPress={handleSearch}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={styles.searchButtonText}>Rechercher</Text>
-          )}
-        </TouchableOpacity>
+        <View style={styles.searchInputContainer}>
+          <TextInput
+            style={[styles.searchInput, { backgroundColor: theme.background, color: theme.text }]}
+            placeholder="Rechercher une radio..."
+            placeholderTextColor={theme.secondary}
+            value={searchName}
+            onChangeText={setSearchName}
+            returnKeyType="search"
+            onSubmitEditing={handleSearch}
+          />
+          
+          <TouchableOpacity
+            style={[styles.searchButton, { backgroundColor: theme.primary }, isLoading && styles.disabledButton]}
+            onPress={handleSearch}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Ionicons name="search" size={20} color="#fff" />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
       
       <View style={styles.filtersRow}>
         <TouchableOpacity
-          style={[styles.filterChip, selectedCountry && { backgroundColor: theme.primary + '30' }]}
+          style={[styles.filterChip, { backgroundColor: theme.card }, selectedCountry && { backgroundColor: theme.primary + '30' }]}
           onPress={() => setIsCountryModalVisible(true)}
         >
           <Ionicons name="globe-outline" size={16} color={selectedCountry ? theme.primary : theme.text} />
@@ -291,7 +293,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={[styles.filterChip, selectedTags.length > 0 && { backgroundColor: theme.primary + '30' }]}
+          style={[styles.filterChip, { backgroundColor: theme.card }, selectedTags.length > 0 && { backgroundColor: theme.primary + '30' }]}
           onPress={() => setIsTagsModalVisible(true)}
         >
           <Ionicons name="pricetag-outline" size={16} color={selectedTags.length > 0 ? theme.primary : theme.text} />
@@ -423,23 +425,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
   },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   searchInput: {
+    flex: 1,
     height: 40,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 16,
+    marginRight: 8,
   },
   searchButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
+    height: 40,
+    width: 40,
     borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    marginLeft: 8,
     color: '#fff',
   },
   filtersRow: {
