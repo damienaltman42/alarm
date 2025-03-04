@@ -18,6 +18,14 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Variable pour stocker la fonction de navigation
+let navigateToAlarmScreen: ((alarm: Alarm) => void) | null = null;
+
+// Fonction pour définir la fonction de navigation
+export function setNavigateToAlarmScreen(navigateFunction: (alarm: Alarm) => void) {
+  navigateToAlarmScreen = navigateFunction;
+}
+
 class AlarmManager {
   private activeAlarmId: string | null = null;
   private playbackMonitoringInterval: NodeJS.Timeout | null = null;
@@ -272,9 +280,10 @@ class AlarmManager {
   // Gérer la réception d'une notification
   private handleNotificationReceived = async (notification: Notifications.Notification): Promise<void> => {
     const alarmId = notification.request.content.data?.alarmId;
+    const isSnooze = notification.request.content.data?.isSnooze;
     
     if (alarmId) {
-      console.log(`Notification reçue pour l'alarme ${alarmId}`);
+      console.log(`Notification reçue pour l'alarme ${alarmId}${isSnooze ? ' (snooze)' : ''}`);
       
       // Récupérer les détails de l'alarme
       const alarms = await this.getAlarms();
@@ -283,6 +292,18 @@ class AlarmManager {
       if (alarm && alarm.radioStation) {
         // Démarrer la radio
         await this.playRadio(alarm.radioStation.url_resolved, alarm.radioStation.name);
+        
+        // Stocker l'ID de l'alarme active
+        this.activeAlarmId = alarmId;
+        
+        // Naviguer vers l'écran d'alarme si la fonction de navigation est définie
+        if (navigateToAlarmScreen) {
+          try {
+            navigateToAlarmScreen(alarm);
+          } catch (error) {
+            console.error('Erreur lors de la navigation vers l\'écran d\'alarme:', error);
+          }
+        }
       }
     }
   };
@@ -452,13 +473,29 @@ class AlarmManager {
     try {
       // Arrêter la lecture audio
       if (this.sound) {
-        await this.sound.stopAsync();
-        await this.sound.unloadAsync();
-        this.sound = null;
+        try {
+          // Vérifier l'état de lecture avant d'arrêter
+          const status = await this.sound.getStatusAsync();
+          
+          if (status.isLoaded) {
+            await this.sound.stopAsync();
+            await this.sound.unloadAsync();
+          }
+        } catch (error) {
+          // Ignorer les erreurs spécifiques liées à l'interruption audio
+          console.log('Erreur ignorée lors de l\'arrêt audio:', (error as Error).message);
+        } finally {
+          // S'assurer que la référence est nettoyée même en cas d'erreur
+          this.sound = null;
+        }
       }
       
       // Arrêter également toute prévisualisation en cours
-      await this.stopPreview();
+      try {
+        await this.stopPreview();
+      } catch (error) {
+        console.log('Erreur ignorée lors de l\'arrêt de la prévisualisation:', (error as Error).message);
+      }
       
       // Arrêter la surveillance de la lecture
       if (this.playbackMonitoringInterval) {
@@ -467,18 +504,45 @@ class AlarmManager {
       }
       
       // Supprimer les notifications
-      await Notifications.dismissAllNotificationsAsync();
+      try {
+        await Notifications.dismissAllNotificationsAsync();
+      } catch (error) {
+        console.log('Erreur ignorée lors de la suppression des notifications:', (error as Error).message);
+      }
       
-      this.activeAlarmId = null;
+      // Si l'alarme est à usage unique (sans jours sélectionnés), la désactiver
+      if (this.activeAlarmId) {
+        try {
+          const alarms = await this.getAlarms();
+          const alarm = alarms.find(a => a.id === this.activeAlarmId);
+          
+          if (alarm && (!alarm.days || alarm.days.length === 0)) {
+            // Désactiver l'alarme à usage unique
+            await this.toggleAlarm(this.activeAlarmId, false);
+            console.log(`Alarme à usage unique ${this.activeAlarmId} désactivée`);
+          }
+        } catch (error) {
+          console.log('Erreur ignorée lors de la désactivation de l\'alarme:', (error as Error).message);
+        } finally {
+          this.activeAlarmId = null;
+        }
+      }
       
       console.log('Alarme arrêtée');
     } catch (error) {
       console.error('Erreur lors de l\'arrêt de l\'alarme:', error);
+      // Réinitialiser l'état même en cas d'erreur
+      this.sound = null;
+      this.activeAlarmId = null;
+      if (this.playbackMonitoringInterval) {
+        clearInterval(this.playbackMonitoringInterval);
+        this.playbackMonitoringInterval = null;
+      }
     }
   }
 
   // Snoozer une alarme
-  private async snoozeAlarm(alarmId: string): Promise<void> {
+  public async snoozeAlarm(alarmId: string): Promise<void> {
     // Arrêter d'abord l'alarme
     await this.stopAlarm();
     
@@ -495,7 +559,7 @@ class AlarmManager {
         content: {
           title: 'Alarme reportée',
           body: `L'alarme sonnera à nouveau dans ${alarm.snoozeInterval} minutes`,
-          data: { alarmId },
+          data: { alarmId, isSnooze: true },
           sound: true,
         },
         trigger: {
@@ -503,6 +567,8 @@ class AlarmManager {
           type: Notifications.SchedulableTriggerInputTypes.DATE
         },
       });
+      
+      console.log(`Alarme ${alarmId} reportée de ${alarm.snoozeInterval} minutes`);
     }
   }
 
