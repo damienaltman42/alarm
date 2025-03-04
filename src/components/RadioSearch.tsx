@@ -12,25 +12,28 @@ import {
 import { RadioStation, Country, Tag } from '../types';
 import { radioService } from '../modules/RadioService';
 import RadioStationItem from './RadioStationItem';
+import { FavoriteRadioList } from './FavoriteRadioList';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface RadioSearchProps {
   onSelectStation: (station: RadioStation) => void;
   selectedStation?: RadioStation | null;
 }
 
-type SearchMode = 'name' | 'country' | 'tag';
+// Types de recherche disponibles
+type SearchMode = 'name' | 'country' | 'tag' | 'favorites';
 
 export const RadioSearch: React.FC<RadioSearchProps> = ({
   onSelectStation,
   selectedStation,
 }) => {
-  // États pour la recherche
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const { theme } = useTheme();
   const [searchMode, setSearchMode] = useState<SearchMode>('name');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [stations, setStations] = useState<RadioStation[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Charger les pays et tags au démarrage
@@ -39,39 +42,59 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     loadTags();
   }, []);
 
+  // Réinitialiser les recherches lors du changement d'onglet
+  useEffect(() => {
+    // Réinitialiser les résultats de recherche et l'erreur
+    setStations([]);
+    setError(null);
+    setSearchQuery('');
+  }, [searchMode]);
+
   // Charger la liste des pays
   const loadCountries = async (): Promise<void> => {
     try {
+      setIsLoading(true);
       const countriesData = await radioService.getCountries();
       // Trier par nombre de stations (décroissant)
       setCountries(countriesData.sort((a, b) => b.stationcount - a.stationcount));
     } catch (error) {
       console.error('Erreur lors du chargement des pays:', error);
       setError('Impossible de charger la liste des pays.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Charger la liste des tags
   const loadTags = async (): Promise<void> => {
     try {
+      setIsLoading(true);
       const tagsData = await radioService.getTags();
       // Trier par nombre de stations (décroissant)
       setTags(tagsData.sort((a, b) => b.stationcount - a.stationcount).slice(0, 100));
     } catch (error) {
       console.error('Erreur lors du chargement des tags:', error);
       setError('Impossible de charger la liste des tags.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Effectuer la recherche
-  const performSearch = async (): Promise<void> => {
-    if (!searchQuery.trim() && searchMode === 'name') {
+  // Effectuer une recherche
+  const performSearch = async () => {
+    if (searchMode === 'favorites') {
+      // Pas besoin de recherche pour les favoris
+      return;
+    }
+    
+    if (!searchQuery.trim() && searchMode !== 'country') {
       Alert.alert('Recherche vide', 'Veuillez entrer un terme de recherche.');
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    setStations([]);
 
     try {
       let results: RadioStation[] = [];
@@ -93,8 +116,8 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
       if (results.length === 0) {
         setError('Aucune station trouvée. Essayez d\'autres termes de recherche.');
       }
-    } catch (error) {
-      console.error('Erreur lors de la recherche:', error);
+    } catch (err) {
+      console.error('Erreur lors de la recherche:', err);
       setError('Une erreur est survenue lors de la recherche. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
@@ -104,56 +127,133 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   // Sélectionner un pays dans la liste
   const selectCountry = (country: Country): void => {
     setSearchQuery(country.name);
-    setSearchMode('country');
     performSearch();
   };
 
   // Sélectionner un tag dans la liste
   const selectTag = (tag: Tag): void => {
     setSearchQuery(tag.name);
-    setSearchMode('tag');
     performSearch();
   };
 
-  // Rendu des onglets de mode de recherche
-  const renderSearchModeTabs = (): JSX.Element => (
-    <View style={styles.tabsContainer}>
-      <TouchableOpacity
-        style={[styles.tab, searchMode === 'name' && styles.activeTab]}
-        onPress={() => setSearchMode('name')}
-      >
-        <Text style={[styles.tabText, searchMode === 'name' && styles.activeTabText]}>
-          Nom
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.tab, searchMode === 'country' && styles.activeTab]}
-        onPress={() => setSearchMode('country')}
-      >
-        <Text style={[styles.tabText, searchMode === 'country' && styles.activeTabText]}>
-          Pays
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.tab, searchMode === 'tag' && styles.activeTab]}
-        onPress={() => setSearchMode('tag')}
-      >
-        <Text style={[styles.tabText, searchMode === 'tag' && styles.activeTabText]}>
-          Genre
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
+  // Afficher les onglets de mode de recherche
+  const renderSearchModeTabs = () => {
+    return (
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            searchMode === 'name' && [
+              styles.activeTab,
+              { borderBottomColor: theme.colors.primary }
+            ]
+          ]}
+          onPress={() => setSearchMode('name')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              searchMode === 'name' && [
+                styles.activeTabText,
+                { color: theme.colors.primary }
+              ]
+            ]}
+          >
+            Nom
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            searchMode === 'country' && [
+              styles.activeTab,
+              { borderBottomColor: theme.colors.primary }
+            ]
+          ]}
+          onPress={() => setSearchMode('country')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              searchMode === 'country' && [
+                styles.activeTabText,
+                { color: theme.colors.primary }
+              ]
+            ]}
+          >
+            Pays
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            searchMode === 'tag' && [
+              styles.activeTab,
+              { borderBottomColor: theme.colors.primary }
+            ]
+          ]}
+          onPress={() => setSearchMode('tag')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              searchMode === 'tag' && [
+                styles.activeTabText,
+                { color: theme.colors.primary }
+              ]
+            ]}
+          >
+            Genre
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            searchMode === 'favorites' && [
+              styles.activeTab,
+              { borderBottomColor: theme.colors.primary }
+            ]
+          ]}
+          onPress={() => setSearchMode('favorites')}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              searchMode === 'favorites' && [
+                styles.activeTabText,
+                { color: theme.colors.primary }
+              ]
+            ]}
+          >
+            Favoris
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   // Rendu du contenu en fonction du mode de recherche
   const renderContent = (): JSX.Element => {
+    // Si on est en mode favoris, afficher le composant FavoriteRadioList
+    if (searchMode === 'favorites') {
+      return (
+        <FavoriteRadioList
+          onSelectStation={onSelectStation}
+          selectedStation={selectedStation}
+        />
+      );
+    }
+    
     if (isLoading) {
       return (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#0066cc" />
-          <Text style={styles.loadingText}>Recherche en cours...</Text>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={[styles.loadingText, { color: theme.colors.secondaryText }]}>
+            Recherche en cours...
+          </Text>
         </View>
       );
     }
@@ -161,7 +261,9 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     if (error) {
       return (
         <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={[styles.errorText, { color: theme.colors.notification }]}>
+            {error}
+          </Text>
         </View>
       );
     }
@@ -192,18 +294,22 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             keyExtractor={(item) => item.name}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={styles.suggestionItem}
+                style={[styles.suggestionItem, { backgroundColor: theme.colors.card }]}
                 onPress={() => selectCountry(item)}
               >
-                <Text style={styles.suggestionText}>{item.name}</Text>
-                <Text style={styles.suggestionCount}>
+                <Text style={[styles.suggestionText, { color: theme.colors.text }]}>
+                  {item.name}
+                </Text>
+                <Text style={[styles.suggestionCount, { color: theme.colors.secondaryText }]}>
                   {item.stationcount} stations
                 </Text>
               </TouchableOpacity>
             )}
             contentContainerStyle={styles.listContent}
             ListHeaderComponent={
-              <Text style={styles.sectionTitle}>Pays populaires</Text>
+              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                Pays populaires
+              </Text>
             }
           />
         );
@@ -215,18 +321,22 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
             keyExtractor={(item) => item.name}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={styles.suggestionItem}
+                style={[styles.suggestionItem, { backgroundColor: theme.colors.card }]}
                 onPress={() => selectTag(item)}
               >
-                <Text style={styles.suggestionText}>{item.name}</Text>
-                <Text style={styles.suggestionCount}>
+                <Text style={[styles.suggestionText, { color: theme.colors.text }]}>
+                  {item.name}
+                </Text>
+                <Text style={[styles.suggestionCount, { color: theme.colors.secondaryText }]}>
                   {item.stationcount} stations
                 </Text>
               </TouchableOpacity>
             )}
             contentContainerStyle={styles.listContent}
             ListHeaderComponent={
-              <Text style={styles.sectionTitle}>Genres populaires</Text>
+              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                Genres populaires
+              </Text>
             }
           />
         );
@@ -234,8 +344,12 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
       default:
         return (
           <View style={styles.centerContainer}>
-            <Text style={styles.infoText}>
-              Recherchez une station de radio par son nom
+            <Text style={[styles.infoText, { color: theme.colors.secondaryText }]}>
+              {searchMode === 'name'
+                ? 'Recherchez des stations par nom'
+                : searchMode === 'country'
+                ? 'Recherchez des stations par pays'
+                : 'Recherchez des stations par genre musical'}
             </Text>
           </View>
         );
@@ -243,29 +357,35 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {renderSearchModeTabs()}
       
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder={
-            searchMode === 'name'
-              ? 'Rechercher par nom de station...'
-              : searchMode === 'country'
-              ? 'Rechercher par pays...'
-              : 'Rechercher par genre musical...'
-          }
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={performSearch}
-          returnKeyType="search"
-        />
-        
-        <TouchableOpacity style={styles.searchButton} onPress={performSearch}>
-          <Text style={styles.searchButtonText}>Rechercher</Text>
-        </TouchableOpacity>
-      </View>
+      {searchMode !== 'favorites' && (
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[styles.searchInput, { backgroundColor: theme.colors.card }]}
+            placeholder={
+              searchMode === 'name'
+                ? 'Rechercher par nom de station...'
+                : searchMode === 'country'
+                ? 'Rechercher par pays...'
+                : 'Rechercher par genre musical...'
+            }
+            placeholderTextColor={theme.colors.secondaryText}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={performSearch}
+            returnKeyType="search"
+          />
+          
+          <TouchableOpacity 
+            style={[styles.searchButton, { backgroundColor: theme.colors.primary }]} 
+            onPress={performSearch}
+          >
+            <Text style={styles.searchButtonText}>Rechercher</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       
       {renderContent()}
     </View>

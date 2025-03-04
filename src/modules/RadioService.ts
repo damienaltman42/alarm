@@ -14,8 +14,9 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000;
 // Liste des serveurs API disponibles
 const API_SERVERS = [
   'https://de1.api.radio-browser.info',
-  'https://nl.api.radio-browser.info',
+  'https://fr1.api.radio-browser.info',
   'https://at1.api.radio-browser.info',
+  'https://nl1.api.radio-browser.info',
 ];
 
 // Sélection aléatoire d'un serveur API
@@ -23,6 +24,9 @@ const getRandomServer = (): string => {
   const randomIndex = Math.floor(Math.random() * API_SERVERS.length);
   return API_SERVERS[randomIndex];
 };
+
+// Clé pour stocker le serveur actuel
+const CURRENT_SERVER_KEY = '@aurora_wake_current_server';
 
 // Configuration de base pour les requêtes
 const baseHeaders = {
@@ -41,10 +45,74 @@ class RadioService {
     countries: 0,
     tags: 0,
   };
+  private serverFailures: Record<string, number> = {};
 
   constructor() {
     this.baseUrl = getRandomServer();
     this.loadCachedData();
+    this.loadLastWorkingServer();
+  }
+
+  // Charger le dernier serveur fonctionnel
+  private async loadLastWorkingServer(): Promise<void> {
+    try {
+      const lastServer = await AsyncStorage.getItem(CURRENT_SERVER_KEY);
+      if (lastServer && API_SERVERS.includes(lastServer)) {
+        this.baseUrl = lastServer;
+        console.log(`Utilisation du dernier serveur fonctionnel: ${this.baseUrl}`);
+      }
+    } catch (error) {
+      // Ignorer les erreurs et utiliser le serveur aléatoire par défaut
+    }
+  }
+
+  // Sauvegarder le serveur actuel s'il fonctionne bien
+  private async saveCurrentServer(): Promise<void> {
+    try {
+      await AsyncStorage.setItem(CURRENT_SERVER_KEY, this.baseUrl);
+    } catch (error) {
+      // Ignorer les erreurs de sauvegarde
+    }
+  }
+
+  // Méthode pour changer de serveur API si nécessaire
+  public changeServer(): string {
+    // Incrémenter le compteur d'échecs pour le serveur actuel
+    this.serverFailures[this.baseUrl] = (this.serverFailures[this.baseUrl] || 0) + 1;
+    
+    // Filtrer les serveurs qui ont échoué trop souvent (plus de 3 fois)
+    const availableServers = API_SERVERS.filter(
+      server => (this.serverFailures[server] || 0) < 3
+    );
+    
+    // Si tous les serveurs ont échoué trop souvent, réinitialiser les compteurs
+    if (availableServers.length === 0) {
+      Object.keys(this.serverFailures).forEach(key => {
+        this.serverFailures[key] = 0;
+      });
+      
+      // Utiliser tous les serveurs à nouveau
+      let newServer = getRandomServer();
+      while (newServer === this.baseUrl && API_SERVERS.length > 1) {
+        newServer = getRandomServer();
+      }
+      this.baseUrl = newServer;
+    } else {
+      // Choisir un serveur parmi ceux qui n'ont pas échoué trop souvent
+      const randomIndex = Math.floor(Math.random() * availableServers.length);
+      const newServer = availableServers[randomIndex];
+      
+      // Ne pas choisir le même serveur si possible
+      if (newServer === this.baseUrl && availableServers.length > 1) {
+        const nextIndex = (randomIndex + 1) % availableServers.length;
+        this.baseUrl = availableServers[nextIndex];
+      } else {
+        this.baseUrl = newServer;
+      }
+    }
+    
+    errorManager.logError(`Changement de serveur API vers ${this.baseUrl}`, 'info');
+    return this.baseUrl;
   }
 
   // Charger les données en cache au démarrage
@@ -68,16 +136,6 @@ class RadioService {
     } catch (error) {
       errorManager.logError('Erreur lors du chargement des données en cache', 'warning', { error });
     }
-  }
-
-  // Méthode pour changer de serveur API si nécessaire
-  public changeServer(): void {
-    let newServer = getRandomServer();
-    while (newServer === this.baseUrl && API_SERVERS.length > 1) {
-      newServer = getRandomServer();
-    }
-    this.baseUrl = newServer;
-    errorManager.logError(`Changement de serveur API vers ${this.baseUrl}`, 'info');
   }
 
   // Récupérer la liste des stations avec filtres optionnels et retentatives
@@ -122,14 +180,22 @@ class RadioService {
       console.log("STEP 3: URL complète", url);
       
       try {
+        // Utiliser un timeout pour éviter les requêtes qui prennent trop de temps
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 secondes de timeout
+        
         const response = await fetch(url, { 
-          headers: baseHeaders
+          headers: baseHeaders,
+          signal: controller.signal
         });
         
+        // Nettoyer le timeout
+        clearTimeout(timeoutId);
+        
         console.log("STEP 4: Réponse reçue", {
+          ok: response.ok,
           status: response.status,
-          statusText: response.statusText,
-          ok: response.ok
+          statusText: response.statusText
         });
         
         if (!response.ok) {
@@ -139,18 +205,19 @@ class RadioService {
         const data = await response.json();
         console.log("STEP 5: Nombre de stations reçues", data.length);
         
+        // Réinitialiser le compteur d'échecs pour ce serveur car il fonctionne
+        this.serverFailures[this.baseUrl] = 0;
+        
+        // Sauvegarder ce serveur comme fonctionnel
+        this.saveCurrentServer();
+        
         // Vérifier et normaliser les données des stations
         const normalizedData = data.map((station: any) => {
-          // S'assurer que tags est toujours un tableau
-          if (!station.tags || typeof station.tags === 'string') {
-            console.log(`Station ${station.name}: tags est ${typeof station.tags}`, station.tags);
-            // Si tags est une chaîne, la diviser en tableau
-            if (typeof station.tags === 'string') {
-              station.tags = station.tags.split(',').map((tag: string) => tag.trim());
-            } else {
-              station.tags = [];
-            }
+          // S'assurer que tags est toujours un tableau ou une chaîne
+          if (station.tags === null || station.tags === undefined) {
+            station.tags = '';
           }
+          
           return station;
         });
         
@@ -159,29 +226,35 @@ class RadioService {
             name: normalizedData[0].name,
             tagsType: typeof normalizedData[0].tags,
             tagsIsArray: Array.isArray(normalizedData[0].tags),
-            tagsLength: normalizedData[0].tags ? normalizedData[0].tags.length : 0
+            tagsLength: normalizedData[0].tags ? (Array.isArray(normalizedData[0].tags) ? normalizedData[0].tags.length : 1) : 0
           } : 'Aucune station'
         });
         
         return normalizedData as RadioStation[];
-      } catch (networkError) {
-        console.error("Erreur réseau lors de la requête:", networkError);
+      } catch (error: unknown) {
+        // Vérifier si c'est une erreur de timeout
+        const isTimeout = error instanceof Error && error.name === 'AbortError';
+        console.error(`Erreur réseau lors de la requête: ${isTimeout ? 'Timeout' : error instanceof Error ? error.message : 'Erreur inconnue'}`);
         
         // Si c'est une erreur réseau et que nous avons déjà essayé plusieurs serveurs
-        if (retryCount >= 2) {
+        if (retryCount >= API_SERVERS.length) {
           // Retourner un tableau vide plutôt que de planter l'application
           console.log("Trop de tentatives échouées, retour d'un tableau vide");
           return [];
         }
         
         // Changer de serveur et réessayer
-        this.changeServer();
-        console.log(`Changement de serveur vers ${this.baseUrl} et nouvelle tentative`);
+        const newServer = this.changeServer();
+        console.log(`Changement de serveur vers ${newServer} et nouvelle tentative`);
+        
+        // Attendre un court délai avant de réessayer pour éviter de surcharger le réseau
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         return this.getStations(params, retryCount + 1);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       errorManager.logError('Erreur lors de la récupération des stations', 'error', { 
-        error, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue', 
         params, 
         retryCount 
       });
@@ -189,8 +262,10 @@ class RadioService {
       // Changer de serveur
       this.changeServer();
       
-      // Réessayer jusqu'à 3 fois maximum
-      if (retryCount < 2) {
+      // Réessayer jusqu'à ce qu'on ait essayé tous les serveurs
+      if (retryCount < API_SERVERS.length) {
+        // Attendre un court délai avant de réessayer
+        await new Promise(resolve => setTimeout(resolve, 500));
         return this.getStations(params, retryCount + 1);
       }
       

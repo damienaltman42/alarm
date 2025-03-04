@@ -16,7 +16,7 @@ export interface RadioStation {
   url_resolved: string;
   homepage: string;
   favicon: string;
-  tags: string[];
+  tags: string[] | string;
   country: string;
   language?: string;
   codec?: string;

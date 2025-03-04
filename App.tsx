@@ -7,21 +7,8 @@ import { alarmManager } from './src/modules/AlarmManager';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
-// Commenté car notifee n'est pas compatible avec Expo Go
-// import notifee from '@notifee/react-native';
 
 const BACKGROUND_ALARM_TASK = 'BACKGROUND_ALARM_TASK';
-
-// Commenté car notifee n'est pas compatible avec Expo Go
-/*
-// Enregistrer le service de premier plan pour notifee
-notifee.registerForegroundService((notification) => {
-  return new Promise(() => {
-    console.log('Service de premier plan démarré pour la lecture audio');
-    // Cette promesse ne se résout jamais, ce qui maintient le service actif
-  });
-});
-*/
 
 // Définir la tâche en arrière-plan
 TaskManager.defineTask(BACKGROUND_ALARM_TASK, async () => {

@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform, AppState, AppStateStatus } from 'react-native';
 import { Alarm } from '../types';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import Constants from 'expo-constants';
 
 // Clé pour le stockage des alarmes dans AsyncStorage
 const ALARMS_STORAGE_KEY = '@aurora_wake_alarms';
@@ -22,6 +23,7 @@ class AlarmManager {
   private playbackMonitoringInterval: NodeJS.Timeout | null = null;
   private appStateSubscription: any = null;
   private sound: Audio.Sound | null = null;
+  public previewSound: Audio.Sound | null = null; // Pour la prévisualisation des radios
 
   constructor() {
     this.configureNotifications();
@@ -361,10 +363,10 @@ class AlarmManager {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         staysActiveInBackground: true,
-        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeIOS: InterruptionModeIOS.DuckOthers,
         playsInSilentModeIOS: true,
         shouldDuckAndroid: true,
-        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
         playThroughEarpieceAndroid: false,
       });
     } catch (error) {
@@ -397,6 +399,54 @@ class AlarmManager {
     }, 5000); // Vérifier toutes les 5 secondes
   }
 
+  // Prévisualiser une radio (méthode publique pour l'interface utilisateur)
+  public async previewRadio(radioUrl: string, radioName: string = 'Radio'): Promise<void> {
+    try {
+      // Arrêter toute lecture en cours
+      await this.stopPreview();
+      
+      // Configurer l'audio
+      await this.configureAudioForBackground();
+      
+      // Créer et charger le son
+      this.previewSound = new Audio.Sound();
+      await this.previewSound.loadAsync({ uri: radioUrl });
+      
+      // Démarrer la lecture
+      await this.previewSound.playAsync();
+      
+      console.log(`Prévisualisation radio démarrée: ${radioName} (${radioUrl})`);
+    } catch (error) {
+      console.error('Erreur lors de la prévisualisation de la radio:', error);
+    }
+  }
+  
+  // Arrêter la prévisualisation
+  public async stopPreview(): Promise<void> {
+    try {
+      if (this.previewSound) {
+        try {
+          // Vérifier l'état de lecture avant d'arrêter
+          const status = await this.previewSound.getStatusAsync();
+          
+          if (status.isLoaded) {
+            await this.previewSound.stopAsync();
+            await this.previewSound.unloadAsync();
+          }
+        } catch (innerError) {
+          // Ignorer les erreurs spécifiques liées à l'interruption
+          console.log('Nettoyage de la prévisualisation');
+        } finally {
+          this.previewSound = null;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt de la prévisualisation:', error);
+      // S'assurer que la référence est nettoyée même en cas d'erreur
+      this.previewSound = null;
+    }
+  }
+
   // Arrêter l'alarme
   public async stopAlarm(): Promise<void> {
     try {
@@ -406,6 +456,9 @@ class AlarmManager {
         await this.sound.unloadAsync();
         this.sound = null;
       }
+      
+      // Arrêter également toute prévisualisation en cours
+      await this.stopPreview();
       
       // Arrêter la surveillance de la lecture
       if (this.playbackMonitoringInterval) {
