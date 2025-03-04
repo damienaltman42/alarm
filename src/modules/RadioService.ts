@@ -146,6 +146,10 @@ class RadioService {
     limit?: number;
     offset?: number;
     hidebroken?: boolean;
+    countrycode?: string;
+    tagList?: string;
+    order?: string;
+    reverse?: boolean;
   }, retryCount = 0): Promise<RadioStation[]> {
     try {
       const queryParams = new URLSearchParams();
@@ -173,7 +177,15 @@ class RadioService {
       
       // Limiter le nombre de résultats par défaut
       if (!params.limit) {
-        queryParams.append('limit', '100');
+        queryParams.append('limit', '20');
+      }
+      
+      // Définir l'ordre par défaut si non spécifié
+      if (!params.order) {
+        queryParams.append('order', 'votes');
+        if (params.reverse === undefined) {
+          queryParams.append('reverse', 'true');
+        }
       }
       
       const url = `${this.baseUrl}/json/stations/search?${queryParams.toString()}`;
@@ -275,19 +287,68 @@ class RadioService {
     }
   }
 
+  // Rechercher des stations avec des critères multiples et pagination
+  public async searchStationsAdvanced(options: {
+    name?: string;
+    country?: string;
+    countrycode?: string;
+    tag?: string;
+    tagList?: string[];
+    limit?: number;
+    offset?: number;
+    order?: 'name' | 'votes' | 'clickcount' | 'clicktrend' | 'random' | 'bitrate';
+    reverse?: boolean;
+    hidebroken?: boolean;
+  }): Promise<RadioStation[]> {
+    const params: any = { ...options };
+    
+    // Convertir tagList en chaîne si c'est un tableau
+    if (options.tagList && Array.isArray(options.tagList) && options.tagList.length > 0) {
+      params.tagList = options.tagList.join(',');
+    }
+    
+    // Définir hidebroken à true par défaut
+    if (params.hidebroken === undefined) {
+      params.hidebroken = true;
+    }
+    
+    return this.getStations(params);
+  }
+
   // Rechercher des stations par nom
-  public async searchStationsByName(name: string, limit = 30): Promise<RadioStation[]> {
-    return this.getStations({ name, limit });
+  public async searchStationsByName(name: string, limit = 20, offset = 0, order = 'votes', reverse = true): Promise<RadioStation[]> {
+    return this.getStations({ 
+      name, 
+      limit, 
+      offset, 
+      order, 
+      reverse,
+      hidebroken: true 
+    });
   }
 
   // Récupérer les stations par pays
-  public async getStationsByCountry(country: string, limit = 30): Promise<RadioStation[]> {
-    return this.getStations({ country, limit });
+  public async getStationsByCountry(country: string, limit = 20, offset = 0, order = 'votes', reverse = true): Promise<RadioStation[]> {
+    return this.getStations({ 
+      country, 
+      limit, 
+      offset, 
+      order, 
+      reverse,
+      hidebroken: true 
+    });
   }
 
   // Récupérer les stations par tag (genre)
-  public async getStationsByTag(tag: string, limit = 30): Promise<RadioStation[]> {
-    return this.getStations({ tag, limit });
+  public async getStationsByTag(tag: string, limit = 20, offset = 0, order = 'votes', reverse = true): Promise<RadioStation[]> {
+    return this.getStations({ 
+      tag, 
+      limit, 
+      offset, 
+      order, 
+      reverse,
+      hidebroken: true 
+    });
   }
 
   // Récupérer la liste des pays disponibles avec mise en cache

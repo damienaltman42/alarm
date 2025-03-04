@@ -102,6 +102,15 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
     }
   };
 
+  // Formater le bitrate pour l'affichage
+  const formatBitrate = (bitrate?: number): string => {
+    if (!bitrate) return '';
+    return `${bitrate} kbps`;
+  };
+
+  // Déterminer si la station est populaire (pour la mise en évidence)
+  const isPopular = station.votes && station.votes > 50;
+
   return (
     <TouchableOpacity
       style={[
@@ -116,7 +125,8 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
             backgroundColor: theme.colors.radio.selected,
             borderColor: theme.colors.primary,
           }
-        ]
+        ],
+        isPopular ? styles.popularContainer : undefined
       ]}
       onPress={() => onPress(station)}
       activeOpacity={0.7}
@@ -139,31 +149,85 @@ const RadioStationItem: React.FC<RadioStationItemProps> = ({
       </View>
 
       <View style={styles.infoContainer}>
-        <Text 
-          style={[styles.name, { color: theme.colors.text }]} 
-          numberOfLines={1} 
-          ellipsizeMode="tail"
-        >
-          {station.name}
-        </Text>
-        
-        {station.country && (
+        <View style={styles.nameRow}>
           <Text 
-            style={[styles.country, { color: theme.colors.secondaryText }]} 
-            numberOfLines={1}
-          >
-            {station.country}
-          </Text>
-        )}
-        
-        {hasTags && (
-          <Text 
-            style={[styles.tags, { color: theme.colors.primary }]} 
+            style={[styles.name, { color: theme.colors.text }]} 
             numberOfLines={1} 
             ellipsizeMode="tail"
           >
-            {formatTags(station.tags)}
+            {station.name}
           </Text>
+          
+          {isPopular && (
+            <View style={[styles.popularBadge, { backgroundColor: theme.colors.notification }]}>
+              <Text style={styles.popularText}>Populaire</Text>
+            </View>
+          )}
+        </View>
+        
+        <View style={styles.detailsRow}>
+          {station.country && (
+            <View style={styles.detailItem}>
+              <Ionicons name="location-outline" size={12} color={theme.colors.secondaryText} />
+              <Text 
+                style={[styles.detailText, { color: theme.colors.secondaryText }]} 
+                numberOfLines={1}
+              >
+                {station.country}
+              </Text>
+            </View>
+          )}
+          
+          {station.bitrate && (
+            <View style={styles.detailItem}>
+              <Ionicons name="wifi-outline" size={12} color={theme.colors.secondaryText} />
+              <Text 
+                style={[styles.detailText, { color: theme.colors.secondaryText }]} 
+                numberOfLines={1}
+              >
+                {formatBitrate(station.bitrate)}
+              </Text>
+            </View>
+          )}
+          
+          {station.votes && (
+            <View style={styles.detailItem}>
+              <Ionicons name="star-outline" size={12} color={theme.colors.secondaryText} />
+              <Text 
+                style={[styles.detailText, { color: theme.colors.secondaryText }]} 
+                numberOfLines={1}
+              >
+                {station.votes}
+              </Text>
+            </View>
+          )}
+        </View>
+        
+        {hasTags && (
+          <View style={styles.tagsContainer}>
+            {typeof station.tags === 'string' ? 
+              station.tags.split(',').slice(0, 3).map((tag, index) => (
+                <View 
+                  key={index} 
+                  style={[styles.tagBadge, { backgroundColor: theme.colors.primary + '20' }]}
+                >
+                  <Text style={[styles.tagText, { color: theme.colors.primary }]}>
+                    {tag.trim()}
+                  </Text>
+                </View>
+              )) : 
+              Array.isArray(station.tags) && station.tags.slice(0, 3).map((tag, index) => (
+                <View 
+                  key={index} 
+                  style={[styles.tagBadge, { backgroundColor: theme.colors.primary + '20' }]}
+                >
+                  <Text style={[styles.tagText, { color: theme.colors.primary }]}>
+                    {tag.trim()}
+                  </Text>
+                </View>
+              ))
+            }
+          </View>
         )}
       </View>
 
@@ -214,62 +278,107 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 4,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   selectedContainer: {
     borderWidth: 1,
   },
+  popularContainer: {
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
   iconContainer: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   icon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   placeholderIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
-    fontSize: 20,
+    fontSize: 24,
   },
   infoContainer: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   name: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
+    flex: 1,
+  },
+  popularBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginLeft: 8,
+  },
+  popularText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+    flexWrap: 'wrap',
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
     marginBottom: 2,
   },
-  country: {
-    fontSize: 14,
-    marginBottom: 2,
-  },
-  tags: {
+  detailText: {
     fontSize: 12,
+    marginLeft: 4,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  tagBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 4,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: '500',
   },
   controlsContainer: {
     flexDirection: 'row',
-    marginRight: 8,
+    marginLeft: 8,
   },
   controlButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,

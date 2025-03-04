@@ -16,7 +16,7 @@ import { FavoriteRadioList } from './FavoriteRadioList';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface RadioSearchProps {
-  onSelectStation: (station: RadioStation) => void;
+  onSelectStation: (station: RadioStation) => void; // Fonction pour sélectionner une station
   selectedStation?: RadioStation | null;
 }
 
