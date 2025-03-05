@@ -20,6 +20,7 @@ const WAKE_UP_MESSAGES = [
 type RootStackParamList = {
   AlarmRinging: { alarm: Alarm };
   AlarmList: undefined;
+  MainTabs: undefined;
 };
 
 type AlarmRingingScreenRouteProp = RouteProp<RootStackParamList, 'AlarmRinging'>;
@@ -83,7 +84,10 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
       );
       
       // Retourner à l'écran principal
-      navigation.navigate('AlarmList');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }]
+      });
     } catch (error) {
       console.error('Erreur lors du snooze:', error);
       setIsSnoozing(false);
@@ -97,7 +101,10 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
       await alarmManager.stopAlarm();
       
       // Retourner à l'écran principal
-      navigation.navigate('AlarmList');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }]
+      });
     } catch (error) {
       console.error('Erreur lors de l\'arrêt de l\'alarme:', error);
     }
