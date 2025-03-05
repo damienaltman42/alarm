@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Alarm } from '../../types';
 import { ErrorService } from '../../utils/errorHandling';
+import { cancelAlarm, scheduleAlarm, AlarmConfig } from './BackgroundNotificationService';
 
 /**
  * Service de gestion des notifications
@@ -276,6 +277,48 @@ export class NotificationService {
     } catch (error) {
       console.error('Erreur lors du calcul de la prochaine occurrence:', error);
       return null;
+    }
+  }
+
+  /**
+   * Planifie une notification pour une alarme
+   * @param alarm Alarme pour laquelle planifier la notification
+   * @param triggerTime Heure de déclenchement de la notification
+   */
+  async scheduleNotification(alarm: Alarm, triggerTime: Date): Promise<void> {
+    try {
+      // Configurer la notification avec les données de l'alarme
+      const alarmConfig: AlarmConfig = {
+        type: alarm.radioStation ? 'radio' : 'spotify',
+        streamingUrl: alarm.radioStation 
+          ? alarm.radioStation.url_resolved 
+          : (alarm.spotifyPlaylist?.uri || ''),
+        title: alarm.radioStation 
+          ? `${alarm.radioStation.name}` 
+          : (alarm.spotifyPlaylist?.name || 'Alarme'),
+        artist: 'Aurora Wake',
+        artwork: alarm.radioStation?.favicon || undefined
+      };
+      
+      // Planifier la notification
+      scheduleAlarm(triggerTime, alarmConfig, alarm.id);
+      
+      console.log(`Notification planifiée pour ${triggerTime.toLocaleString()}`);
+    } catch (error) {
+      ErrorService.handleError(error as Error, 'NotificationService.scheduleNotification');
+    }
+  }
+
+  /**
+   * Annule une notification pour une alarme
+   * @param alarmId Identifiant de l'alarme
+   */
+  async cancelNotification(alarmId: string): Promise<void> {
+    try {
+      cancelAlarm(alarmId);
+      console.log(`Notification annulée pour l'alarme ${alarmId}`);
+    } catch (error) {
+      ErrorService.handleError(error as Error, 'NotificationService.cancelNotification');
     }
   }
 }

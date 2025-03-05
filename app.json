@@ -9,32 +9,36 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1E1E2E"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.aurorawake.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
-          "fetch"
+          "remote-notification"
         ]
-      },
-      "bundleIdentifier": "com.akoubayo.aurorawake"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1E1E2E"
       },
+      "package": "com.aurorawake.app",
       "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
         "WAKE_LOCK",
-        "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_MEDIA_PLAYBACK"
-      ],
-      "package": "com.akoubayo.aurorawake"
+        "FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -44,10 +48,7 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": [
-            "./assets/notification-sound.wav"
-          ]
+          "color": "#1E1E2E"
         }
       ]
     ],
