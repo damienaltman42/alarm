@@ -1,9 +1,13 @@
+import { SpotifyPlaylist } from './spotify';
+
 export interface Alarm {
   id: string;
   time: string; // Format "HH:MM"
   days: number[]; // 0-6, où 0 est dimanche
   enabled: boolean;
   radioStation: RadioStation | null;
+  spotifyPlaylist?: SpotifyPlaylist | null;
+  alarmSound: 'radio' | 'spotify'; // Type de son pour l'alarme
   label?: string;
   snoozeEnabled: boolean;
   snoozeInterval: number; // en minutes
@@ -46,4 +50,5 @@ export interface AppSettings {
 
 export * from './alarm';
 export * from './radio';
-export * from './settings'; 
+export * from './settings';
+export * from './spotify'; 

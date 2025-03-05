@@ -1,0 +1,86 @@
+Pour intégrer la fonctionnalité permettant aux utilisateurs de choisir entre une station de radio ou l’une de leurs playlists Spotify comme alarme, il est nécessaire d’utiliser les SDKs fournis par Spotify pour Android et iOS. Ces SDKs permettent à votre application d’interagir avec l’application Spotify installée sur l’appareil de l’utilisateur. Voici une documentation détaillée sur la manière de procéder, incluant les appels API, les types de données et les paramètres requis. ￼
+
+Intégration de Spotify dans une application Android
+
+1. Configuration initiale :
+	•	Environnement de développement :
+	•	Assurez-vous que votre projet Android utilise un niveau d’API minimum de 14.
+	•	Ajoutez les dépendances nécessaires à votre fichier build.gradle.
+	•	Enregistrement de l’application :
+	•	Inscrivez votre application sur le Tableau de bord des développeurs Spotify pour obtenir un Client ID et définir une Redirect URI.
+
+2. Authentification de l’utilisateur :
+	•	Utilisation de la Spotify Authentication Library :
+	•	Cette bibliothèque gère le flux d’authentification OAuth 2.0 pour obtenir un jeton d’accès.
+	•	Implémentez le flux d’autorisation en utilisant les méthodes fournies par la bibliothèque.
+
+3. Connexion à l’application Spotify :
+	•	Utilisation de la Spotify App Remote Library :
+	•	Cette bibliothèque permet à votre application de contrôler la lecture dans l’application Spotify.
+	•	Établissez une connexion à l’application Spotify en utilisant les méthodes appropriées.
+
+4. Récupération des playlists de l’utilisateur :
+	•	Appel à l’API Web de Spotify :
+	•	Utilisez l’endpoint GET /v1/me/playlists pour obtenir les playlists de l’utilisateur.
+	•	Requête HTTP :
+	•	Méthode : GET
+	•	URL : https://api.spotify.com/v1/me/playlists
+	•	En-têtes :
+	•	Authorization: Bearer {access_token}
+	•	Réponse :
+	•	Un objet JSON contenant une liste de playlists.
+
+5. Sélection de la playlist par l’utilisateur :
+	•	Affichez la liste des playlists récupérées et permettez à l’utilisateur de sélectionner celle qu’il souhaite utiliser comme alarme.
+
+6. Déclenchement de la lecture à l’heure de l’alarme :
+	•	Utilisation de la Spotify App Remote Library :
+	•	Appelez la méthode playerApi.play(String uri) en fournissant l’URI de la playlist sélectionnée.
+
+Intégration de Spotify dans une application iOS
+
+1. Configuration initiale :
+	•	Environnement de développement :
+	•	Assurez-vous que votre projet iOS cible iOS 12 ou une version ultérieure.
+	•	Intégrez le framework SpotifyiOS.framework à votre projet. ￼
+	•	Enregistrement de l’application :
+	•	Inscrivez votre application sur le Tableau de bord des développeurs Spotify pour obtenir un Client ID et définir une Redirect URI.
+
+2. Authentification de l’utilisateur :
+	•	Utilisation de SPTSessionManager :
+	•	Configurez SPTConfiguration avec votre Client ID et votre Redirect URI. ￼
+	•	Implémentez le flux d’autorisation pour obtenir un jeton d’accès.
+
+3. Connexion à l’application Spotify :
+	•	Utilisation de SPTAppRemote :
+	•	Établissez une connexion à l’application Spotify en utilisant SPTAppRemote. ￼
+
+4. Récupération des playlists de l’utilisateur :
+	•	Appel à l’API Web de Spotify :
+	•	Utilisez l’endpoint GET /v1/me/playlists pour obtenir les playlists de l’utilisateur.
+	•	Requête HTTP :
+	•	Méthode : GET
+	•	URL : https://api.spotify.com/v1/me/playlists
+	•	En-têtes :
+	•	Authorization: Bearer {access_token}
+	•	Réponse :
+	•	Un objet JSON contenant une liste de playlists.
+
+5. Sélection de la playlist par l’utilisateur :
+	•	Affichez la liste des playlists récupérées et permettez à l’utilisateur de sélectionner celle qu’il souhaite utiliser comme alarme.
+
+6. Déclenchement de la lecture à l’heure de l’alarme :
+	•	Utilisation de SPTAppRemote :
+	•	Appelez la méthode - (void)play:(NSString *)uri en fournissant l’URI de la playlist sélectionnée.
+
+Remarques importantes :
+	•	Permissions requises :
+	•	Pour accéder aux playlists de l’utilisateur, votre application doit demander la permission playlist-read-private.
+	•	Compatibilité des comptes :
+	•	La lecture à la demande est disponible uniquement pour les utilisateurs disposant d’un compte Spotify Premium.
+	•	Gestion des erreurs :
+	•	Implémentez des mécanismes de gestion des erreurs pour traiter les cas où l’utilisateur n’est pas authentifié, où l’application Spotify n’est pas installée ou où la lecture échoue.
+	•	Respect des conditions d’utilisation :
+	•	Assurez-vous que votre application respecte les Conditions d’utilisation pour les développeurs de Spotify.
+
+En suivant ces étapes détaillées et en utilisant les SDKs appropriés, vous pourrez intégrer efficacement la fonctionnalité permettant aux utilisateurs de choisir et de lire leurs playlists Spotify comme alarme dans votre application.

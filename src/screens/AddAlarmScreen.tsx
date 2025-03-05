@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Alarm, RadioStation } from '../types';
+import { Alarm, RadioStation, SpotifyPlaylist } from '../types';
 import { TimeSelector } from '../components/TimeSelector';
 import { DaySelector } from '../components/DaySelector';
 import { useTheme, useAlarm } from '../hooks';
@@ -26,6 +26,10 @@ type RootStackParamList = {
   SearchRadio: { 
     onSelectStation: (station: RadioStation) => void; 
     selectedStation?: RadioStation | null;
+  };
+  SearchSpotify: { 
+    onSelectPlaylist: (playlist: SpotifyPlaylist) => void; 
+    selectedPlaylist?: SpotifyPlaylist | null;
   };
 };
 
@@ -53,6 +57,8 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
   const [snoozeEnabled, setSnoozeEnabled] = useState<boolean>(editingAlarm?.snoozeEnabled ?? true);
   const [snoozeInterval, setSnoozeInterval] = useState<number>(editingAlarm?.snoozeInterval || 5);
   const [radioStation, setRadioStation] = useState<RadioStation | null>(editingAlarm?.radioStation || null);
+  const [spotifyPlaylist, setSpotifyPlaylist] = useState<SpotifyPlaylist | null>(editingAlarm?.spotifyPlaylist || null);
+  const [alarmSound, setAlarmSound] = useState<'radio' | 'spotify'>(editingAlarm?.alarmSound || 'radio');
 
   // Naviguer vers l'écran de recherche de radio
   const navigateToRadioSearch = (): void => {
@@ -62,15 +68,46 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
     });
   };
 
+  // Naviguer vers l'écran de recherche de playlist Spotify
+  const navigateToSpotifySearch = (): void => {
+    navigation.navigate('SearchSpotify', {
+      onSelectPlaylist: handleSelectSpotifyPlaylist,
+      selectedPlaylist: spotifyPlaylist
+    });
+  };
+
   // Gérer la sélection d'une station de radio
   const handleSelectRadioStation = (station: RadioStation): void => {
     console.log('Station sélectionnée:', station.name);
     setRadioStation(station);
+    setAlarmSound('radio');
+    setSpotifyPlaylist(null);
+  };
+
+  // Gérer la sélection d'une playlist Spotify
+  const handleSelectSpotifyPlaylist = (playlist: SpotifyPlaylist): void => {
+    console.log('Playlist sélectionnée:', playlist.name);
+    setSpotifyPlaylist(playlist);
+    setAlarmSound('spotify');
+    setRadioStation(null);
   };
 
   // Gérer la suppression de la station de radio sélectionnée
   const handleClearRadioStation = (): void => {
     setRadioStation(null);
+    if (!spotifyPlaylist) {
+      // Si aucune playlist Spotify n'est sélectionnée, on ne fait rien
+      // Sinon on laisserait l'utilisateur sans aucune source de son
+    }
+  };
+
+  // Gérer la suppression de la playlist Spotify sélectionnée
+  const handleClearSpotifyPlaylist = (): void => {
+    setSpotifyPlaylist(null);
+    if (!radioStation) {
+      // Si aucune station de radio n'est sélectionnée, on ne fait rien
+      // Sinon on laisserait l'utilisateur sans aucune source de son
+    }
   };
 
   // Fonction pour générer un ID unique sans utiliser uuid
@@ -82,8 +119,8 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
   // Gérer la sauvegarde de l'alarme
   const handleSaveAlarm = async (): Promise<void> => {
-    if (!radioStation) {
-      Alert.alert('Station manquante', 'Veuillez sélectionner une station de radio pour cette alarme.');
+    if (!radioStation && !spotifyPlaylist) {
+      Alert.alert('Source sonore manquante', 'Veuillez sélectionner une station de radio ou une playlist Spotify pour cette alarme.');
       return;
     }
 
@@ -97,6 +134,8 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
         snoozeEnabled,
         snoozeInterval,
         radioStation,
+        spotifyPlaylist,
+        alarmSound,
       };
 
       console.log('Sauvegarde de l\'alarme avec ID:', alarm.id);
@@ -164,42 +203,132 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
           </View>
 
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Radio</Text>
-            {radioStation ? (
-              <View style={styles.selectedRadioContainer}>
-                <View style={styles.selectedRadioInfo}>
-                  <Text style={[styles.radioName, { color: theme.text }]}>{radioStation.name}</Text>
-                  {radioStation.country && (
-                    <Text style={[styles.radioDetail, { color: theme.secondary }]}>
-                      {radioStation.country}
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.radioActions}>
-                  <TouchableOpacity
-                    style={[styles.radioButton, { backgroundColor: theme.primary }]}
-                    onPress={navigateToRadioSearch}
-                  >
-                    <Ionicons name="swap-horizontal" size={18} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.radioButton, { backgroundColor: theme.error }]}
-                    onPress={handleClearRadioStation}
-                  >
-                    <Ionicons name="close" size={18} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : (
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Source sonore</Text>
+            <View style={styles.soundSourceContainer}>
               <TouchableOpacity
-                style={[styles.selectRadioButton, { borderColor: theme.primary }]}
-                onPress={navigateToRadioSearch}
+                style={[
+                  styles.soundSourceTab,
+                  { borderColor: theme.border },
+                  alarmSound === 'radio' && { backgroundColor: theme.primary, borderColor: theme.primary }
+                ]}
+                onPress={() => setAlarmSound('radio')}
               >
-                <Ionicons name="radio-outline" size={24} color={theme.primary} />
-                <Text style={[styles.selectRadioText, { color: theme.primary }]}>
-                  Sélectionner une station
+                <Ionicons 
+                  name="radio"
+                  size={20} 
+                  color={alarmSound === 'radio' ? '#fff' : theme.secondary} 
+                />
+                <Text 
+                  style={[
+                    styles.soundSourceText, 
+                    { color: alarmSound === 'radio' ? '#fff' : theme.secondary }
+                  ]}
+                >
+                  Radio
                 </Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.soundSourceTab,
+                  { borderColor: theme.border },
+                  alarmSound === 'spotify' && { backgroundColor: '#1DB954', borderColor: '#1DB954' }
+                ]}
+                onPress={() => setAlarmSound('spotify')}
+              >
+                <Ionicons 
+                  name="musical-notes" 
+                  size={20} 
+                  color={alarmSound === 'spotify' ? '#fff' : theme.secondary} 
+                />
+                <Text 
+                  style={[
+                    styles.soundSourceText, 
+                    { color: alarmSound === 'spotify' ? '#fff' : theme.secondary }
+                  ]}
+                >
+                  Spotify
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            {alarmSound === 'radio' && (
+              <>
+                {radioStation ? (
+                  <View style={styles.selectedRadioContainer}>
+                    <View style={styles.selectedRadioInfo}>
+                      <Text style={[styles.radioName, { color: theme.text }]}>{radioStation.name}</Text>
+                      {radioStation.country && (
+                        <Text style={[styles.radioDetail, { color: theme.secondary }]}>
+                          {radioStation.country}
+                        </Text>
+                      )}
+                    </View>
+                    <View style={styles.radioActions}>
+                      <TouchableOpacity
+                        style={[styles.radioButton, { backgroundColor: theme.primary }]}
+                        onPress={navigateToRadioSearch}
+                      >
+                        <Ionicons name="swap-horizontal" size={18} color="#fff" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.radioButton, { backgroundColor: theme.error }]}
+                        onPress={handleClearRadioStation}
+                      >
+                        <Ionicons name="close" size={18} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.selectSoundButton, { borderColor: theme.primary }]}
+                    onPress={navigateToRadioSearch}
+                  >
+                    <Ionicons name="radio-outline" size={24} color={theme.primary} />
+                    <Text style={[styles.selectSoundText, { color: theme.primary }]}>
+                      Sélectionner une station
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+
+            {alarmSound === 'spotify' && (
+              <>
+                {spotifyPlaylist ? (
+                  <View style={styles.selectedRadioContainer}>
+                    <View style={styles.selectedRadioInfo}>
+                      <Text style={[styles.radioName, { color: theme.text }]}>{spotifyPlaylist.name}</Text>
+                      <Text style={[styles.radioDetail, { color: theme.secondary }]}>
+                        {spotifyPlaylist.owner.display_name}
+                      </Text>
+                    </View>
+                    <View style={styles.radioActions}>
+                      <TouchableOpacity
+                        style={[styles.radioButton, { backgroundColor: '#1DB954' }]}
+                        onPress={navigateToSpotifySearch}
+                      >
+                        <Ionicons name="swap-horizontal" size={18} color="#fff" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.radioButton, { backgroundColor: theme.error }]}
+                        onPress={handleClearSpotifyPlaylist}
+                      >
+                        <Ionicons name="close" size={18} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.selectSoundButton, { borderColor: '#1DB954' }]}
+                    onPress={navigateToSpotifySearch}
+                  >
+                    <Ionicons name="musical-notes" size={24} color="#1DB954" />
+                    <Text style={[styles.selectSoundText, { color: '#1DB954' }]}>
+                      Sélectionner une playlist
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
             )}
           </View>
 
@@ -340,17 +469,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
   },
-  selectRadioButton: {
+  selectSoundButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
     borderRadius: 8,
-    padding: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderStyle: 'dashed',
   },
-  selectRadioText: {
+  selectSoundText: {
     fontSize: 16,
-    color: '#0066cc',
+    fontWeight: '500',
     marginLeft: 8,
   },
   selectedRadioContainer: {
@@ -383,5 +514,25 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     marginLeft: 8,
+  },
+  soundSourceContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  soundSourceTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  soundSourceText: {
+    fontSize: 15,
+    fontWeight: '500',
+    marginLeft: 6,
   },
 }); 

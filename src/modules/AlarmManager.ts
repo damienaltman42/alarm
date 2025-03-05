@@ -4,6 +4,7 @@ import { Platform, AppState, AppStateStatus } from 'react-native';
 import { Alarm } from '../types';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import Constants from 'expo-constants';
+import SpotifyService from '../services/SpotifyService';
 
 // Clé pour le stockage des alarmes dans AsyncStorage
 const ALARMS_STORAGE_KEY = '@aurora_wake_alarms';
@@ -275,25 +276,41 @@ class AlarmManager {
     const isSnooze = notification.request.content.data?.isSnooze;
     
     if (alarmId) {
-      console.log(`Notification reçue pour l'alarme ${alarmId}${isSnooze ? ' (snooze)' : ''}`);
-      
-      // Récupérer les détails de l'alarme
+      // Récupérer les alarmes
       const alarms = await this.getAlarms();
       const alarm = alarms.find(a => a.id === alarmId);
       
-      if (alarm && alarm.radioStation) {
-        // Démarrer la radio
-        await this.playRadio(alarm.radioStation.url_resolved, alarm.radioStation.name);
-        
-        // Stocker l'ID de l'alarme active
-        this.activeAlarmId = alarmId;
-        
-        // Naviguer vers l'écran d'alarme si la fonction de navigation est définie
-        if (navigateToAlarmScreen) {
-          try {
-            navigateToAlarmScreen(alarm);
-          } catch (error) {
-            console.error('Erreur lors de la navigation vers l\'écran d\'alarme:', error);
+      if (alarm) {
+        // Vérifier la source audio à utiliser
+        if (alarm.alarmSound === 'spotify' && alarm.spotifyPlaylist) {
+          // Démarrer la playlist Spotify
+          await this.playSpotifyPlaylist(alarm.spotifyPlaylist.uri, alarm.spotifyPlaylist.name);
+          
+          // Stocker l'ID de l'alarme active
+          this.activeAlarmId = alarmId;
+          
+          // Naviguer vers l'écran d'alarme si la fonction de navigation est définie
+          if (navigateToAlarmScreen) {
+            try {
+              navigateToAlarmScreen(alarm);
+            } catch (error) {
+              console.error('Erreur lors de la navigation vers l\'écran d\'alarme:', error);
+            }
+          }
+        } else if (alarm.radioStation) {
+          // Démarrer la radio
+          await this.playRadio(alarm.radioStation.url_resolved, alarm.radioStation.name);
+          
+          // Stocker l'ID de l'alarme active
+          this.activeAlarmId = alarmId;
+          
+          // Naviguer vers l'écran d'alarme si la fonction de navigation est définie
+          if (navigateToAlarmScreen) {
+            try {
+              navigateToAlarmScreen(alarm);
+            } catch (error) {
+              console.error('Erreur lors de la navigation vers l\'écran d\'alarme:', error);
+            }
           }
         }
       }
@@ -460,6 +477,27 @@ class AlarmManager {
     }
   }
 
+  // Jouer une playlist Spotify
+  private async playSpotifyPlaylist(playlistUri: string, playlistName: string = 'Playlist Spotify'): Promise<void> {
+    try {
+      // Arrêter toute lecture en cours
+      await this.stopAlarm();
+      
+      // Tenter de jouer la playlist
+      const success = await SpotifyService.playPlaylist(playlistUri);
+      
+      if (success) {
+        // Créer une notification pour l'alarme active
+        await this.createAlarmNotification(playlistName);
+      } else {
+        console.error('Impossible de lire la playlist Spotify. Spotify est-il installé et connecté ?');
+        // Si la lecture Spotify échoue, on pourrait lire une radio par défaut ou un son d'alarme local
+      }
+    } catch (error) {
+      console.error('Erreur lors de la lecture de la playlist Spotify:', error);
+    }
+  }
+
   // Arrêter l'alarme
   public async stopAlarm(): Promise<void> {
     try {
@@ -480,6 +518,13 @@ class AlarmManager {
           // S'assurer que la référence est nettoyée même en cas d'erreur
           this.sound = null;
         }
+      }
+      
+      // Arrêter également la lecture Spotify si elle est en cours
+      try {
+        await SpotifyService.pausePlayback();
+      } catch (error) {
+        console.log('Erreur ignorée lors de l\'arrêt de Spotify:', (error as Error).message);
       }
       
       // Arrêter également toute prévisualisation en cours

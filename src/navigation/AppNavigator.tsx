@@ -7,9 +7,10 @@ import { View, StyleSheet } from 'react-native';
 import { AlarmListScreen } from '../screens/AlarmListScreen';
 import { AddAlarmScreen } from '../screens/AddAlarmScreen';
 import { SearchRadioScreen } from '../screens/SearchRadioScreen';
+import { SearchSpotifyScreen } from '../screens/SearchSpotifyScreen';
 import { AlarmRingingScreen } from '../screens/AlarmRingingScreen';
 import { RadioPlayerScreen } from '../screens/RadioPlayerScreen';
-import { Alarm, RadioStation } from '../types';
+import { Alarm, RadioStation, SpotifyPlaylist } from '../types';
 import { useTheme, useRadio } from '../hooks';
 import { setNavigateToAlarmScreen } from '../modules/AlarmManager';
 import { navigationRef } from './navigationRef';
@@ -22,6 +23,10 @@ type RootStackParamList = {
   SearchRadio: { 
     onSelectStation: (station: RadioStation) => void; 
     selectedStation?: RadioStation | null;
+  };
+  SearchSpotify: { 
+    onSelectPlaylist: (playlist: SpotifyPlaylist) => void; 
+    selectedPlaylist?: SpotifyPlaylist | null;
   };
   AlarmRinging: { alarm: Alarm };
 };
@@ -144,6 +149,7 @@ export const AppNavigator: React.FC = () => {
           <Stack.Screen name="MainTabs" component={MainTabs} />
           <Stack.Screen name="AddAlarm" component={AddAlarmScreen} />
           <Stack.Screen name="SearchRadio" component={SearchRadioScreen} />
+          <Stack.Screen name="SearchSpotify" component={SearchSpotifyScreen} />
           <Stack.Screen 
             name="AlarmRinging" 
             component={AlarmRingingScreen}

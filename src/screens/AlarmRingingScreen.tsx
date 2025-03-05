@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, Easing, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, Easing, Alert, Image } from 'react-native';
 import { useNavigation, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -118,12 +118,38 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
         
-        {/* Nom de la radio */}
-        {alarm.radioStation && (
-          <Text style={[styles.radioName, { color: theme.primary }]}>
-            {alarm.radioStation.name}
-          </Text>
-        )}
+        {/* Source audio */}
+        {alarm.alarmSound === 'radio' && alarm.radioStation ? (
+          <View style={styles.audioSourceContainer}>
+            <Ionicons name="radio" size={24} color={theme.primary} style={styles.audioSourceIcon} />
+            <Text style={[styles.audioSourceName, { color: theme.primary }]}>
+              {alarm.radioStation.name}
+            </Text>
+          </View>
+        ) : alarm.alarmSound === 'spotify' && alarm.spotifyPlaylist ? (
+          <View style={styles.audioSourceContainer}>
+            <View style={styles.spotifyInfo}>
+              {alarm.spotifyPlaylist.images && alarm.spotifyPlaylist.images.length > 0 ? (
+                <Image 
+                  source={{ uri: alarm.spotifyPlaylist.images[0].url }} 
+                  style={styles.playlistImage} 
+                />
+              ) : (
+                <View style={[styles.playlistImagePlaceholder, { backgroundColor: '#1DB954' }]}>
+                  <Ionicons name="musical-notes" size={24} color="#fff" />
+                </View>
+              )}
+              <View style={styles.spotifyTextInfo}>
+                <Text style={[styles.audioSourceName, { color: theme.primary }]}>
+                  {alarm.spotifyPlaylist.name}
+                </Text>
+                <Text style={[styles.spotifyOwner, { color: theme.secondary }]}>
+                  {alarm.spotifyPlaylist.owner.display_name}
+                </Text>
+              </View>
+            </View>
+          </View>
+        ) : null}
         
         {/* Message de réveil */}
         <Animated.Text 
@@ -227,5 +253,43 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 10,
+  },
+  audioSourceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 40,
+    paddingHorizontal: 20,
+  },
+  audioSourceIcon: {
+    marginRight: 10,
+  },
+  audioSourceName: {
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  spotifyInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  playlistImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  playlistImagePlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 4,
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  spotifyTextInfo: {
+    flexDirection: 'column',
+  },
+  spotifyOwner: {
+    fontSize: 14,
+    marginTop: 2,
   },
 }); 
