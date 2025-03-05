@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RadioStation } from '../../types';
 import { useTheme } from '../../hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ErrorService } from '../../utils/errorHandling';
 
 interface MiniPlayerProps {
   station: RadioStation;
@@ -21,9 +22,10 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ station, isLoading, onSt
   // Fonction pour gérer l'arrêt de la lecture
   const handleStop = async () => {
     try {
+      console.log('Arrêt de la lecture dans le MiniPlayer');
       await onStop();
     } catch (error) {
-      console.error('Erreur lors de l\'arrêt de la lecture:', error);
+      ErrorService.handleAudioError(error, 'MiniPlayer.handleStop');
     }
   };
   

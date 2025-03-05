@@ -2,6 +2,7 @@ import { Audio, InterruptionModeAndroid, InterruptionModeIOS, AVPlaybackStatus }
 import { Platform } from 'react-native';
 import { AlarmPlayerOptions, RadioStation } from '../../types';
 import { ErrorService } from '../../utils/errorHandling';
+import { AudioSourceUtils } from '../audio/AudioSource';
 
 /**
  * Service responsable de la lecture audio des alarmes
@@ -10,6 +11,7 @@ export class AlarmPlayer {
   private sound: Audio.Sound | null = null;
   private previewSound: Audio.Sound | null = null;
   private isPlaying: boolean = false;
+  private isStoppingPreviewSound: boolean = false;
 
   constructor(private options: AlarmPlayerOptions = {}) {
     this.configureAudioForBackground();
@@ -103,14 +105,26 @@ export class AlarmPlayer {
    * Arrête la prévisualisation
    */
   async stopPreview(): Promise<void> {
+    // Éviter les arrêts multiples simultanés
+    if (this.isStoppingPreviewSound) {
+      console.log('Arrêt de prévisualisation déjà en cours, opération ignorée');
+      return;
+    }
+
     try {
-      if (this.previewSound) {
-        await this.previewSound.stopAsync();
-        await this.previewSound.unloadAsync();
-        this.previewSound = null;
-      }
+      this.isStoppingPreviewSound = true;
+      console.log('Arrêt de la prévisualisation dans le AlarmPlayer');
+      await AudioSourceUtils.safeStop(
+        this.previewSound,
+        async (sound) => { await sound.stopAsync(); },
+        async (sound) => { await sound.unloadAsync(); },
+        'la prévisualisation'
+      );
+      this.previewSound = null;
     } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmPlayer.stopPreview');
+      ErrorService.handleAudioError(error, 'AlarmPlayer.stopPreview');
+    } finally {
+      this.isStoppingPreviewSound = false;
     }
   }
 

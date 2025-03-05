@@ -1,47 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { RadioStation, RadioSearchParams, Country, Tag } from '../types';
+import { RadioStation, Country, Tag, RadioSearchParams } from '../types';
 import { alarmManager } from '../services/alarm/alarmManager';
 import { radioService } from '../services/radio/radioService';
+import { favoriteService } from '../services/radio/favoriteService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RadioSource } from '../services/audio/RadioSource';
+import { ErrorService } from '../utils/errorHandling';
 
 // Service de gestion des favoris simplifié
 const FAVORITES_STORAGE_KEY = 'radio_favorites';
-const favoriteService = {
-  async getFavorites(): Promise<RadioStation[]> {
-    try {
-      const favoritesJson = await AsyncStorage.getItem(FAVORITES_STORAGE_KEY);
-      return favoritesJson ? JSON.parse(favoritesJson) : [];
-    } catch (error) {
-      console.error('Erreur lors de la récupération des favoris:', error);
-      return [];
-    }
-  },
-  
-  async addFavorite(station: RadioStation): Promise<void> {
-    try {
-      const favorites = await this.getFavorites();
-      if (!favorites.some(fav => fav.stationuuid === station.stationuuid)) {
-        favorites.push(station);
-        await AsyncStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout aux favoris:', error);
-      throw error;
-    }
-  },
-  
-  async removeFavorite(stationId: string): Promise<void> {
-    try {
-      const favorites = await this.getFavorites();
-      const updatedFavorites = favorites.filter(station => station.stationuuid !== stationId);
-      await AsyncStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(updatedFavorites));
-    } catch (error) {
-      console.error('Erreur lors de la suppression des favoris:', error);
-      throw error;
-    }
-  }
-};
 
 /**
  * Hook personnalisé pour interagir avec les radios
@@ -56,6 +23,7 @@ export function useRadio() {
   const [error, setError] = useState<string | null>(null);
   const [currentPlayingStation, setCurrentPlayingStation] = useState<RadioStation | null>(null);
   const [loadingAudio, setLoadingAudio] = useState<boolean>(false);
+  const [isStoppingPreview, setIsStoppingPreview] = useState<boolean>(false);
 
   // Charger les favoris au démarrage
   useEffect(() => {
@@ -290,13 +258,27 @@ export function useRadio() {
    * Arrête la lecture en cours
    */
   const stopPreview = useCallback(async () => {
+    // Éviter les arrêts multiples
+    if (isStoppingPreview) {
+      console.log('Arrêt de la lecture déjà en cours dans useRadio, opération ignorée');
+      return;
+    }
+
     try {
+      setIsStoppingPreview(true);
+      console.log('Arrêt de la lecture dans le useRadio');
       await alarmManager.stopPreview();
       setCurrentPlayingStation(null);
     } catch (error) {
-      console.error('Erreur lors de l\'arrêt de la lecture:', error);
+      const isHandled = ErrorService.handleAudioError(error, 'useRadio.stopPreview');
+      // Même en cas d'erreur, réinitialiser l'état
+      if (isHandled) {
+        setCurrentPlayingStation(null);
+      }
+    } finally {
+      setIsStoppingPreview(false);
     }
-  }, []);
+  }, [isStoppingPreview]);
 
   return {
     // Données

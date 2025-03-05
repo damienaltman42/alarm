@@ -36,4 +36,20 @@ export class ErrorService {
       return fallback;
     }
   }
+
+  /**
+   * Gère les erreurs liées à l'audio, en particulier l'erreur "Seeking interrupted"
+   * @param error L'erreur à gérer
+   * @param context Le contexte dans lequel l'erreur s'est produite
+   * @returns true si l'erreur a été gérée et peut être ignorée, false sinon
+   */
+  static handleAudioError(error: unknown, context: string): boolean {
+    if (error instanceof Error && error.message.includes('Seeking interrupted')) {
+      console.log('Info: Seeking interrupted lors de l\'arrêt de la radio - cette erreur est normale et peut être ignorée');
+      return true; // Erreur gérée, peut être ignorée
+    } else {
+      this.handleError(error as Error, context);
+      return false; // Erreur non gérée
+    }
+  }
 } 
