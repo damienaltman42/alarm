@@ -102,4 +102,7 @@ class AlarmManager {
 }
 
 // Exporter une instance singleton
-export const alarmManager = new AlarmManager(); 
+export const alarmManager = new AlarmManager();
+
+export * from './alarmStorage';
+export * from './alarmManager'; 

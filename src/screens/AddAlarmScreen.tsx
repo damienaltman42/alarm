@@ -16,8 +16,8 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alarm, RadioStation, SpotifyPlaylist } from '../types';
-import { TimeSelector } from '../components/TimeSelector';
-import { DaySelector } from '../components/DaySelector';
+import { TimeSelector } from '../components/alarm/TimeSelector';
+import { DaySelector } from '../components/alarm/DaySelector';
 import { useTheme, useAlarm } from '../hooks';
 
 type RootStackParamList = {

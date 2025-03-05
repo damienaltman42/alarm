@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Alarm } from '../types';
+import { Alarm } from '../../types';
 
 interface AlarmItemProps {
   alarm: Alarm;

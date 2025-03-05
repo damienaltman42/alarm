@@ -8,4 +8,7 @@ export const radioFavorites = new RadioFavorites();
 export const radioService = new RadioService();
 
 // Export des classes pour utilisation éventuelle
-export { RadioCache, RadioFavorites, RadioService }; 
+export { RadioCache, RadioFavorites, RadioService };
+
+export { favoriteService } from './favoriteService';
+export { radioService } from './radioService'; 

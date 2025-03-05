@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { RadioStation, Country, Tag } from '../types';
-import { useRadio, useTheme } from '../hooks';
+import { RadioStation, Country, Tag } from '../../types';
+import { useRadio, useTheme } from '../../hooks';
 import RadioStationItem from './RadioStationItem';
 import { FavoriteRadioList } from './FavoriteRadioList';
 
@@ -47,6 +47,9 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Variable pour stocker la référence au champ de recherche
+  const searchInputRef = React.useRef<TextInput>(null);
+
   // Charger les pays et tags au démarrage
   useEffect(() => {
     loadCountriesData();
@@ -60,6 +63,14 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     setError(null);
     setSearchQuery('');
   }, [searchMode]);
+
+  // Réinitialiser l'erreur lorsque des stations sont trouvées
+  useEffect(() => {
+    if (stations.length > 0 && error) {
+      console.log('Stations trouvées, réinitialisation du message d\'erreur');
+      setError(null);
+    }
+  }, [stations, error]);
 
   // Charger la liste des pays
   const loadCountriesData = async (): Promise<void> => {
@@ -91,60 +102,192 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     }
   };
 
-  // Effectuer une recherche
+  // Recherche directe par nom
+  const searchByName = () => {
+    if (!searchQuery.trim()) {
+      Alert.alert('Recherche vide', 'Veuillez entrer un terme de recherche.');
+      return;
+    }
+    
+    console.log(`Lancement de recherche par nom: "${searchQuery}"`);
+    setIsLoading(true);
+    setError(null);
+    setStations([]);
+    
+    const searchParams = {
+      name: searchQuery,
+      hidebroken: true,
+      is_https: true,
+      order: 'votes' as 'votes',
+      reverse: true,
+      limit: 20
+    };
+    
+    console.log('Paramètres de recherche:', searchParams);
+    
+    searchStations(searchParams)
+      .then((results) => {
+        console.log(`Recherche par nom "${searchQuery}": ${results.length} résultats`);
+        setStations(results);
+        
+        if (results.length === 0) {
+          setError(`Aucune station trouvée pour le nom "${searchQuery}".`);
+        } else {
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        console.error('Erreur lors de la recherche par nom:', err);
+        setError('Une erreur est survenue lors de la recherche.');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  // Effectuer une recherche générale
   const performSearch = async () => {
     if (searchMode === 'favorites') {
       // Pas besoin de recherche pour les favoris
       return;
     }
     
-    if (!searchQuery.trim() && searchMode !== 'country') {
+    // Vérifier que la recherche n'est pas vide (sauf pour les pays)
+    if (searchMode !== 'country' && !searchQuery.trim()) {
       Alert.alert('Recherche vide', 'Veuillez entrer un terme de recherche.');
       return;
     }
 
+    console.log(`Exécution de la recherche par ${searchMode}: "${searchQuery}"`);
     setIsLoading(true);
     setError(null);
     setStations([]);
 
     try {
-      let results: RadioStation[] = [];
-
-      switch (searchMode) {
-        case 'name':
-          results = await searchStations({ name: searchQuery });
-          break;
-        case 'country':
-          results = await searchStations({ country: searchQuery });
-          break;
-        case 'tag':
-          results = await searchStations({ tag: searchQuery });
-          break;
-      }
-
+      // Préparer les paramètres de recherche selon le mode
+      const searchParams = {
+        [searchMode === 'name' ? 'name' : searchMode === 'country' ? 'country' : 'tag']: searchQuery,
+        limit: 20,
+        order: 'votes' as 'votes',
+        reverse: true,
+        hidebroken: true,
+        is_https: true
+      };
+      
+      console.log('Paramètres de recherche:', searchParams);
+      
+      // Effectuer la recherche
+      const results = await searchStations(searchParams);
+      
+      console.log(`Recherche par ${searchMode} "${searchQuery}": ${results.length} résultats`);
+      
+      // Mettre à jour l'état des stations
       setStations(results);
       
+      // Définir un message d'erreur personnalisé si aucun résultat n'est trouvé
       if (results.length === 0) {
-        setError('Aucune station trouvée. Essayez d\'autres termes de recherche.');
+        if (searchMode === 'name') {
+          setError(`Aucune station trouvée pour le nom "${searchQuery}".`);
+        } else if (searchMode === 'country') {
+          setError(`Aucune station trouvée pour le pays "${searchQuery}".`);
+        } else {
+          setError(`Aucune station trouvée pour le genre "${searchQuery}".`);
+        }
+      } else {
+        // S'assurer que l'erreur est réinitialisée si des résultats sont trouvés
+        setError(null);
       }
     } catch (err) {
-      console.error('Erreur lors de la recherche:', err);
+      console.error(`Erreur lors de la recherche par ${searchMode}:`, err);
       setError('Une erreur est survenue lors de la recherche. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Sélectionner un pays dans la liste
-  const selectCountry = (country: Country): void => {
+  // Sélectionner un pays pour la recherche
+  const selectCountry = (country: Country) => {
+    console.log('============================= selectedCountry START=============================');
+    console.log(country);
+    console.log('============================= selectedCountry END=============================');
+    
     setSearchQuery(country.name);
-    performSearch();
+    setIsLoading(true);
+    setError(null);
+    setStations([]);
+    
+    // Utiliser le code ISO du pays pour la recherche
+    console.log(`Code pays ajouté à la recherche: ${country.iso_3166_1}`);
+    
+    // Recherche directe par code pays
+    const searchParams = {
+      countrycode: country.iso_3166_1,
+      hidebroken: true,
+      is_https: true,
+      order: 'votes' as 'votes',
+      reverse: true,
+      limit: 20
+    };
+    
+    console.log('Paramètres de recherche:', searchParams);
+    
+    searchStations(searchParams)
+      .then((results) => {
+        console.log(`Recherche par pays "${country.name}" (${country.iso_3166_1}): ${results.length} résultats`);
+        setStations(results);
+        
+        if (results.length === 0) {
+          setError(`Aucune station trouvée pour le pays "${country.name}".`);
+        } else {
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        console.error('Erreur lors de la recherche par pays:', err);
+        setError('Une erreur est survenue lors de la recherche par pays.');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
-  // Sélectionner un tag dans la liste
-  const selectTag = (tag: Tag): void => {
+  // Sélectionner un tag pour la recherche
+  const selectTag = (tag: Tag) => {
+    console.log('============================= selectedTag START=============================');
+    console.log(tag);
+    console.log('============================= selectedTag END=============================');
+    
     setSearchQuery(tag.name);
-    performSearch();
+    setIsLoading(true);
+    setError(null);
+    setStations([]);
+    
+    // Recherche directe par tag
+    searchStations({
+      tag: tag.name,
+      hidebroken: true,
+      is_https: true,
+      order: 'votes',
+      reverse: true,
+      limit: 20
+    })
+    .then((results) => {
+      console.log(`Recherche par tag "${tag.name}": ${results.length} résultats`);
+      setStations(results);
+      
+      if (results.length === 0) {
+        setError(`Aucune station trouvée pour le genre "${tag.name}".`);
+      } else {
+        setError(null);
+      }
+    })
+    .catch((err) => {
+      console.error('Erreur lors de la recherche par tag:', err);
+      setError('Une erreur est survenue lors de la recherche par genre.');
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
   };
 
   // Afficher les onglets de mode de recherche
@@ -246,6 +389,48 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     );
   };
 
+  // Afficher le champ de recherche
+  const renderSearchInput = () => {
+    if (searchMode === 'favorites') return null;
+    
+    return (
+      <View style={styles.searchInputContainer}>
+        <TextInput
+          ref={searchInputRef}
+          style={[styles.searchInput, { backgroundColor: theme.card, color: theme.text }]}
+          placeholder={
+            searchMode === 'name' ? 'Rechercher une station par nom...' :
+            searchMode === 'country' ? 'Rechercher un pays...' :
+            'Rechercher un genre musical...'
+          }
+          placeholderTextColor={theme.secondary}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          returnKeyType="search"
+          onSubmitEditing={() => {
+            if (searchMode === 'name') {
+              searchByName();
+            } else {
+              performSearch();
+            }
+          }}
+        />
+        <TouchableOpacity
+          style={[styles.searchButton, { backgroundColor: theme.primary }]}
+          onPress={() => {
+            if (searchMode === 'name') {
+              searchByName();
+            } else {
+              performSearch();
+            }
+          }}
+        >
+          <Text style={styles.searchButtonText}>Rechercher</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   // Rendu du contenu en fonction du mode de recherche
   const renderContent = (): JSX.Element => {
     // Si on est en mode favoris, afficher le composant FavoriteRadioList
@@ -258,6 +443,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
       );
     }
     
+    // Afficher le chargement
     if (isLoading) {
       return (
         <View style={styles.centerContainer}>
@@ -269,16 +455,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
       );
     }
 
-    if (error) {
-      return (
-        <View style={styles.centerContainer}>
-          <Text style={[styles.errorText, { color: theme.error }]}>
-            {error}
-          </Text>
-        </View>
-      );
-    }
-
+    // Afficher les résultats de recherche s'il y en a
     if (stations.length > 0) {
       return (
         <FlatList
@@ -293,6 +470,17 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
           )}
           contentContainerStyle={styles.listContent}
         />
+      );
+    }
+    
+    // Afficher le message d'erreur s'il y en a un et qu'aucune station n'a été trouvée
+    if (error && stations.length === 0) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text style={[styles.errorText, { color: theme.error }]}>
+            {error}
+          </Text>
+        </View>
       );
     }
 
@@ -371,32 +559,7 @@ export const RadioSearch: React.FC<RadioSearchProps> = ({
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {renderSearchModeTabs()}
       
-      {searchMode !== 'favorites' && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={[styles.searchInput, { backgroundColor: theme.card }]}
-            placeholder={
-              searchMode === 'name'
-                ? 'Rechercher par nom de station...'
-                : searchMode === 'country'
-                ? 'Rechercher par pays...'
-                : 'Rechercher par genre musical...'
-            }
-            placeholderTextColor={theme.secondary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={performSearch}
-            returnKeyType="search"
-          />
-          
-          <TouchableOpacity 
-            style={[styles.searchButton, { backgroundColor: theme.primary }]} 
-            onPress={performSearch}
-          >
-            <Text style={styles.searchButtonText}>Rechercher</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {renderSearchInput()}
       
       {renderContent()}
     </View>
@@ -438,7 +601,7 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: '#0066cc',
   },
-  searchContainer: {
+  searchInputContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     marginBottom: 16,

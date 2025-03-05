@@ -7,9 +7,9 @@ import {
   StyleSheet,
   RefreshControl,
 } from 'react-native';
-import { RadioStation, RadioSearchParams } from '../types';
+import { RadioStation, RadioSearchParams } from '../../types';
 import { RadioStationCard } from './RadioStationCard';
-import { useTheme, useRadio } from '../hooks';
+import { useTheme, useRadio } from '../../hooks';
 
 interface InfiniteRadioListProps {
   searchParams: RadioSearchParams;

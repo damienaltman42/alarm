@@ -13,8 +13,8 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RadioStation, Country, Tag, RadioSearchParams } from '../types';
-import { useTheme } from '../hooks';
+import { RadioStation, Country, Tag, RadioSearchParams } from '../../types';
+import { useTheme } from '../../hooks';
 
 interface AdvancedRadioSearchProps {
   onSearch: (params: RadioSearchParams) => Promise<void>;

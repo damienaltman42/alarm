@@ -6,7 +6,7 @@ import {
   Animated,
   ViewStyle,
 } from 'react-native';
-import { useTheme } from '../hooks';
+import { useTheme } from '../../hooks';
 
 interface AnimatedSwitchProps {
   value: boolean;

@@ -12,7 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alarm } from '../types';
-import { AlarmItem } from '../components/AlarmItem';
+import { AlarmItem } from '../components/alarm/AlarmItem';
 import { useAlarm, useTheme } from '../hooks';
 
 interface AlarmListScreenProps {

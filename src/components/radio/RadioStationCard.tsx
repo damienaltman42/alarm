@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RadioStation } from '../types';
-import { useTheme, useRadio } from '../hooks';
+import { RadioStation } from '../../types';
+import { useTheme, useRadio } from '../../hooks';
 
 interface RadioStationCardProps {
   station: RadioStation;
@@ -81,11 +81,15 @@ export const RadioStationCard: React.FC<RadioStationCardProps> = ({
 
   // Vérifier si cette station est en cours de lecture
   React.useEffect(() => {
-    setIsPlaying(currentPlayingStation === station.stationuuid);
+    if (currentPlayingStation) {
+      setIsPlaying(currentPlayingStation.stationuuid === station.stationuuid);
+    } else {
+      setIsPlaying(false);
+    }
   }, [currentPlayingStation, station.stationuuid]);
 
   // Vérifier si cette station est en cours de chargement
-  const isLoading = loadingAudio && currentPlayingStation === station.stationuuid;
+  const isLoading = loadingAudio && currentPlayingStation ? currentPlayingStation.stationuuid === station.stationuuid : false;
 
   // Gérer la lecture/arrêt de la radio
   const handlePlayToggle = async (e: any) => {

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { Alarm } from '../types';
-import { alarmManager } from '../modules/AlarmManager';
+import { alarmManager } from '../services/alarm/alarmManager';
 import { ErrorService } from '../utils/errorHandling';
 
 // Type pour le contexte d'alarme

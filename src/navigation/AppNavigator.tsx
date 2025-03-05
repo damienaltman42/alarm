@@ -14,7 +14,7 @@ import { Alarm, RadioStation, SpotifyPlaylist } from '../types';
 import { useTheme, useRadio } from '../hooks';
 import { setNavigateToAlarmScreen } from '../modules/AlarmManager';
 import { navigationRef } from './navigationRef';
-import { MiniPlayer } from '../components/MiniPlayer';
+import { MiniPlayer } from '../components/common/MiniPlayer';
 
 // Définition des types pour la navigation
 type RootStackParamList = {
@@ -94,30 +94,12 @@ const MainTabs: React.FC = () => {
 // Composant pour afficher le mini-player global
 const GlobalMiniPlayer: React.FC = () => {
   const { currentPlayingStation, loadingAudio, stopPreview } = useRadio();
-  const { stations, favorites } = useRadio();
   
-  // Trouver la station en cours de lecture
-  const findCurrentStation = (): RadioStation | null => {
-    if (!currentPlayingStation) return null;
-    
-    // Chercher d'abord dans les stations chargées
-    let station = stations.find(s => s.stationuuid === currentPlayingStation);
-    
-    // Si non trouvée, chercher dans les favoris
-    if (!station) {
-      station = favorites.find(s => s.stationuuid === currentPlayingStation);
-    }
-    
-    return station || null;
-  };
-  
-  const currentStation = findCurrentStation();
-  
-  if (!currentPlayingStation || !currentStation) return null;
+  if (!currentPlayingStation) return null;
   
   return (
     <MiniPlayer
-      station={currentStation}
+      station={currentPlayingStation}
       isLoading={loadingAudio}
       onStop={stopPreview}
     />

@@ -1,8 +1,8 @@
 import React, { memo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, GestureResponderEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RadioStation } from '../types';
-import { useTheme, useAlarm, useRadio } from '../hooks';
+import { RadioStation } from '../../types';
+import { useTheme, useAlarm, useRadio } from '../../hooks';
 
 interface RadioStationItemProps {
   station: RadioStation;

@@ -6,8 +6,8 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import { RadioStation } from '../types';
-import { useRadio, useTheme } from '../hooks';
+import { RadioStation } from '../../types';
+import { useRadio, useTheme } from '../../hooks';
 import { RadioStationCard } from './RadioStationCard';
 
 interface FavoriteRadioListProps {

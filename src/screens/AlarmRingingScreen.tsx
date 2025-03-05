@@ -5,7 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Alarm } from '../types';
 import { useTheme } from '../hooks';
-import { alarmManager } from '../modules/AlarmManager';
+import { alarmManager } from '../services/alarm/alarmManager';
 
 // Messages de réveil amusants
 const WAKE_UP_MESSAGES = [
@@ -74,7 +74,7 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
       setIsSnoozing(true);
       
       // Appeler la fonction snooze du gestionnaire d'alarmes
-      await alarmManager.snoozeAlarm(alarm.id);
+      await alarmManager.snoozeAlarm(alarm.snoozeInterval);
       
       // Afficher un message de confirmation
       Alert.alert(

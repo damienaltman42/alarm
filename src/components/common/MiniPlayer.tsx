@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RadioStation } from '../types';
-import { useTheme } from '../hooks';
+import { RadioStation } from '../../types';
+import { useTheme } from '../../hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface MiniPlayerProps {

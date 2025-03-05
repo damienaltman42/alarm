@@ -268,7 +268,7 @@ class SpotifyService {
       console.log('Lecture mise en pause');
       return true;
     } catch (error: any) {
-      console.error('Erreur lors de la mise en pause:', error.message);
+      console.error('*** Erreur lors de la mise en pause:', error.message);
       return false;
     }
   }

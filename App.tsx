@@ -3,10 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { AppState, AppStateStatus } from 'react-native';
 import { AppNavigator } from './src/navigation/AppNavigator';
-import { alarmManager } from './src/modules/AlarmManager';
+import { alarmManager } from './src/services/alarm/alarmManager';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { AlarmProvider } from './src/contexts/AlarmContext';
-import { RadioProvider } from './src/contexts/RadioContext';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 
@@ -101,11 +100,9 @@ export default function App() {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ThemeProvider>
         <StatusBar style="dark" />
-        <RadioProvider>
-          <AlarmProvider>
-            <AppNavigator />
-          </AlarmProvider>
-        </RadioProvider>
+        <AlarmProvider>
+          <AppNavigator />
+        </AlarmProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

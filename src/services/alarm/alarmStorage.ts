@@ -6,46 +6,60 @@ import { ErrorService } from '../../utils/errorHandling';
 const ALARMS_STORAGE_KEY = '@aurora_wake_alarms';
 
 /**
- * Service responsable du stockage et de la récupération des alarmes
+ * Service de stockage des alarmes
+ * Gère la persistance des alarmes dans AsyncStorage
  */
 export class AlarmStorage {
   /**
    * Récupère toutes les alarmes stockées
    * @returns Liste des alarmes
    */
-  async getAlarms(): Promise<Alarm[]> {
+  public async getAlarms(): Promise<Alarm[]> {
     try {
       const alarmsJson = await AsyncStorage.getItem(ALARMS_STORAGE_KEY);
-      if (!alarmsJson) {
-        return [];
-      }
-      return JSON.parse(alarmsJson) as Alarm[];
+      return alarmsJson ? JSON.parse(alarmsJson) : [];
     } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmStorage.getAlarms');
+      console.error('Erreur lors de la récupération des alarmes:', error);
       return [];
     }
   }
 
   /**
-   * Sauvegarde une alarme
-   * @param alarm Alarme à sauvegarder
+   * Sauvegarde les alarmes dans le stockage
+   * @param alarms Liste des alarmes à sauvegarder
    */
-  async saveAlarm(alarm: Alarm): Promise<void> {
+  public async saveAlarms(alarms: Alarm[]): Promise<void> {
     try {
-      const alarms = await this.getAlarms();
-      const existingIndex = alarms.findIndex(a => a.id === alarm.id);
-      
-      if (existingIndex >= 0) {
-        // Mettre à jour une alarme existante
-        alarms[existingIndex] = alarm;
-      } else {
-        // Ajouter une nouvelle alarme
-        alarms.push(alarm);
-      }
-      
       await AsyncStorage.setItem(ALARMS_STORAGE_KEY, JSON.stringify(alarms));
     } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmStorage.saveAlarm');
+      console.error('Erreur lors de la sauvegarde des alarmes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Ajoute une nouvelle alarme
+   * @param alarm Alarme à ajouter
+   */
+  public async addAlarm(alarm: Alarm): Promise<void> {
+    const alarms = await this.getAlarms();
+    alarms.push(alarm);
+    await this.saveAlarms(alarms);
+  }
+
+  /**
+   * Met à jour une alarme existante
+   * @param updatedAlarm Alarme mise à jour
+   */
+  public async updateAlarm(updatedAlarm: Alarm): Promise<void> {
+    const alarms = await this.getAlarms();
+    const index = alarms.findIndex(a => a.id === updatedAlarm.id);
+    
+    if (index !== -1) {
+      alarms[index] = updatedAlarm;
+      await this.saveAlarms(alarms);
+    } else {
+      throw new Error(`Alarme avec l'ID ${updatedAlarm.id} non trouvée`);
     }
   }
 
@@ -53,14 +67,25 @@ export class AlarmStorage {
    * Supprime une alarme
    * @param alarmId ID de l'alarme à supprimer
    */
-  async deleteAlarm(alarmId: string): Promise<void> {
-    try {
-      const alarms = await this.getAlarms();
-      const filteredAlarms = alarms.filter(alarm => alarm.id !== alarmId);
-      await AsyncStorage.setItem(ALARMS_STORAGE_KEY, JSON.stringify(filteredAlarms));
-    } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmStorage.deleteAlarm');
+  public async deleteAlarm(alarmId: string): Promise<void> {
+    const alarms = await this.getAlarms();
+    const filteredAlarms = alarms.filter(a => a.id !== alarmId);
+    
+    if (filteredAlarms.length < alarms.length) {
+      await this.saveAlarms(filteredAlarms);
+    } else {
+      throw new Error(`Alarme avec l'ID ${alarmId} non trouvée`);
     }
+  }
+
+  /**
+   * Récupère une alarme spécifique par son ID
+   * @param alarmId ID de l'alarme à récupérer
+   * @returns L'alarme trouvée ou null si non trouvée
+   */
+  public async getAlarmById(alarmId: string): Promise<Alarm | null> {
+    const alarms = await this.getAlarms();
+    return alarms.find(a => a.id === alarmId) || null;
   }
 
   /**
@@ -75,7 +100,7 @@ export class AlarmStorage {
       
       if (alarmIndex >= 0) {
         alarms[alarmIndex].enabled = enabled;
-        await AsyncStorage.setItem(ALARMS_STORAGE_KEY, JSON.stringify(alarms));
+        await this.saveAlarms(alarms);
       }
     } catch (error) {
       ErrorService.handleError(error as Error, 'AlarmStorage.updateAlarmStatus');
@@ -83,5 +108,5 @@ export class AlarmStorage {
   }
 }
 
-// Exporter une instance singleton
+// Exporter une instance unique du service de stockage
 export const alarmStorage = new AlarmStorage(); 

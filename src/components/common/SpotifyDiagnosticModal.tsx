@@ -11,8 +11,8 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import SpotifyAuthService from '../services/SpotifyAuthService';
-import { useTheme } from '../hooks/useTheme';
+import SpotifyAuthService from '../../services/SpotifyAuthService';
+import { useTheme } from '../../hooks';
 
 interface SpotifyDiagnosticModalProps {
   visible: boolean;

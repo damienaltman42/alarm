@@ -20,7 +20,7 @@ import { SpotifyPlaylist } from '../types/spotify';
 import { useTheme } from '../hooks';
 import SpotifyAuthService from '../services/SpotifyAuthService';
 import SpotifyService from '../services/SpotifyService';
-import SpotifyDiagnosticModal from '../components/SpotifyDiagnosticModal';
+import SpotifyDiagnosticModal from '../components/common/SpotifyDiagnosticModal';
 
 type RootStackParamList = {
   AddAlarm: undefined;
