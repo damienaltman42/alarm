@@ -82,6 +82,7 @@ export class RadioSource implements AudioSource {
    * @returns Succès de l'opération
    */
   public async stop(): Promise<boolean> {
+    console.log("+++++++++++++++here stop RadioSource +++++++++++++++++++++++");
     // Éviter les arrêts multiples simultanés
     if (this.isStoppingSound) {
       console.log('Arrêt déjà en cours pour cette source radio, opération ignorée');

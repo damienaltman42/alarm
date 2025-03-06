@@ -5,31 +5,8 @@ import { Alarm, AlarmSchedulerOptions } from '../../types';
 import { alarmStorage } from './alarmStorage';
 import { notificationService } from '../notification/notificationService';
 import { ErrorService } from '../../utils/errorHandling';
-import { MediaType, startPlayback, stopPlayback } from '../audio/TrackPlayerService';
+import { MediaType, startPlayback } from '../audio/TrackPlayerService';
 import {alarmManager } from './alarmManager';
-
-// Nom de la tâche en arrière-plan
-const BACKGROUND_ALARM_TASK = 'BACKGROUND_ALARM_TASK';
-
-// Définir la tâche en arrière-plan
-TaskManager.defineTask(BACKGROUND_ALARM_TASK, async () => {
-  try {
-    // Vérifier si l'application est au premier plan
-    // Si oui, laisser l'application gérer les alarmes
-    console.log("+++++++++++++++here++++++++++++++++++++++");
-    if (AppState.currentState === 'active') {
-      console.log('Application active, la tâche en arrière-plan ne vérifiera pas les alarmes');
-      return BackgroundFetch.BackgroundFetchResult.NoData;
-    }
-    
-    const scheduler = new AlarmScheduler();
-    await scheduler.checkAllAlarms();
-    return BackgroundFetch.BackgroundFetchResult.NewData;
-  } catch (error) {
-    console.error('Erreur dans la tâche en arrière-plan:', error);
-    return BackgroundFetch.BackgroundFetchResult.Failed;
-  }
-});
 
 /**
  * Service responsable de la planification et du déclenchement des alarmes
@@ -37,16 +14,9 @@ TaskManager.defineTask(BACKGROUND_ALARM_TASK, async () => {
 export class AlarmScheduler {
   private activeAlarmId: string | null = null;
   private appStateSubscription: any = null;
-  private options: AlarmSchedulerOptions;
   private isRunningInForeground: boolean = false;
 
   constructor(options: AlarmSchedulerOptions = {}) {
-    this.options = {
-      minimumInterval: options.minimumInterval || 60, // Vérifier toutes les minutes
-      stopOnTerminate: options.stopOnTerminate ?? false,
-      startOnBoot: options.startOnBoot ?? true,
-    };
-    
     this.setupAppStateListener();
   }
 
@@ -54,6 +24,7 @@ export class AlarmScheduler {
    * Configure l'écouteur d'état de l'application
    */
   private setupAppStateListener(): void {
+    console.log("+++++++++++++++here setupAppStateListener ++++++++++++++++++++++");
     // Nettoyer l'ancien écouteur s'il existe
     if (this.appStateSubscription) {
       this.appStateSubscription.remove();
@@ -70,6 +41,7 @@ export class AlarmScheduler {
    * Gère les changements d'état de l'application
    */
   private handleAppStateChange = async (nextAppState: AppStateStatus): Promise<void> => {
+    console.log("+++++++++++++++here handleAppStateChange ++++++++++++++++++++++");
     this.isRunningInForeground = nextAppState === 'active';
     
     if (nextAppState === 'active') {
@@ -79,40 +51,10 @@ export class AlarmScheduler {
   };
 
   /**
-   * Enregistre la tâche en arrière-plan
-   */
-  async registerBackgroundTask(): Promise<void> {
-    try {
-      console.log("+++++++++++++++here registerBackgroundTask ++++++++++++++++++++++");
-      console.log(this.options);
-      await BackgroundFetch.registerTaskAsync(BACKGROUND_ALARM_TASK, {
-        minimumInterval: 10,
-        stopOnTerminate: this.options.stopOnTerminate,
-        startOnBoot: this.options.startOnBoot,
-      });
-      console.log('Tâche en arrière-plan enregistrée');
-    } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmScheduler.registerBackgroundTask');
-    }
-  }
-
-  /**
    * Vérifie toutes les alarmes et déclenche celles qui doivent l'être
    */
   async checkAllAlarms(): Promise<void> {
     try {
-      // Si l'application est au premier plan et qu'une tâche en arrière-plan est en cours,
-      // nous ne voulons pas vérifier les alarmes à nouveau pour éviter les doublons
-      console.log("+++++++++++++++here checkAllAlarms ++++++++++++++++++++++");
-      if (this.isRunningInForeground && TaskManager.isTaskDefined(BACKGROUND_ALARM_TASK)) {
-        const taskStatus = await BackgroundFetch.getStatusAsync();
-        // 2 est la valeur pour "Available" dans BackgroundFetch
-        if (taskStatus === 2) {
-          console.log('Vérification des alarmes ignorée - déjà gérée par la tâche en arrière-plan');
-          return;
-        }
-      }
-      
       const alarms = await alarmStorage.getAlarms();
       
       for (const alarm of alarms) {
@@ -144,7 +86,6 @@ export class AlarmScheduler {
       
       // Vérifier si l'alarme doit être déclenchée
       if (now >= nextOccurrence && now.getTime() - nextOccurrence.getTime() < 60000) {
-        // L'alarme devrait être déclenchée maintenant (à moins de 1 minute près)
         await this.triggerAlarm(alarm);
       }
     } catch (error) {
@@ -157,6 +98,7 @@ export class AlarmScheduler {
    * @param alarm L'alarme à déclencher
    */
   async triggerAlarm(alarm: Alarm): Promise<void> {
+    console.log("+++++++++++++++here triggerAlarm ++++++++++++++++++++++");
     try {
       console.log(`[⏰ triggerAlarm] Déclenchement d'alarme (ID: ${alarm.id})`);
       console.log(`[⏰ triggerAlarm] État de l'application: ${AppState.currentState}`);
@@ -243,6 +185,7 @@ export class AlarmScheduler {
    * Joue le son d'alarme par défaut
    */
   private async playDefaultSound(): Promise<void> {
+    console.log("+++++++++++++++here playDefaultSound ++++++++++++++++++++++");
     try {
       console.log('[⏰ playDefaultSound] Lecture du son par défaut');
       await alarmManager.stopAlarm();
@@ -257,6 +200,7 @@ export class AlarmScheduler {
    * @param alarm L'alarme à mettre à jour
    */
   async updateAlarm(alarm: Alarm): Promise<void> {
+    console.log("+++++++++++++++here updateAlarm ++++++++++++++++++++++");
     try {
       await alarmStorage.saveAlarms([alarm]);
     } catch (error) {
@@ -269,6 +213,7 @@ export class AlarmScheduler {
    * @param alarmId Identifiant de l'alarme à supprimer
    */
   async deleteAlarm(alarmId: string): Promise<void> {
+    console.log("+++++++++++++++here deleteAlarm ++++++++++++++++++++++");
     try {
       
       // Si c'est l'alarme active, l'arrêter
@@ -289,6 +234,7 @@ export class AlarmScheduler {
    * @returns La date de la prochaine occurrence ou null si aucune
    */
   private calculateNextOccurrence(alarm: Alarm): Date | null {
+    console.log("+++++++++++++++here calculateNextOccurrence ++++++++++++++++++++++");
     try {
       if (!alarm.enabled || alarm.days.length === 0) {
         return null;

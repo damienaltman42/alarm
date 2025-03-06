@@ -86,6 +86,7 @@ export const AlarmProvider: React.FC<AlarmProviderProps> = ({ children }) => {
 
   // Mettre à jour une alarme
   const updateAlarm = async (alarm: Alarm): Promise<boolean> => {
+    console.log("+++++++++++++++here updateAlarm  AlarmContext +++++++++++++++++++++++");
     try {
       await alarmManager.updateAlarm(alarm);
       await loadAlarms(); // Recharger les alarmes après la mise à jour

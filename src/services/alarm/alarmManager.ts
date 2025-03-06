@@ -25,7 +25,6 @@ export function setNavigateToAlarmScreen(navigateFunction: (alarm: Alarm) => voi
  */
 class AlarmManager {
   private activeAlarmId: string | null = null;
-  private appStateSubscription: any = null;
   private activeAudioSource: AudioSource | null = null;
   private previewAudioSource: AudioSource | null = null;
 
@@ -45,27 +44,7 @@ class AlarmManager {
       this.handleNotificationReceived,
       this.handleNotificationResponse
     );
-    
-    // Configurer l'écouteur d'état de l'application
-    this.setupAppStateListener();
   }
-
-  /**
-   * Configure l'écouteur d'état de l'application
-   */
-  private setupAppStateListener(): void {
-    this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange);
-  }
-
-  /**
-   * Gère les changements d'état de l'application
-   */
-  private handleAppStateChange = async (nextAppState: AppStateStatus): Promise<void> => {
-    // Si l'application revient au premier plan et qu'une alarme est active
-    if (nextAppState === 'active' && this.activeAlarmId) {
-      // La surveillance de la lecture est maintenant gérée par les sources audio
-    }
-  };
 
   /**
    * Récupère toutes les alarmes
@@ -154,7 +133,6 @@ class AlarmManager {
    * Gère la réception d'une notification
    */
   private handleNotificationReceived = async (notification: Notifications.Notification): Promise<void> => {
-    console.log("+++++++++++++++here handleNotificationReceived ICICICICICIC ++++++++++++++++++++++");
     const alarmId = notification.request.content.data?.alarmId;
     const isSnooze = notification.request.content.data?.isSnooze;
     
@@ -254,7 +232,6 @@ class AlarmManager {
    * @param radioName Nom de la station
    */
   public async previewRadio(radioUrl: string, radioName: string = 'Radio'): Promise<void> {
-    console.log("+++++++++++++++here previewRadio  AlarmManager +++++++++++++++++++++++");
     // Arrêter toute prévisualisation en cours
     await this.stopPreview();
     
@@ -336,12 +313,6 @@ class AlarmManager {
    */
   public cleanup(): void {
     // Supprimer l'écouteur d'état de l'application
-    if (this.appStateSubscription) {
-      this.appStateSubscription.remove();
-      this.appStateSubscription = null;
-    }
-    
-    // Supprimer les écouteurs de notification
     notificationService.removeListeners();
     
     // Arrêter les sources audio

@@ -23,9 +23,6 @@ export async function initializeServices() {
     // Initialiser le planificateur d'alarmes
     const scheduler = new AlarmScheduler();
     
-    // Enregistrer la tâche en arrière-plan (cette étape doit précéder la vérification des alarmes)
-    await scheduler.registerBackgroundTask();
-    
     // Attendre un petit délai pour s'assurer que l'enregistrement de la tâche est terminé
     await new Promise(resolve => setTimeout(resolve, 500));
     

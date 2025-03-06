@@ -72,11 +72,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
       }
       
       if (selectedCountry) {
-        console.log('============================= selectedCountry START=============================');
-        console.log(selectedCountry);
-        console.log('============================= selectedCountry END=============================');
         params.countrycode = selectedCountry.iso_3166_1;
-        console.log('Code pays ajouté à la recherche:', selectedCountry.iso_3166_1);
       }
       
       if (selectedTags.length > 0) {

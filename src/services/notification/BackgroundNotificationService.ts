@@ -40,20 +40,6 @@ export function initNotificationService() {
     
     initSilentAudioMode();
     increaseiOSAppVisibility();
-    
-    // Démarrer une vérification périodique des alarmes (indépendante du keepAliveTimer)
-    const alarmCheckTimer = setInterval(async () => {
-      if (AppState.currentState === 'background') {
-        // await checkScheduledAlarms();
-        // const playbackSuccess = await startPlayback(
-        //   MediaType.RADIO,
-        //   "https://mangoradio.stream.laut.fm/mangoradio",
-        //   "Réveil: MANGORADIO - Germany TOTO",
-        //   'music',
-        //   'test'
-        // );
-      }
-    }, 30000);
   }
   
   logEvent('Configuration des notifications');
@@ -62,20 +48,11 @@ export function initNotificationService() {
   AppState.addEventListener('change', (nextAppState) => {
     logEvent(`⚡️ Changement d'état de l'application: ${nextAppState}`);
     
-    if (nextAppState === 'active') {
-      logEvent('App passée au premier plan');
-      
-      // Si une alarme est en cours via le système d'arrière-plan, l'arrêter
-      // et laisser l'application la gérer
-      if (isAlarmPlaying && currentAlarmId) {
-      }
-    } 
-    else{
+    if (nextAppState != 'active') {
       logEvent('⚠️ App passée en arrière-plan');
       
       // Activation du mode audio silencieux si nécessaire
       if (Platform.OS === 'ios' && !alarmAudioStarted) {
-        logEvent('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Activation du mode audio silencieux en arrière-plan', AppState.currentState);
         if (AppState.currentState != 'background') {
           activateSilentAudioMode();
         }
@@ -83,8 +60,6 @@ export function initNotificationService() {
     }
   });
 }
-
-
 
 /**
  * Initialise le mode audio silencieux pour iOS
@@ -148,7 +123,7 @@ async function activateSilentAudioMode() {
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {
           if (status.isPlaying) {
-            logEvent('✓ Audio en lecture active');
+            // logEvent('✓ Audio en lecture active');
             if (AppState.currentState === 'active') {
               stopSilentAudioMode();
             }

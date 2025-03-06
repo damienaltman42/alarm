@@ -102,6 +102,7 @@ export class SpotifySource implements AudioSource {
    * @returns Succès de l'opération
    */
   public async stop(): Promise<boolean> {
+    console.log("+++++++++++++++here stop SpotifySource +++++++++++++++++++++++");
     try {
       if (this.isPlaying) {
         try {
