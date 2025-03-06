@@ -138,7 +138,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
         alarmSound,
       };
 
-      console.log('Sauvegarde de l\'alarme avec ID:', alarm.id);
+      console.log('@@@@@@@@@@@@@@@ Sauvegarde de l\'alarme avec ID:', alarm.id);
 
       let success: boolean;
       if (isEditing) {

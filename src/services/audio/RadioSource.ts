@@ -53,6 +53,7 @@ export class RadioSource implements AudioSource {
    * @returns Succès de l'opération
    */
   public async play(): Promise<boolean> {
+    console.log("+++++++++++++++here play RadioSource +++++++++++++++++++++++");
     try {
       // Arrêter toute lecture en cours
       await this.stop();

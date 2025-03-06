@@ -1,6 +1,5 @@
 import { Alarm } from '../../types';
 import { alarmStorage } from './alarmStorage';
-import { alarmPlayer } from './alarmPlayer';
 import { alarmScheduler } from './alarmScheduler';
 import { ErrorService } from '../../utils/errorHandling';
 
@@ -65,39 +64,10 @@ class AlarmManager {
   }
 
   /**
-   * Snooze l'alarme active
-   */
-  async snoozeAlarm(minutes: number = 5): Promise<void> {
-    return alarmScheduler.snoozeAlarm(minutes);
-  }
-
-  /**
-   * Prévisualise une station de radio
-   */
-  async previewRadio(radioUrl: string): Promise<void> {
-    return alarmPlayer.previewRadio(radioUrl);
-  }
-
-  /**
-   * Arrête la prévisualisation
-   */
-  async stopPreview(): Promise<void> {
-    return alarmPlayer.stopPreview();
-  }
-
-  /**
    * Récupère l'ID de l'alarme active
    */
   getActiveAlarmId(): string | null {
     return alarmScheduler.getActiveAlarmId();
-  }
-
-  /**
-   * Nettoie les ressources
-   */
-  cleanup(): void {
-    alarmScheduler.cleanup();
-    alarmPlayer.cleanup();
   }
 }
 

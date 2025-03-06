@@ -96,6 +96,7 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
   
   // Gérer l'arrêt de l'alarme
   const handleStop = async () => {
+    console.log("+++++++++++++++here handleStop AlarmRingingScreen +++++++++++++++++++++++");
     try {
       // Arrêter l'alarme
       await alarmManager.stopAlarm();

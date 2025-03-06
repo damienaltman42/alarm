@@ -12,7 +12,7 @@ import { AlarmRingingScreen } from '../screens/AlarmRingingScreen';
 import { RadioPlayerScreen } from '../screens/RadioPlayerScreen';
 import { Alarm, RadioStation, SpotifyPlaylist } from '../types';
 import { useTheme, useRadio } from '../hooks';
-import { setNavigateToAlarmScreen } from '../modules/AlarmManager';
+import { setNavigateToAlarmScreen } from '../services/alarm/alarmManager';
 import { navigationRef } from './navigationRef';
 import { MiniPlayer } from '../components/common/MiniPlayer';
 

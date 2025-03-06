@@ -3,16 +3,10 @@ import * as TaskManager from 'expo-task-manager';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 import { Alarm, AlarmSchedulerOptions } from '../../types';
 import { alarmStorage } from './alarmStorage';
-import { alarmPlayer } from './alarmPlayer';
 import { notificationService } from '../notification/notificationService';
 import { ErrorService } from '../../utils/errorHandling';
-import { 
-  AlarmConfig, 
-  cancelAlarm as cancelNotificationAlarm, 
-  scheduleAlarm as scheduleNotificationAlarm,
-  handleAlarmTriggered
-} from '../notification/BackgroundNotificationService';
-import { MediaType, setupTrackPlayer, startPlayback, stopPlayback } from '../audio/TrackPlayerService';
+import { MediaType, startPlayback, stopPlayback } from '../audio/TrackPlayerService';
+import {alarmManager } from './alarmManager';
 
 // Nom de la tâche en arrière-plan
 const BACKGROUND_ALARM_TASK = 'BACKGROUND_ALARM_TASK';
@@ -22,6 +16,7 @@ TaskManager.defineTask(BACKGROUND_ALARM_TASK, async () => {
   try {
     // Vérifier si l'application est au premier plan
     // Si oui, laisser l'application gérer les alarmes
+    console.log("+++++++++++++++here++++++++++++++++++++++");
     if (AppState.currentState === 'active') {
       console.log('Application active, la tâche en arrière-plan ne vérifiera pas les alarmes');
       return BackgroundFetch.BackgroundFetchResult.NoData;
@@ -88,8 +83,10 @@ export class AlarmScheduler {
    */
   async registerBackgroundTask(): Promise<void> {
     try {
+      console.log("+++++++++++++++here registerBackgroundTask ++++++++++++++++++++++");
+      console.log(this.options);
       await BackgroundFetch.registerTaskAsync(BACKGROUND_ALARM_TASK, {
-        minimumInterval: this.options.minimumInterval,
+        minimumInterval: 10,
         stopOnTerminate: this.options.stopOnTerminate,
         startOnBoot: this.options.startOnBoot,
       });
@@ -106,6 +103,7 @@ export class AlarmScheduler {
     try {
       // Si l'application est au premier plan et qu'une tâche en arrière-plan est en cours,
       // nous ne voulons pas vérifier les alarmes à nouveau pour éviter les doublons
+      console.log("+++++++++++++++here checkAllAlarms ++++++++++++++++++++++");
       if (this.isRunningInForeground && TaskManager.isTaskDefined(BACKGROUND_ALARM_TASK)) {
         const taskStatus = await BackgroundFetch.getStatusAsync();
         // 2 est la valeur pour "Available" dans BackgroundFetch
@@ -148,53 +146,9 @@ export class AlarmScheduler {
       if (now >= nextOccurrence && now.getTime() - nextOccurrence.getTime() < 60000) {
         // L'alarme devrait être déclenchée maintenant (à moins de 1 minute près)
         await this.triggerAlarm(alarm);
-      } else {
-        // Planifier l'alarme avec le nouveau système de notifications
-        this.scheduleBackgroundAlarm(alarm, nextOccurrence);
       }
     } catch (error) {
       ErrorService.handleError(error as Error, 'AlarmScheduler.checkAndUpdateAlarm');
-    }
-  }
-
-  /**
-   * Planifie une alarme en arrière-plan en utilisant les notifications
-   * @param alarm Alarme à planifier
-   * @param triggerTime Heure de déclenchement
-   */
-  private scheduleBackgroundAlarm(alarm: Alarm, triggerTime: Date): void {
-    try {
-      // Annuler toute notification existante pour cette alarme
-      cancelNotificationAlarm(alarm.id);
-      
-      // Formatter les tags pour l'artiste
-      const formatTags = (tags?: string | string[]) => {
-        if (!tags) return 'Aurora Wake';
-        if (Array.isArray(tags)) return tags.join(', ');
-        return tags;
-      };
-      
-      // Créer la configuration de l'alarme
-      const alarmConfig: AlarmConfig = {
-        type: alarm.radioStation ? 'radio' : 'spotify',
-        streamingUrl: alarm.radioStation 
-          ? alarm.radioStation.url_resolved 
-          : (alarm.spotifyPlaylist?.uri || ''),
-        title: alarm.radioStation 
-          ? `${alarm.radioStation.name} - ${alarm.radioStation.country}` 
-          : (alarm.spotifyPlaylist?.name || 'Alarme'),
-        artist: alarm.radioStation 
-          ? formatTags(alarm.radioStation.tags)
-          : 'Aurora Wake',
-        artwork: alarm.radioStation?.favicon || undefined
-      };
-      
-      // Planifier la notification
-      scheduleNotificationAlarm(triggerTime, alarmConfig, alarm.id);
-      
-      console.log(`Alarme ${alarm.id} planifiée pour ${triggerTime.toLocaleString()}`);
-    } catch (error) {
-      console.error('Erreur lors de la planification de l\'alarme en arrière-plan:', error);
     }
   }
 
@@ -291,87 +245,10 @@ export class AlarmScheduler {
   private async playDefaultSound(): Promise<void> {
     try {
       console.log('[⏰ playDefaultSound] Lecture du son par défaut');
-      await alarmPlayer.stopAlarm();
+      await alarmManager.stopAlarm();
       console.log('[⏰ playDefaultSound] Son par défaut joué');
     } catch (error) {
       console.error('[⏰ playDefaultSound] Erreur:', error);
-    }
-  }
-
-  /**
-   * Arrête l'alarme active
-   */
-  async stopAlarm(): Promise<void> {
-    try {
-      // Arrêter la lecture en arrière-plan
-      await stopPlayback();
-      
-      // Arrêter la source audio active avec le système existant
-      await alarmPlayer.stopAlarm();
-      
-      this.activeAlarmId = null;
-    } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmScheduler.stopAlarm');
-    }
-  }
-
-  /**
-   * Met l'alarme en mode snooze
-   * @param minutes Nombre de minutes pour le snooze
-   */
-  async snoozeAlarm(minutes: number = 5): Promise<void> {
-    try {
-      if (!this.activeAlarmId) {
-        return;
-      }
-      
-      // Arrêter l'alarme actuelle
-      await this.stopAlarm();
-      
-      // Calculer la nouvelle heure de déclenchement
-      const snoozeTime = new Date();
-      snoozeTime.setMinutes(snoozeTime.getMinutes() + minutes);
-      
-      // Récupérer l'alarme active
-      const alarms = await alarmStorage.getAlarms();
-      const activeAlarm = alarms.find(alarm => alarm.id === this.activeAlarmId);
-      
-      if (activeAlarm) {
-        // Formatter les tags pour l'artiste
-        const formatTags = (tags?: string | string[]) => {
-          if (!tags) return '';
-          if (Array.isArray(tags)) return tags.join(', ');
-          return tags;
-        };
-        
-        // Créer une configuration d'alarme temporaire pour le snooze
-        const alarmConfig: AlarmConfig = {
-          type: activeAlarm.radioStation ? 'radio' : 'spotify',
-          streamingUrl: activeAlarm.radioStation 
-            ? activeAlarm.radioStation.url_resolved 
-            : (activeAlarm.spotifyPlaylist?.uri || ''),
-          title: `Snooze: ${activeAlarm.radioStation 
-            ? activeAlarm.radioStation.name 
-            : (activeAlarm.spotifyPlaylist?.name || 'Alarme')}`,
-          artist: 'Aurora Wake - Snooze',
-          artwork: activeAlarm.radioStation?.favicon || undefined
-        };
-        
-        // Identifiant unique pour l'alarme snooze
-        const snoozeId = `${this.activeAlarmId}-snooze`;
-        
-        // Planifier la notification de snooze
-        scheduleNotificationAlarm(snoozeTime, alarmConfig, snoozeId);
-        
-        // Notification standard au lieu de showSnoozeNotification
-        if (activeAlarm) {
-          notificationService.scheduleNotification(activeAlarm, snoozeTime);
-        }
-      }
-      
-      this.activeAlarmId = null;
-    } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmScheduler.snoozeAlarm');
     }
   }
 
@@ -381,19 +258,7 @@ export class AlarmScheduler {
    */
   async updateAlarm(alarm: Alarm): Promise<void> {
     try {
-      // Annuler toute notification existante pour cette alarme
-      cancelNotificationAlarm(alarm.id);
-      
-      // Enregistrer la nouvelle alarme avec saveAlarms au lieu de saveAlarm
       await alarmStorage.saveAlarms([alarm]);
-      
-      // Si l'alarme est activée, calculer la prochaine occurrence et planifier
-      if (alarm.enabled) {
-        const nextOccurrence = this.calculateNextOccurrence(alarm);
-        if (nextOccurrence) {
-          this.scheduleBackgroundAlarm(alarm, nextOccurrence);
-        }
-      }
     } catch (error) {
       ErrorService.handleError(error as Error, 'AlarmScheduler.updateAlarm');
     }
@@ -405,12 +270,10 @@ export class AlarmScheduler {
    */
   async deleteAlarm(alarmId: string): Promise<void> {
     try {
-      // Annuler toute notification existante pour cette alarme
-      cancelNotificationAlarm(alarmId);
       
       // Si c'est l'alarme active, l'arrêter
       if (this.activeAlarmId === alarmId) {
-        await this.stopAlarm();
+        await alarmManager.stopAlarm();
       }
       
       // Supprimer l'alarme du stockage

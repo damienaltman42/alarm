@@ -2,7 +2,6 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Alarm } from '../../types';
 import { ErrorService } from '../../utils/errorHandling';
-import { cancelAlarm, scheduleAlarm, AlarmConfig } from './BackgroundNotificationService';
 
 /**
  * Service de gestion des notifications
@@ -106,7 +105,7 @@ export class NotificationService {
       if (!nextOccurrence) {
         return;
       }
-      
+      console.log(`???????????????????????????/ Prochaine occurrence de l'alarme ${alarm.id}: ${nextOccurrence.toLocaleString()}`);
       // Programmer la notification
       await Notifications.scheduleNotificationAsync({
         content: {

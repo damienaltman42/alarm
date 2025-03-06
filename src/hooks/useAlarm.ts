@@ -21,8 +21,6 @@ export function useAlarm() {
     updateAlarm,
     deleteAlarm,
     toggleAlarm,
-    stopAlarm,
-    snoozeAlarm,
     previewRadio,
     stopPreview
   } = context;
@@ -63,18 +61,6 @@ export function useAlarm() {
      */
     toggleAlarm,
     
-    /**
-     * Arrête l'alarme active
-     * @returns Succès de l'opération
-     */
-    stopAlarm,
-    
-    /**
-     * Reporte l'alarme active
-     * @param minutes Nombre de minutes pour le report
-     * @returns Succès de l'opération
-     */
-    snoozeAlarm,
     
     /**
      * Prévisualise une station de radio

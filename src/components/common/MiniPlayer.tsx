@@ -21,6 +21,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ station, isLoading, onSt
   
   // Fonction pour gérer l'arrêt de la lecture
   const handleStop = async () => {
+    console.log("+++++++++++++++here handleStop MiniPlayer +++++++++++++++++++++++");
     try {
       console.log('Arrêt de la lecture dans le MiniPlayer');
       await onStop();

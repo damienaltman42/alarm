@@ -12,8 +12,6 @@ interface AlarmContextType {
   updateAlarm: (alarm: Alarm) => Promise<boolean>;
   deleteAlarm: (id: string) => Promise<boolean>;
   toggleAlarm: (id: string, enabled: boolean) => Promise<boolean>;
-  stopAlarm: () => Promise<boolean>;
-  snoozeAlarm: (minutes?: number) => Promise<boolean>;
   previewRadio: (radioUrl: string) => Promise<boolean>;
   stopPreview: () => Promise<boolean>;
 }
@@ -128,38 +126,9 @@ export const AlarmProvider: React.FC<AlarmProviderProps> = ({ children }) => {
     }
   };
 
-  // Arrêter l'alarme active
-  const stopAlarm = async (): Promise<boolean> => {
-    try {
-      await alarmManager.stopAlarm();
-      setActiveAlarmId(null);
-      return true;
-    } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmProvider.stopAlarm');
-      return false;
-    }
-  };
-
-  // Snooze l'alarme active
-  const snoozeAlarm = async (minutes: number = 5): Promise<boolean> => {
-    try {
-      // Dans cette implémentation, nous devons gérer le snooze différemment
-      // Nous arrêtons l'alarme actuelle et créons une nouvelle notification
-      await alarmManager.stopAlarm();
-      
-      // Nous pourrions implémenter une logique de snooze personnalisée ici
-      // Pour l'instant, nous nous contentons d'arrêter l'alarme
-      
-      setActiveAlarmId(null);
-      return true;
-    } catch (error) {
-      ErrorService.handleError(error as Error, 'AlarmProvider.snoozeAlarm');
-      return false;
-    }
-  };
-
   // Prévisualiser une station de radio
   const previewRadio = async (radioUrl: string): Promise<boolean> => {
+    console.log("+++++++++++++++here previewRadio  AlarmContext +++++++++++++++++++++++");
     try {
       await alarmManager.previewRadio(radioUrl);
       return true;
@@ -189,8 +158,6 @@ export const AlarmProvider: React.FC<AlarmProviderProps> = ({ children }) => {
     updateAlarm,
     deleteAlarm,
     toggleAlarm,
-    stopAlarm,
-    snoozeAlarm,
     previewRadio,
     stopPreview,
   };

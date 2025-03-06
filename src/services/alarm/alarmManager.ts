@@ -154,6 +154,7 @@ class AlarmManager {
    * Gère la réception d'une notification
    */
   private handleNotificationReceived = async (notification: Notifications.Notification): Promise<void> => {
+    console.log("+++++++++++++++here handleNotificationReceived ICICICICICIC ++++++++++++++++++++++");
     const alarmId = notification.request.content.data?.alarmId;
     const isSnooze = notification.request.content.data?.isSnooze;
     
@@ -253,6 +254,7 @@ class AlarmManager {
    * @param radioName Nom de la station
    */
   public async previewRadio(radioUrl: string, radioName: string = 'Radio'): Promise<void> {
+    console.log("+++++++++++++++here previewRadio  AlarmManager +++++++++++++++++++++++");
     // Arrêter toute prévisualisation en cours
     await this.stopPreview();
     

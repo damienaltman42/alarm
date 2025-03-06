@@ -10,6 +10,7 @@ import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 import { initializeServices } from './src/services';
 import TrackPlayer from 'react-native-track-player';
+import { stopSilentAudioMode } from './src/services/notification/BackgroundNotificationService';
 
 /**
  * Component principal de l'application
@@ -63,7 +64,6 @@ export default function App() {
       if (nextAppState === 'active') {
         // L'application est revenue au premier plan
         console.log('Application revenue au premier plan');
-        // Rafraîchir les alarmes si nécessaire
         initializeApp();
       } 
       else if (

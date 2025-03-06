@@ -16,10 +16,3 @@ export interface AlarmSchedulerOptions {
   stopOnTerminate?: boolean;
   startOnBoot?: boolean;
 }
-
-export interface AlarmPlayerOptions {
-  interruptionModeAndroid?: number;
-  interruptionModeIOS?: number;
-  shouldDuckAndroid?: boolean;
-  playThroughEarpieceAndroid?: boolean;
-} 
