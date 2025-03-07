@@ -45,6 +45,8 @@ class RadioService {
       if (params.hidebroken !== undefined) url += `hidebroken=${params.hidebroken}&`;
       if (params.is_https !== undefined) url += `is_https=${params.is_https}&`;
       if (params.bitrateMin) url += `bitrateMin=${params.bitrateMin}&`;
+      // Support pour la pagination
+      if (params.offset !== undefined) url += `offset=${params.offset}&`;
       
       // Ajouter les paramètres de tri (par défaut: votes décroissant)
       const order = params.order || 'votes';
@@ -62,6 +64,11 @@ class RadioService {
       // Log des tags pour le débogage
       if (params.tagList && params.tagList.length > 0) {
         console.log('Tags ajoutés à la recherche:', params.tagList);
+      }
+      
+      // Log pour la pagination
+      if (params.offset !== undefined) {
+        console.log(`Pagination - offset: ${params.offset}, limit: ${params.limit || 'non défini'}`);
       }
       
       // Effectuer la requête

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   FlatList,
@@ -38,6 +38,9 @@ export const InfiniteRadioList: React.FC<InfiniteRadioListProps> = ({
   const [currentOffset, setCurrentOffset] = useState(0);
   const PAGE_SIZE = 20;
   
+  // On garde une référence memoized des paramètres de recherche pour comparer
+  const searchParamsRef = useRef(searchParams);
+  
   // Charger les stations initiales
   const loadStations = useCallback(async (refresh = false) => {
     if (loading || (loadingMore && !refresh)) return;
@@ -49,7 +52,7 @@ export const InfiniteRadioList: React.FC<InfiniteRadioListProps> = ({
         setRefreshing(true);
         setCurrentOffset(0);
       } else {
-        setLoading(true);
+        setLoadingMore(true);
       }
       
       const params: RadioSearchParams = {
@@ -58,22 +61,32 @@ export const InfiniteRadioList: React.FC<InfiniteRadioListProps> = ({
         offset: refresh ? 0 : currentOffset,
       };
       
+      console.log(`Chargement des stations - offset: ${params.offset}, limit: ${params.limit}`);
+      
       const results = await searchStations(params);
       
+      console.log(`Stations reçues: ${results.length}`);
+      
       if (refresh) {
+        console.log('Rafraîchissement - remplacement de toutes les stations');
         setStations(results);
+        setCurrentOffset(results.length > 0 ? PAGE_SIZE : 0);
       } else {
-        setStations(prev => [...prev, ...results]);
+        // Filtrer les doublons basés sur stationuuid
+        const existingIds = new Set(stations.map(station => station.stationuuid));
+        const newStations = results.filter(station => !existingIds.has(station.stationuuid));
+        
+        console.log(`Ajout de ${newStations.length} nouvelles stations (doublons filtrés: ${results.length - newStations.length})`);
+        
+        setStations(prev => [...prev, ...newStations]);
+        setCurrentOffset(prev => prev + (newStations.length > 0 ? PAGE_SIZE : 0));
       }
       
       // Notifier le parent du résultat de la recherche
-      onResultsLoaded(results);
+      onResultsLoaded(refresh ? results : results.length > 0 ? results : []);
       
+      // Il y a plus de résultats si nous avons reçu exactement PAGE_SIZE stations
       setHasMore(results.length === PAGE_SIZE);
-      
-      if (!refresh) {
-        setCurrentOffset(prev => prev + PAGE_SIZE);
-      }
     } catch (error) {
       console.error('Erreur lors du chargement des stations:', error);
       setError('Une erreur est survenue lors du chargement des stations.');
@@ -84,15 +97,22 @@ export const InfiniteRadioList: React.FC<InfiniteRadioListProps> = ({
       setRefreshing(false);
       setLoadingMore(false);
     }
-  }, [searchParams, currentOffset, loading, loadingMore, searchStations, onResultsLoaded]);
+  }, [searchParams, currentOffset, loading, loadingMore, searchStations, onResultsLoaded, stations]);
   
   // Charger les stations au montage ou lorsque les paramètres de recherche changent
   useEffect(() => {
-    setStations([]);
-    setCurrentOffset(0);
-    setHasMore(true);
-    loadStations(true);
-  }, [searchParams]);
+    // Vérifier si les paramètres ont vraiment changé (comparaison profonde)
+    const paramsChanged = JSON.stringify(searchParamsRef.current) !== JSON.stringify(searchParams);
+    
+    if (paramsChanged) {
+      console.log('Paramètres de recherche modifiés, réinitialisation de la liste');
+      searchParamsRef.current = searchParams;
+      setStations([]);
+      setCurrentOffset(0);
+      setHasMore(true);
+      loadStations(true);
+    }
+  }, [searchParams, loadStations]);
   
   // Charger plus de stations
   const handleLoadMore = () => {
