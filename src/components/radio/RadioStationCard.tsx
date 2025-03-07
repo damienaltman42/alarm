@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,19 +25,75 @@ export const RadioStationCard: React.FC<RadioStationCardProps> = ({
   showSelectButton = true,
 }) => {
   const { theme } = useTheme();
-  const { isFavorite, addToFavorites, removeFromFavorites } = useRadio();
-  const [favorite, setFavorite] = React.useState<boolean>(false);
-  const [loadingFavorite, setLoadingFavorite] = React.useState<boolean>(false);
-  const [imageError, setImageError] = React.useState<boolean>(false);
+  const { isFavorite, addToFavorites, removeFromFavorites, playPreview, stopPreview, currentPlayingStation, loadingAudio } = useRadio();
+  
+  // États locaux
+  const [favorite, setFavorite] = useState<boolean>(false);
+  const [loadingFavorite, setLoadingFavorite] = useState<boolean>(false);
+  const [imageError, setImageError] = useState<boolean>(false);
+  const [isPlayingUI, setIsPlayingUI] = useState<boolean>(false);
 
   // Vérifier si la station est dans les favoris
-  React.useEffect(() => {
+  useEffect(() => {
     const checkFavorite = async () => {
       const isFav = await isFavorite(station.stationuuid);
       setFavorite(isFav);
     };
     checkFavorite();
   }, [station, isFavorite]);
+
+  // Vérifier si cette station est en cours de lecture (basé sur la comparaison de noms)
+  useEffect(() => {
+    if (!currentPlayingStation) {
+      if (isPlayingUI) {
+        setIsPlayingUI(false);
+      }
+      return;
+    }
+    
+    // Comparaison basée sur le nom et le pays au lieu de l'UUID qui peut être temporaire
+    const isThisPlaying = currentPlayingStation.name === station.name && 
+                         currentPlayingStation.country === station.country;
+    
+    if (isPlayingUI !== isThisPlaying) {
+      console.log(`[Radio] Mise à jour pour "${station.name}" (${station.country}): ` +
+                 `lecture=${isThisPlaying ? 'active' : 'inactive'}, ` +
+                 `station courante="${currentPlayingStation.name}" (${currentPlayingStation.country})`);
+      setIsPlayingUI(isThisPlaying);
+    }
+  }, [currentPlayingStation, station.name, station.country]);
+
+  // État de chargement
+  const isLoading = loadingAudio && 
+                  currentPlayingStation !== null && 
+                  currentPlayingStation.name === station.name &&
+                  currentPlayingStation.country === station.country;
+
+  // Gérer la lecture/arrêt de la radio
+  const handlePlayToggle = async (e: any) => {
+    e.stopPropagation(); // Empêcher la sélection de la station
+    
+    try {
+      // Si cette carte indique actuellement que la station joue
+      if (isPlayingUI) {
+        console.log(`[Radio] Arrêt demandé pour "${station.name}"`);
+        // Effectuer l'action d'arrêt
+        await stopPreview();
+        // Mise à jour UI locale immédiate (sera confirmée par l'effet)
+        setIsPlayingUI(false);
+      } else {
+        console.log(`[Radio] Lecture demandée pour "${station.name}"`);
+        // Mise à jour UI locale immédiate (sera confirmée par l'effet)
+        setIsPlayingUI(true);
+        // Démarrer la lecture (ce qui arrêtera toute autre lecture)
+        await playPreview(station);
+      }
+    } catch (error) {
+      console.error(`[Radio] Erreur pour "${station.name}":`, error);
+      // En cas d'erreur, restaurer l'état précédent
+      setIsPlayingUI(!isPlayingUI);
+    }
+  };
 
   // Gérer l'ajout/suppression des favoris
   const handleFavoriteToggle = async () => {
@@ -75,39 +131,6 @@ export const RadioStationCard: React.FC<RadioStationCardProps> = ({
     return `${station.votes} votes`;
   };
 
-  // État pour suivre si la radio est en cours de lecture
-  const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
-  const { playPreview, stopPreview, currentPlayingStation, loadingAudio } = useRadio();
-
-  // Vérifier si cette station est en cours de lecture
-  React.useEffect(() => {
-    if (currentPlayingStation) {
-      setIsPlaying(currentPlayingStation.stationuuid === station.stationuuid);
-    } else {
-      setIsPlaying(false);
-    }
-  }, [currentPlayingStation, station.stationuuid]);
-
-  // Vérifier si cette station est en cours de chargement
-  const isLoading = loadingAudio && currentPlayingStation ? currentPlayingStation.stationuuid === station.stationuuid : false;
-
-  // Gérer la lecture/arrêt de la radio
-  const handlePlayToggle = async (e: any) => {
-    e.stopPropagation(); // Empêcher la sélection de la station
-    
-    try {
-      if (isPlaying) {
-        // Si cette station est en cours de lecture, on l'arrête
-        await stopPreview();
-      } else {
-        // Sinon, on démarre cette station (cela arrêtera automatiquement toute autre station en cours)
-        await playPreview(station);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la gestion de la lecture:', error);
-    }
-  };
-
   return (
     <TouchableOpacity
       style={[
@@ -134,15 +157,15 @@ export const RadioStationCard: React.FC<RadioStationCardProps> = ({
             )}
             
             <TouchableOpacity
-              style={[styles.playButton, { backgroundColor: isPlaying ? theme.primary : 'rgba(0,0,0,0.5)' }]}
-              onPress={(e) => handlePlayToggle(e)}
+              style={[styles.playButton, { backgroundColor: isPlayingUI ? theme.primary : 'rgba(0,0,0,0.5)' }]}
+              onPress={handlePlayToggle}
               disabled={isLoading}
             >
               {isLoading ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
                 <Ionicons
-                  name={isPlaying ? 'pause' : 'play'}
+                  name={isPlayingUI ? 'pause' : 'play'}
                   size={22}
                   color="#FFFFFF"
                 />
