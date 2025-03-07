@@ -362,7 +362,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                 </Text>
                 
                 <View style={styles.snoozeOptionsContainer}>
-                  {[1, 5, 10, 30].map((interval) => (
+                  {[5, 10, 30].map((interval) => (
                     <TouchableOpacity
                       key={interval}
                       style={[
