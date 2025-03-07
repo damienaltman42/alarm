@@ -60,7 +60,7 @@ export class RadioSource implements AudioSource {
       
       // Configurer l'audio pour jouer en arrière-plan
       await this.configureAudioForBackground();
-      
+      console.log(this.radioUrl)
       // Charger et jouer la radio
       console.log('Lecture de la radio:', this.radioName);
       this.sound = new Audio.Sound();
