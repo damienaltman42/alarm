@@ -43,6 +43,21 @@ async function checkAlarms() {
     const alarms = await alarmStorage.getAlarms();
     const now = new Date();
     
+    // Vérification des alarmes en mode snooze
+    const snoozeAlarms = alarms.filter(a => a.snoozeUntil);
+    if (snoozeAlarms.length > 0) {
+      logEvent(`🔍 ${snoozeAlarms.length} alarme(s) en mode snooze trouvée(s)`);
+      
+      // Journaliser les détails des alarmes de snooze
+      snoozeAlarms.forEach(alarm => {
+        const snoozeTime = new Date(alarm.snoozeUntil!);
+        const diffMs = snoozeTime.getTime() - now.getTime();
+        const diffMins = Math.round(diffMs / 60000);
+        
+        logEvent(`🕒 Alarme ${alarm.id} en snooze jusqu'à ${snoozeTime.toLocaleTimeString()} (dans ~${diffMins} min)`);
+      });
+    }
+    
     // Vérifier chaque alarme
     for (const alarm of alarms) {
       if (!alarm.enabled) continue;
@@ -55,6 +70,15 @@ async function checkAlarms() {
       
       if (shouldRing) {
         logEvent(`🔔 L'alarme ${alarm.id} doit sonner maintenant!`);
+        
+        // Si c'est une alarme en mode snooze, réinitialiser son champ snoozeUntil
+        if (alarm.snoozeUntil) {
+          logEvent(`🔄 Réinitialisation du mode snooze pour l'alarme ${alarm.id}`);
+          
+          // Mettre à jour l'alarme pour réinitialiser le snoozeUntil
+          const updatedAlarm = { ...alarm, snoozeUntil: null };
+          await alarmStorage.updateAlarm(updatedAlarm);
+        }
         
         // Déclencher l'alarme manuellement
         await triggerAlarm(alarm);
@@ -90,19 +114,33 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
     alarm.repeatDays = [];
   }
   
-  // Nettoyer days s'il existe encore (migration)
-  if (alarm.days) {
-    // Convertir si nécessaire
-    if (Array.isArray(alarm.days) && alarm.days.length > 0) {
-      const convertedDays = alarm.days.map((day: number) => day === 0 ? 7 : day);
-      alarm.repeatDays = [...new Set([...alarm.repeatDays, ...convertedDays])];
+  // Vérification spéciale pour les alarmes en mode snooze
+  if (alarm.snoozeUntil) {
+    const snoozeTime = new Date(alarm.snoozeUntil);
+    
+    // Si l'heure de snooze est dépassée (avec une marge de 15 secondes)
+    if (now >= snoozeTime && currentSeconds < 15) {
+      logEvent(`⏰ L'alarme ${alarm.id} se réveille après un snooze (jusqu'à ${snoozeTime.toLocaleTimeString()})`);
+      
+      // Marquer cette alarme comme déclenchée pour cette minute
+      lastTriggeredAlarms[alarmTimeKey] = true;
+      global.lastTriggeredAlarms = lastTriggeredAlarms;
+      
+      // Programmer l'effacement de ce marqueur après 1 minute
+      setTimeout(() => {
+        const updatedTriggeredAlarms = global.lastTriggeredAlarms || {};
+        delete updatedTriggeredAlarms[alarmTimeKey];
+        global.lastTriggeredAlarms = updatedTriggeredAlarms;
+      }, 60000);
+      
+      return true;
     }
     
-    // Supprimer days complètement dans tous les cas
-    delete alarm.days;
+    // Si on est encore en période de snooze, ne pas déclencher l'alarme
+    return false;
   }
   
-  // Si l'alarme n'a pas de jours de répétition
+  // Pour les alarmes normales sans jours de répétition
   if (alarm.repeatDays.length === 0) {
     // Vérifier si l'heure actuelle correspond à l'heure de l'alarme
     // et que les secondes sont inférieures à 15 (pour limiter la fenêtre de déclenchement)
@@ -170,32 +208,21 @@ async function triggerAlarm(alarm: any) {
       alarm.repeatDays = [];
     }
     
-    // Nettoyer days s'il existe encore (migration)
-    if (alarm.days) {
-      // Convertir si nécessaire
-      if (Array.isArray(alarm.days) && alarm.days.length > 0) {
-        const convertedDays = alarm.days.map((day: number) => day === 0 ? 7 : day);
-        alarm.repeatDays = [...new Set([...alarm.repeatDays, ...convertedDays])];
-      }
-      
-      // Supprimer days complètement
-      delete alarm.days;
+    // Vérifier si c'est une alarme qui sort du mode snooze
+    const isSnoozeWakeup = !!alarm.snoozeUntil;
+    if (isSnoozeWakeup) {
+      logEvent(`🔔 L'alarme ${alarm.id} se réveille après un snooze`);
     }
     
-    // Utiliser la nouvelle méthode de l'AlarmManager pour déclencher l'alarme
+    // Utiliser la méthode de l'AlarmManager pour déclencher l'alarme
     await alarmManager.triggerAlarmById(alarm.id);
     
-    // Mettre à jour l'alarme immédiatement pour éviter les déclenchements multiples
     // Si l'alarme n'a pas de jours de répétition, la désactiver
-    if (alarm.repeatDays.length === 0) {
+    if (alarm.repeatDays.length === 0 && !isSnoozeWakeup) {
       logEvent(`⏱️ Désactivation de l'alarme ponctuelle ${alarm.id} après déclenchement`);
       
       const updatedAlarm = { ...alarm, enabled: false };
       await alarmStorage.updateAlarm(updatedAlarm);
-    } else {
-      // Pour les alarmes répétitives, on ne fait rien ici car elles doivent continuer
-      // à sonner aux prochaines occurrences des jours configurés
-      logEvent(`⏱️ L'alarme répétitive ${alarm.id} reste active pour les prochaines occurrences (jours: ${alarm.repeatDays})`);
     }
   } catch (error) {
     logEvent('❌ Erreur lors du déclenchement de l\'alarme', error);

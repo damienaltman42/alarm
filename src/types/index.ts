@@ -11,6 +11,7 @@ export interface Alarm {
   snoozeEnabled: boolean;
   snoozeInterval: number; // en minutes
   repeatDays: number[]; // Jours de répétition (1-7, où 7 est dimanche)
+  snoozeUntil?: Date | null; // Heure jusqu'à laquelle l'alarme est reportée (snooze)
 }
 
 export interface RadioStation {

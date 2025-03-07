@@ -87,6 +87,26 @@ export class AlarmScheduler {
       
       // Calculer si l'alarme doit sonner maintenant
       const now = new Date();
+      
+      // Vérifier si l'alarme est en mode snooze
+      if (alarm.snoozeUntil) {
+        const snoozeUntil = new Date(alarm.snoozeUntil);
+        
+        // Si le temps de snooze est dépassé (avec une fenêtre de 15 secondes)
+        if (now >= snoozeUntil && now.getSeconds() < 15) {
+          console.log(`Réveil après snooze pour l'alarme ${alarm.id}`);
+          
+          // Réinitialiser le snoozeUntil avant de déclencher l'alarme
+          const updatedAlarm = { ...alarm, snoozeUntil: null };
+          await alarmStorage.updateAlarm(updatedAlarm);
+          
+          // Déclencher l'alarme
+          await this.triggerAlarm(updatedAlarm);
+          return;
+        }
+      }
+      
+      // Pour les alarmes normales, continuer avec la vérification standard
       const [hours, minutes] = alarm.time.split(':').map(Number);
       
       const currentHours = now.getHours();
@@ -100,10 +120,10 @@ export class AlarmScheduler {
       if (!alarm.repeatDays) {
         alarm.repeatDays = [];
       }
-
-      // Si l'alarme n'a pas de jours de répétition
+      
+      // Pour les alarmes sans jours de répétition
       if (alarm.repeatDays.length === 0) {
-        // Déclencher si l'heure correspond et si les secondes sont < 15
+        // Déclencher si l'heure correspond et si les secondes sont dans la fenêtre
         shouldRing = (
           currentHours === hours &&
           currentMinutes === minutes &&
@@ -146,44 +166,12 @@ export class AlarmScheduler {
         return;
       }
       
+      // Vérifier si l'alarme sort de snooze
+      const isSnoozeWakeup = !!alarm.snoozeUntil;
+      
       // Marquer cette alarme comme active
       this.activeAlarmId = alarm.id;
       console.log(`Déclenchement de l'alarme ${alarm.id} (${alarm.label})`);
-      
-      // S'assurer que repeatDays est initialisé
-      if (!alarm.repeatDays) {
-        alarm.repeatDays = [];
-      }
-      
-      // Nettoyer l'ancien format days s'il existe encore
-      const alarmAny = alarm as any;
-      if (alarmAny.days) {
-        // Convertir si nécessaire
-        if (Array.isArray(alarmAny.days) && alarmAny.days.length > 0) {
-          const convertedDays = alarmAny.days.map((day: number) => day === 0 ? 7 : day);
-          alarm.repeatDays = [...new Set([...alarm.repeatDays, ...convertedDays])];
-        }
-        
-        // Supprimer days complètement
-        delete alarmAny.days;
-      }
-      
-      // Mettre à jour l'alarme immédiatement pour éviter les déclenchements multiples
-      const updatedAlarm: Alarm = {
-        ...alarm,
-        // Si l'alarme n'a pas de jours de répétition, la désactiver
-        enabled: alarm.repeatDays.length > 0
-      };
-      
-      // Si l'alarme n'avait pas de jours de répétition, on la désactive
-      if (alarm.repeatDays.length === 0) {
-        console.log(`Désactivation de l'alarme ponctuelle ${alarm.id} après déclenchement`);
-      } else {
-        console.log(`L'alarme répétitive ${alarm.id} reste active pour les prochaines occurrences (jours: ${alarm.repeatDays})`);
-      }
-      
-      // Sauvegarder l'alarme mise à jour
-      await alarmStorage.updateAlarm(updatedAlarm);
       
       // Créer et jouer la source audio
       const audioSource = AudioSourceFactory.createSourceForAlarm(alarm);
@@ -197,6 +185,18 @@ export class AlarmScheduler {
       } else {
         // Fallback au son par défaut si aucune source n'est disponible
         await this.playDefaultSound();
+      }
+      
+      // Désactiver les alarmes ponctuelles qui ne sont pas en sortie de snooze
+      if (alarm.repeatDays && alarm.repeatDays.length === 0 && !isSnoozeWakeup) {
+        console.log(`Désactivation de l'alarme ponctuelle ${alarm.id} après déclenchement`);
+        
+        const updatedAlarm: Alarm = {
+          ...alarm,
+          enabled: false
+        };
+        
+        await alarmStorage.updateAlarm(updatedAlarm);
       }
       
       // Naviguer vers l'écran d'alarme ou avertir l'utilisateur

@@ -218,33 +218,36 @@ class AlarmManager {
    */
   public async snoozeAlarm(minutes: number = 5): Promise<void> {
     if (this.activeAlarmId) {
-      // Arrêter l'alarme
-      await this.stopAlarm();
-      
-      // S'assurer que la valeur est au moins 1 minute
-      const snoozeMinutes = Math.max(1, minutes);
-      
-      // Créer une alarme temporaire pour le snooze
-      const alarm = await alarmStorage.getAlarmById(this.activeAlarmId);
-      if (alarm) {
-        const snoozeDate = new Date();
-        snoozeDate.setMinutes(snoozeDate.getMinutes() + snoozeMinutes);
+      try {
+        // S'assurer que la valeur est au moins 1 minute
+        const snoozeMinutes = Math.max(1, minutes);
         
-        const snoozeTime = `${snoozeDate.getHours().toString().padStart(2, '0')}:${snoozeDate.getMinutes().toString().padStart(2, '0')}`;
+        // Récupérer l'alarme active
+        const alarm = await alarmStorage.getAlarmById(this.activeAlarmId);
+        if (alarm) {
+          // Calculer la nouvelle heure de déclenchement
+          const snoozeDate = new Date();
+          snoozeDate.setMinutes(snoozeDate.getMinutes() + snoozeMinutes);
+          
+          console.log(`Report de l'alarme ${alarm.id} jusqu'à ${snoozeDate.toLocaleTimeString()}`);
+          
+          // Mettre à jour l'alarme avec le champ snoozeUntil
+          const updatedAlarm: Alarm = {
+            ...alarm,
+            snoozeUntil: snoozeDate
+          };
+          
+          // Mettre à jour l'alarme dans le stockage
+          await alarmStorage.updateAlarm(updatedAlarm);
+          
+          console.log(`Alarme ${alarm.id} reportée de ${snoozeMinutes} minutes (jusqu'à ${snoozeDate.toLocaleTimeString()})`);
+        }
         
-        // Créer une alarme temporaire avec l'heure du snooze
-        const snoozeAlarm: Alarm = {
-          ...alarm,
-          id: `snooze_${alarm.id}_${Date.now()}`,
-          time: snoozeTime,
-          label: `${alarm.label || 'Alarme'} (reportée)`,
-          enabled: true,
-        };
+        // Arrêter l'alarme active
+        await this.stopAlarm();
         
-        // Ajouter l'alarme de snooze
-        await alarmStorage.addAlarm(snoozeAlarm);
-        
-        console.log(`Alarme ${alarm.id} reportée de ${snoozeMinutes} minutes (nouvelle alarme: ${snoozeAlarm.id})`);
+      } catch (error) {
+        console.error('Erreur lors du snooze de l\'alarme:', error);
       }
     }
   }
