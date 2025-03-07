@@ -2,7 +2,8 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { Platform, AppState, NativeModules,  } from 'react-native';
 import { Audio, InterruptionModeIOS } from 'expo-av';
 import BackgroundTimer from 'react-native-background-timer';
-
+import { alarmStorage } from '../alarm/alarmStorage';
+import { alarmManager } from '../alarm/alarmManager';
 
 // Type pour les notifications
 // État actuel de l'alarme
@@ -10,7 +11,7 @@ let currentAlarmId: string | null = null;
 let alarmAudioStarted = false;
 global.silentAudioPlayer = null;
 let keepAliveTimer: number | null = null;
-
+let alarmCheckIntervalId: number | null = null;
 
 // État global indiquant qu'une alarme est en cours d'exécution
 let isAlarmPlaying = false;
@@ -25,6 +26,166 @@ function logEvent(message: string, data?: any) {
   } else {
     console.log(`[🔍 DEBUG ${timestamp}][${appStateStr}] ${message}`);
   }
+}
+
+/**
+ * Vérifie si une alarme doit être déclenchée
+ * Cette fonction est appelée périodiquement pour vérifier les alarmes
+ */
+async function checkAlarms() {
+  try {
+    logEvent('🔍 Vérification des alarmes...');
+    
+    // Ne pas vérifier si une alarme est déjà en cours
+    if (alarmManager.isAlarmActive()) {
+      logEvent('⚠️ Une alarme est déjà active, vérification ignorée');
+      return;
+    }
+    
+    // Récupérer toutes les alarmes
+    const alarms = await alarmStorage.getAlarms();
+    const now = new Date();
+    
+    // Vérifier chaque alarme
+    for (const alarm of alarms) {
+      if (!alarm.enabled) continue;
+      
+      // Extraire l'heure et les minutes de l'alarme
+      const [hours, minutes] = alarm.time.split(':').map(Number);
+      
+      // Vérifier si l'alarme doit sonner maintenant
+      const shouldRing = checkAlarmShouldRing(alarm, now, hours, minutes);
+      
+      if (shouldRing) {
+        logEvent(`🔔 L'alarme ${alarm.id} doit sonner maintenant!`);
+        
+        // Déclencher l'alarme manuellement
+        await triggerAlarm(alarm);
+        break; // Ne déclencher qu'une seule alarme à la fois
+      }
+    }
+  } catch (error) {
+    logEvent('❌ Erreur lors de la vérification des alarmes', error);
+  }
+}
+
+/**
+ * Vérifie si une alarme doit sonner à un moment donné
+ */
+function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: number): boolean {
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
+  const currentSeconds = now.getSeconds();
+  
+  // Si l'alarme est non répétitive
+  if (!alarm.repeatDays || alarm.repeatDays.length === 0) {
+    // Vérifier si l'heure actuelle correspond à l'heure de l'alarme
+    // et que les secondes sont inférieures à 59 (pour éviter de déclencher plusieurs fois)
+    return (
+      currentHours === hours &&
+      currentMinutes === minutes &&
+      currentSeconds < 59
+    );
+  }
+  
+  // Si l'alarme est répétitive, vérifier si le jour actuel est un jour de répétition
+  const today = now.getDay(); // 0 = dimanche, 1 = lundi, etc.
+  const repeatDay = today === 0 ? 7 : today; // Convertir dimanche de 0 à 7 pour la compatibilité
+  
+  return (
+    alarm.repeatDays.includes(repeatDay) &&
+    currentHours === hours &&
+    currentMinutes === minutes &&
+    currentSeconds < 59
+  );
+}
+
+/**
+ * Déclenche une alarme manuellement
+ */
+async function triggerAlarm(alarm: any) {
+  try {
+    logEvent(`🔔 Déclenchement de l'alarme ${alarm.id}`);
+    
+    // Utiliser la nouvelle méthode de l'AlarmManager
+    await alarmManager.triggerAlarmById(alarm.id);
+    
+  } catch (error) {
+    logEvent('❌ Erreur lors du déclenchement de l\'alarme', error);
+  }
+}
+
+/**
+ * Démarre la vérification périodique des alarmes
+ * @param checkIntervalSeconds Intervalle de vérification en secondes
+ */
+function startAlarmChecker(checkIntervalSeconds: number = 30) {
+  logEvent(`⏰ Démarrage du vérificateur d'alarmes (intervalle: ${checkIntervalSeconds}s)`);
+  
+  // Arrêter le vérificateur existant si nécessaire
+  stopAlarmChecker();
+  
+  // Vérifier immédiatement
+  checkAlarms();
+  
+  // Configurer la vérification périodique
+  if (Platform.OS === 'ios') {
+    // Sur iOS, utiliser BackgroundTimer pour continuer en arrière-plan
+    alarmCheckIntervalId = BackgroundTimer.setInterval(
+      checkAlarms,
+      checkIntervalSeconds * 1000
+    );
+  } else {
+    // Sur Android, un intervalle normal suffit
+    alarmCheckIntervalId = setInterval(
+      checkAlarms,
+      checkIntervalSeconds * 1000
+    ) as unknown as number;
+  }
+  
+  logEvent('✅ Vérificateur d\'alarmes démarré avec succès');
+}
+
+/**
+ * Arrête la vérification périodique des alarmes
+ */
+function stopAlarmChecker() {
+  if (alarmCheckIntervalId !== null) {
+    logEvent('⏹️ Arrêt du vérificateur d\'alarmes');
+    
+    if (Platform.OS === 'ios') {
+      BackgroundTimer.clearInterval(alarmCheckIntervalId);
+    } else {
+      clearInterval(alarmCheckIntervalId as unknown as NodeJS.Timeout);
+    }
+    
+    alarmCheckIntervalId = null;
+    logEvent('✅ Vérificateur d\'alarmes arrêté avec succès');
+  }
+}
+
+/**
+ * Vérifie immédiatement toutes les alarmes
+ * Cette fonction est exportée pour permettre une vérification manuelle
+ */
+export async function checkAlarmsNow() {
+  logEvent('⚡️ Vérification manuelle des alarmes');
+  await checkAlarms();
+}
+
+/**
+ * Démarre le vérificateur d'alarmes avec l'intervalle spécifié
+ * @param intervalSeconds Intervalle en secondes (par défaut 30s)
+ */
+export function startPeriodicAlarmCheck(intervalSeconds: number = 30) {
+  startAlarmChecker(intervalSeconds);
+}
+
+/**
+ * Arrête le vérificateur d'alarmes
+ */
+export function stopPeriodicAlarmCheck() {
+  stopAlarmChecker();
 }
 
 /**
@@ -44,6 +205,9 @@ export function initNotificationService() {
   
   logEvent('Configuration des notifications');
   
+  // Démarrer le vérificateur d'alarmes (vérification toutes les 30 secondes)
+  startAlarmChecker(30);
+  
   // Ajouter un écouteur d'état de l'application pour mieux gérer les transitions
   AppState.addEventListener('change', (nextAppState) => {
     logEvent(`⚡️ Changement d'état de l'application: ${nextAppState}`);
@@ -57,6 +221,9 @@ export function initNotificationService() {
           activateSilentAudioMode();
         }
       }
+    } else {
+      // L'application est redevenue active, vérifier les alarmes immédiatement
+      checkAlarms();
     }
   });
 }
