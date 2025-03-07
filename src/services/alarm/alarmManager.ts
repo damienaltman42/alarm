@@ -17,17 +17,18 @@ let navigateToAlarmScreen: ((alarm: Alarm) => void) | null = null;
  */
 export function setNavigateToAlarmScreen(navigateFunction: (alarm: Alarm) => void) {
   navigateToAlarmScreen = navigateFunction;
+  // Définir également la variable globale pour que alarmScheduler puisse l'utiliser
+  global.navigateToAlarmScreen = navigateFunction;
 }
 
 /**
  * Gestionnaire d'alarmes
- * Coordonne les services de stockage, notification et audio pour gérer les alarmes
+ * Coordonne les services de stockage et audio pour gérer les alarmes
  */
 class AlarmManager {
   private activeAlarmId: string | null = null;
   private activeAudioSource: AudioSource | null = null;
   private previewAudioSource: AudioSource | null = null;
-  private usePeriodicChecks: boolean = true; // Utiliser les vérifications périodiques par défaut
 
   constructor() {
     this.initialize();
@@ -37,23 +38,63 @@ class AlarmManager {
    * Initialise le gestionnaire d'alarmes
    */
   private async initialize(): Promise<void> {
-    // Initialiser le service de notification
-    await notificationService.initialize();
+    console.log('Initialisation du gestionnaire d\'alarmes en mode vérification périodique uniquement');
+    // Plus de configuration des notifications
     
-    // Configurer les écouteurs de notification (toujours utile pour les snoozes et interactions)
-    notificationService.addListeners(
-      this.handleNotificationReceived,
-      this.handleNotificationResponse
-    );
+    // Migrer les alarmes existantes vers repeatDays
+    await this.migrateAlarmsToDaysFormat();
   }
 
   /**
-   * Active ou désactive l'utilisation des vérifications périodiques
-   * @param enable Activer ou désactiver les vérifications périodiques
+   * Migre toutes les alarmes existantes pour utiliser uniquement repeatDays
+   * Cette fonction est appelée lors de l'initialisation
    */
-  public setUsePeriodicChecks(enable: boolean): void {
-    this.usePeriodicChecks = enable;
-    console.log(`Mode de vérification périodique ${enable ? 'activé' : 'désactivé'}`);
+  private async migrateAlarmsToDaysFormat(): Promise<void> {
+    try {
+      // Récupérer toutes les alarmes
+      const alarms = await alarmStorage.getAlarms();
+      let hasChanges = false;
+      
+      // Parcourir chaque alarme
+      for (const alarm of alarms) {
+        let needsUpdate = false;
+        
+        // Initialiser repeatDays si nécessaire
+        if (!alarm.repeatDays) {
+          alarm.repeatDays = [];
+          needsUpdate = true;
+        }
+        
+        // Vérifier si l'ancien format days existe avec une conversion de type temporaire
+        const alarmAny = alarm as any;
+        if (alarmAny.days) {
+          // Si days existe, on le convertit puis on le supprime complètement
+          if (Array.isArray(alarmAny.days) && alarmAny.days.length > 0) {
+            // Convertir days (0-6) en repeatDays (1-7)
+            const convertedDays = alarmAny.days.map((day: number) => day === 0 ? 7 : day);
+            alarm.repeatDays = [...new Set([...alarm.repeatDays, ...convertedDays])];
+          }
+          
+          // Supprimer complètement la propriété days dans tous les cas
+          delete alarmAny.days;
+          needsUpdate = true;
+        }
+        
+        // Mettre à jour l'alarme si nécessaire
+        if (needsUpdate) {
+          await alarmStorage.updateAlarm(alarm);
+          hasChanges = true;
+        }
+      }
+      
+      if (hasChanges) {
+        console.log('✅ Migration des alarmes vers repeatDays terminée avec succès');
+      } else {
+        console.log('ℹ️ Aucune migration nécessaire pour les alarmes');
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de la migration des alarmes:', error);
+    }
   }
 
   /**
@@ -70,11 +111,7 @@ class AlarmManager {
    */
   public async addAlarm(alarm: Alarm): Promise<void> {
     await alarmStorage.addAlarm(alarm);
-    
-    // Programmer l'alarme si elle est activée et si on n'utilise pas les vérifications périodiques
-    if (alarm.enabled && !this.usePeriodicChecks) {
-      await this.scheduleAlarm(alarm);
-    }
+    // Plus de programmation de notifications
   }
 
   /**
@@ -83,17 +120,7 @@ class AlarmManager {
    */
   public async updateAlarm(updatedAlarm: Alarm): Promise<void> {
     await alarmStorage.updateAlarm(updatedAlarm);
-    
-    // Si on n'utilise pas les vérifications périodiques
-    if (!this.usePeriodicChecks) {
-      // Annuler l'ancienne programmation
-      await notificationService.cancelAlarm(updatedAlarm.id);
-      
-      // Reprogrammer l'alarme si elle est activée
-      if (updatedAlarm.enabled) {
-        await this.scheduleAlarm(updatedAlarm);
-      }
-    }
+    // Plus de gestion des notifications
   }
 
   /**
@@ -101,12 +128,7 @@ class AlarmManager {
    * @param alarmId ID de l'alarme à supprimer
    */
   public async deleteAlarm(alarmId: string): Promise<void> {
-    // Annuler la notification si on n'utilise pas les vérifications périodiques
-    if (!this.usePeriodicChecks) {
-      await notificationService.cancelAlarm(alarmId);
-    }
-    
-    // Supprimer l'alarme du stockage
+    // Plus d'annulation de notifications
     await alarmStorage.deleteAlarm(alarmId);
   }
 
@@ -127,34 +149,15 @@ class AlarmManager {
     
     // Mettre à jour l'alarme
     await alarmStorage.updateAlarm(updatedAlarm);
-    
-    // Si on n'utilise pas les vérifications périodiques, programmer ou annuler la notification
-    if (!this.usePeriodicChecks) {
-      if (enabled) {
-        await this.scheduleAlarm(updatedAlarm);
-      } else {
-        await notificationService.cancelAlarm(alarmId);
-      }
-    }
+    // Plus de programmation de notifications
   }
 
   /**
-   * Programme une alarme (uniquement utilisé si usePeriodicChecks = false)
-   * @param alarm Alarme à programmer
+   * Déclenche une alarme manuellement
+   * @param alarmId ID de l'alarme à déclencher
    */
-  private async scheduleAlarm(alarm: Alarm): Promise<void> {
-    await notificationService.scheduleAlarm(alarm);
-  }
-
-  /**
-   * Gère la réception d'une notification
-   * Cette méthode est également utilisée par la vérification périodique
-   */
-  private handleNotificationReceived = async (notification: Notifications.Notification): Promise<void> => {
-    const alarmId = notification.request.content.data?.alarmId;
-    const isSnooze = notification.request.content.data?.isSnooze;
-    
-    if (alarmId) {
+  public async triggerAlarmById(alarmId: string): Promise<void> {
+    try {
       // Récupérer l'alarme
       const alarm = await alarmStorage.getAlarmById(alarmId);
       
@@ -175,12 +178,8 @@ class AlarmManager {
           const success = await audioSource.play();
           
           if (success) {
-            // Créer une notification persistante
-            await notificationService.createPersistentNotification(
-              alarm.label || 'Alarme',
-              `Il est ${alarm.time} - ${audioSource.getName()}`,
-              { alarmId }
-            );
+            console.log(`Alarme ${alarmId} déclenchée avec succès`);
+            // Plus de notification persistante
           }
         }
         
@@ -193,46 +192,6 @@ class AlarmManager {
           }
         }
       }
-    }
-  };
-
-  /**
-   * Gère la réponse à une notification
-   */
-  private handleNotificationResponse = async (response: Notifications.NotificationResponse): Promise<void> => {
-    const alarmId = response.notification.request.content.data?.alarmId;
-    
-    if (alarmId) {
-      // Naviguer vers l'écran d'alarme
-      const alarm = await alarmStorage.getAlarmById(alarmId);
-      
-      if (alarm && navigateToAlarmScreen) {
-        try {
-          navigateToAlarmScreen(alarm);
-        } catch (error) {
-          console.error('Erreur lors de la navigation vers l\'écran d\'alarme:', error);
-        }
-      }
-    }
-  };
-
-  /**
-   * Déclenche manuellement une alarme (pour être utilisé par la vérification périodique)
-   * @param alarmId ID de l'alarme à déclencher
-   */
-  public async triggerAlarmById(alarmId: string): Promise<void> {
-    try {
-      // Créer un objet notification simulé
-      const notification = {
-        request: {
-          content: {
-            data: { alarmId }
-          }
-        }
-      };
-      
-      // Appeler le gestionnaire de notification
-      await this.handleNotificationReceived(notification as any);
     } catch (error) {
       console.error(`Erreur lors du déclenchement manuel de l'alarme ${alarmId}:`, error);
       throw error;
@@ -262,8 +221,28 @@ class AlarmManager {
       // Arrêter l'alarme
       await this.stopAlarm();
       
-      // Programmer une notification de snooze
-      await notificationService.scheduleSnooze(this.activeAlarmId, minutes);
+      // Créer une alarme temporaire pour le snooze
+      const alarm = await alarmStorage.getAlarmById(this.activeAlarmId);
+      if (alarm) {
+        const snoozeDate = new Date();
+        snoozeDate.setMinutes(snoozeDate.getMinutes() + minutes);
+        
+        const snoozeTime = `${snoozeDate.getHours().toString().padStart(2, '0')}:${snoozeDate.getMinutes().toString().padStart(2, '0')}`;
+        
+        // Créer une alarme temporaire avec l'heure du snooze
+        const snoozeAlarm: Alarm = {
+          ...alarm,
+          id: `snooze_${alarm.id}_${Date.now()}`,
+          time: snoozeTime,
+          label: `${alarm.label || 'Alarme'} (reportée)`,
+          enabled: true,
+        };
+        
+        // Ajouter l'alarme de snooze
+        await alarmStorage.addAlarm(snoozeAlarm);
+        
+        console.log(`Alarme ${alarm.id} reportée de ${minutes} minutes (nouvelle alarme: ${snoozeAlarm.id})`);
+      }
     }
   }
 
@@ -332,30 +311,9 @@ class AlarmManager {
   }
 
   /**
-   * Vérifie et met à jour une alarme
-   * @param alarm Alarme à vérifier
-   */
-  public async checkAndUpdateAlarm(alarm: Alarm): Promise<void> {
-    try {
-      // Si l'alarme est activée mais n'est pas programmée, la programmer
-      if (alarm.enabled) {
-        await this.scheduleAlarm(alarm);
-      } else {
-        // Si l'alarme est désactivée, annuler sa programmation
-        await notificationService.cancelAlarm(alarm.id);
-      }
-    } catch (error) {
-      console.error(`Erreur lors de la vérification de l'alarme ${alarm.id}:`, error);
-    }
-  }
-
-  /**
    * Nettoie les ressources
    */
   public cleanup(): void {
-    // Supprimer l'écouteur d'état de l'application
-    notificationService.removeListeners();
-    
     // Arrêter les sources audio
     if (this.activeAudioSource) {
       this.activeAudioSource.cleanup();

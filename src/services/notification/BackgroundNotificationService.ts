@@ -1,20 +1,17 @@
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Platform, AppState, NativeModules,  } from 'react-native';
+import { Platform, AppState, NativeModules } from 'react-native';
 import { Audio, InterruptionModeIOS } from 'expo-av';
 import BackgroundTimer from 'react-native-background-timer';
 import { alarmStorage } from '../alarm/alarmStorage';
 import { alarmManager } from '../alarm/alarmManager';
 
-// Type pour les notifications
 // État actuel de l'alarme
-let currentAlarmId: string | null = null;
 let alarmAudioStarted = false;
 global.silentAudioPlayer = null;
 let keepAliveTimer: number | null = null;
 let alarmCheckIntervalId: number | null = null;
 
-// État global indiquant qu'une alarme est en cours d'exécution
-let isAlarmPlaying = false;
+// Initialiser le registre des alarmes déclenchées
+global.lastTriggeredAlarms = {};
 
 // Fonction utilitaire pour les logs
 function logEvent(message: string, data?: any) {
@@ -61,6 +58,7 @@ async function checkAlarms() {
         
         // Déclencher l'alarme manuellement
         await triggerAlarm(alarm);
+        
         break; // Ne déclencher qu'une seule alarme à la fois
       }
     }
@@ -77,27 +75,87 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   const currentMinutes = now.getMinutes();
   const currentSeconds = now.getSeconds();
   
-  // Si l'alarme est non répétitive
-  if (!alarm.repeatDays || alarm.repeatDays.length === 0) {
+  // Clé unique pour cette alarme à cette heure précise
+  // Pour éviter de déclencher plusieurs fois la même alarme dans la même minute
+  const alarmTimeKey = `${alarm.id}_${currentHours}_${currentMinutes}`;
+  
+  // Vérifier si cette alarme a déjà sonné durant cette minute
+  const lastTriggeredAlarms = global.lastTriggeredAlarms || {};
+  if (lastTriggeredAlarms[alarmTimeKey]) {
+    return false;
+  }
+  
+  // S'assurer que repeatDays est initialisé
+  if (!alarm.repeatDays) {
+    alarm.repeatDays = [];
+  }
+  
+  // Nettoyer days s'il existe encore (migration)
+  if (alarm.days) {
+    // Convertir si nécessaire
+    if (Array.isArray(alarm.days) && alarm.days.length > 0) {
+      const convertedDays = alarm.days.map((day: number) => day === 0 ? 7 : day);
+      alarm.repeatDays = [...new Set([...alarm.repeatDays, ...convertedDays])];
+    }
+    
+    // Supprimer days complètement dans tous les cas
+    delete alarm.days;
+  }
+  
+  // Si l'alarme n'a pas de jours de répétition
+  if (alarm.repeatDays.length === 0) {
     // Vérifier si l'heure actuelle correspond à l'heure de l'alarme
-    // et que les secondes sont inférieures à 59 (pour éviter de déclencher plusieurs fois)
-    return (
+    // et que les secondes sont inférieures à 15 (pour limiter la fenêtre de déclenchement)
+    const shouldRing = (
       currentHours === hours &&
       currentMinutes === minutes &&
-      currentSeconds < 59
+      currentSeconds < 15
     );
+    
+    if (shouldRing) {
+      // Marquer cette alarme comme déclenchée pour cette minute
+      lastTriggeredAlarms[alarmTimeKey] = true;
+      global.lastTriggeredAlarms = lastTriggeredAlarms;
+      
+      // Programmer l'effacement de ce marqueur après 1 minute
+      setTimeout(() => {
+        const updatedTriggeredAlarms = global.lastTriggeredAlarms || {};
+        delete updatedTriggeredAlarms[alarmTimeKey];
+        global.lastTriggeredAlarms = updatedTriggeredAlarms;
+      }, 60000);
+    }
+    
+    return shouldRing;
   }
   
   // Si l'alarme est répétitive, vérifier si le jour actuel est un jour de répétition
   const today = now.getDay(); // 0 = dimanche, 1 = lundi, etc.
   const repeatDay = today === 0 ? 7 : today; // Convertir dimanche de 0 à 7 pour la compatibilité
   
-  return (
-    alarm.repeatDays.includes(repeatDay) &&
+  // Vérifier si aujourd'hui est un jour configuré pour l'alarme
+  const isDayConfigured = alarm.repeatDays.includes(repeatDay);
+  
+  const shouldRing = (
+    isDayConfigured &&
     currentHours === hours &&
     currentMinutes === minutes &&
-    currentSeconds < 59
+    currentSeconds < 15
   );
+  
+  if (shouldRing) {
+    // Marquer cette alarme comme déclenchée pour cette minute
+    lastTriggeredAlarms[alarmTimeKey] = true;
+    global.lastTriggeredAlarms = lastTriggeredAlarms;
+    
+    // Programmer l'effacement de ce marqueur après 1 minute
+    setTimeout(() => {
+      const updatedTriggeredAlarms = global.lastTriggeredAlarms || {};
+      delete updatedTriggeredAlarms[alarmTimeKey];
+      global.lastTriggeredAlarms = updatedTriggeredAlarms;
+    }, 60000);
+  }
+  
+  return shouldRing;
 }
 
 /**
@@ -107,9 +165,38 @@ async function triggerAlarm(alarm: any) {
   try {
     logEvent(`🔔 Déclenchement de l'alarme ${alarm.id}`);
     
-    // Utiliser la nouvelle méthode de l'AlarmManager
+    // S'assurer que repeatDays est initialisé
+    if (!alarm.repeatDays) {
+      alarm.repeatDays = [];
+    }
+    
+    // Nettoyer days s'il existe encore (migration)
+    if (alarm.days) {
+      // Convertir si nécessaire
+      if (Array.isArray(alarm.days) && alarm.days.length > 0) {
+        const convertedDays = alarm.days.map((day: number) => day === 0 ? 7 : day);
+        alarm.repeatDays = [...new Set([...alarm.repeatDays, ...convertedDays])];
+      }
+      
+      // Supprimer days complètement
+      delete alarm.days;
+    }
+    
+    // Utiliser la nouvelle méthode de l'AlarmManager pour déclencher l'alarme
     await alarmManager.triggerAlarmById(alarm.id);
     
+    // Mettre à jour l'alarme immédiatement pour éviter les déclenchements multiples
+    // Si l'alarme n'a pas de jours de répétition, la désactiver
+    if (alarm.repeatDays.length === 0) {
+      logEvent(`⏱️ Désactivation de l'alarme ponctuelle ${alarm.id} après déclenchement`);
+      
+      const updatedAlarm = { ...alarm, enabled: false };
+      await alarmStorage.updateAlarm(updatedAlarm);
+    } else {
+      // Pour les alarmes répétitives, on ne fait rien ici car elles doivent continuer
+      // à sonner aux prochaines occurrences des jours configurés
+      logEvent(`⏱️ L'alarme répétitive ${alarm.id} reste active pour les prochaines occurrences (jours: ${alarm.repeatDays})`);
+    }
   } catch (error) {
     logEvent('❌ Erreur lors du déclenchement de l\'alarme', error);
   }
@@ -190,10 +277,10 @@ export function stopPeriodicAlarmCheck() {
 
 /**
  * Initialise le service de notifications
- * Cette fonction configure le système de notification et initialise le mode audio en arrière-plan
+ * Cette fonction configure le système d'alarmes en arrière-plan
  */
 export function initNotificationService() {
-  logEvent('⭐️ DÉMARRAGE initNotificationService');
+  logEvent('⭐️ DÉMARRAGE initBackgroundAlarmService');
   
   // Configurations spécifiques pour les modes d'arrière-plan
   if (Platform.OS === 'ios') {
@@ -203,7 +290,7 @@ export function initNotificationService() {
     increaseiOSAppVisibility();
   }
   
-  logEvent('Configuration des notifications');
+  logEvent('Configuration du vérificateur d\'alarmes');
   
   // Démarrer le vérificateur d'alarmes (vérification toutes les 30 secondes)
   startAlarmChecker(30);
@@ -391,6 +478,7 @@ export async function stopSilentAudioMode() {
 
 /**
  * Améliore la visibilité de l'application dans le système iOS
+ * sans utiliser les notifications
  */
 function increaseiOSAppVisibility() {
   if (Platform.OS !== 'ios') return;
@@ -401,10 +489,14 @@ function increaseiOSAppVisibility() {
   const intervalId = setInterval(() => {
     if (AppState.currentState === 'background') {
       const now = new Date().toISOString();
-      logEvent(`[${now}] Manipulation badges pour maintenir visibilité`);
+      logEvent(`[${now}] Maintien de la visibilité en arrière-plan`);
       
-      PushNotificationIOS.setApplicationIconBadgeNumber(1);
-      setTimeout(() => PushNotificationIOS.setApplicationIconBadgeNumber(0), 500);
+      // Alternative pour maintenir l'app active
+      if (global.silentAudioPlayer === null) {
+        activateSilentAudioMode().catch(e => {
+          logEvent('Erreur lors de la réactivation du mode silencieux', e);
+        });
+      }
     }
   }, 180000); // Toutes les 3 minutes
   

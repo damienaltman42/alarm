@@ -3,6 +3,15 @@ import { Platform } from 'react-native';
 import { Alarm } from '../../types';
 import { ErrorService } from '../../utils/errorHandling';
 
+// Interface pour la configuration des alarmes
+interface AlarmConfig {
+  type: 'radio' | 'spotify';
+  streamingUrl: string;
+  title: string;
+  artist: string;
+  artwork?: string;
+}
+
 /**
  * Service de gestion des notifications
  * Gère la configuration et la programmation des notifications d'alarme
@@ -162,15 +171,12 @@ export class NotificationService {
   ): Promise<string> {
     try {
       const notificationId = await Notifications.presentNotificationAsync({
-        content: {
-          title,
-          body,
-          data,
-          sticky: true,
-          autoDismiss: false,
-          priority: Notifications.AndroidNotificationPriority.MAX,
-        },
-        trigger: null,
+        title,
+        body,
+        data,
+        sticky: true,
+        autoDismiss: false,
+        priority: Notifications.AndroidNotificationPriority.MAX,
       });
       
       return notificationId;
@@ -280,9 +286,34 @@ export class NotificationService {
   }
 
   /**
+   * Planifier une alarme configurée
+   * @param triggerTime Heure de déclenchement
+   * @param config Configuration de l'alarme
+   * @param alarmId ID de l'alarme
+   */
+  private async scheduleAlarmWithConfig(triggerTime: Date, config: AlarmConfig, alarmId: string): Promise<void> {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: config.title,
+        body: config.artist,
+        data: { 
+          alarmId,
+          type: config.type,
+          streamingUrl: config.streamingUrl,
+          artwork: config.artwork 
+        },
+        sound: true,
+        priority: Notifications.AndroidNotificationPriority.MAX
+      },
+      trigger: {
+        date: triggerTime,
+        type: Notifications.SchedulableTriggerInputTypes.DATE
+      }
+    });
+  }
+
+  /**
    * Planifie une notification pour une alarme
-   * @param alarm Alarme pour laquelle planifier la notification
-   * @param triggerTime Heure de déclenchement de la notification
    */
   async scheduleNotification(alarm: Alarm, triggerTime: Date): Promise<void> {
     try {
@@ -300,7 +331,7 @@ export class NotificationService {
       };
       
       // Planifier la notification
-      scheduleAlarm(triggerTime, alarmConfig, alarm.id);
+      await this.scheduleAlarmWithConfig(triggerTime, alarmConfig, alarm.id);
       
       console.log(`Notification planifiée pour ${triggerTime.toLocaleString()}`);
     } catch (error) {
@@ -314,7 +345,7 @@ export class NotificationService {
    */
   async cancelNotification(alarmId: string): Promise<void> {
     try {
-      cancelAlarm(alarmId);
+      await this.cancelAlarm(alarmId);
       console.log(`Notification annulée pour l'alarme ${alarmId}`);
     } catch (error) {
       ErrorService.handleError(error as Error, 'NotificationService.cancelNotification');

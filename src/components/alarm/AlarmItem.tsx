@@ -64,7 +64,7 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, 
           )}
           
           <Text style={[styles.days, !alarm.enabled && styles.disabledText]}>
-            {formatDays(alarm.days)}
+            {formatDays(alarm.repeatDays)}
           </Text>
           
           {alarm.radioStation && (

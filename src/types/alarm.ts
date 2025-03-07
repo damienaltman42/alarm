@@ -1,18 +1,12 @@
 import { RadioStation } from './radio';
+import { Alarm } from './index';
 
-export interface Alarm {
-  id: string;
-  time: string; // Format "HH:MM"
-  days: number[]; // 0-6, où 0 est dimanche
-  enabled: boolean;
-  radioStation: RadioStation | null;
-  label?: string;
-  snoozeEnabled: boolean;
-  snoozeInterval: number; // en minutes
-}
+// Exporter l'interface Alarm depuis index.ts
+export { Alarm };
 
 export interface AlarmSchedulerOptions {
   minimumInterval?: number;
   stopOnTerminate?: boolean;
   startOnBoot?: boolean;
+  checkIntervalSeconds?: number; // Intervalle de vérification en secondes
 }

@@ -3,7 +3,6 @@ import { SpotifyPlaylist } from './spotify';
 export interface Alarm {
   id: string;
   time: string; // Format "HH:MM"
-  days: number[]; // 0-6, où 0 est dimanche
   enabled: boolean;
   radioStation: RadioStation | null;
   spotifyPlaylist?: SpotifyPlaylist | null;
@@ -11,6 +10,7 @@ export interface Alarm {
   label?: string;
   snoozeEnabled: boolean;
   snoozeInterval: number; // en minutes
+  repeatDays: number[]; // Jours de répétition (1-7, où 7 est dimanche)
 }
 
 export interface RadioStation {

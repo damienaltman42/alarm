@@ -51,7 +51,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
   // États pour les champs du formulaire
   const [time, setTime] = useState<string>(editingAlarm?.time || '08:00');
-  const [days, setDays] = useState<number[]>(editingAlarm?.days || [1, 2, 3, 4, 5]); // Lun-Ven par défaut
+  const [repeatDays, setRepeatDays] = useState<number[]>(editingAlarm?.repeatDays || [1, 2, 3, 4, 5]); // Lun-Ven par défaut
   const [label, setLabel] = useState<string>(editingAlarm?.label || '');
   const [enabled, setEnabled] = useState<boolean>(editingAlarm?.enabled ?? true);
   const [snoozeEnabled, setSnoozeEnabled] = useState<boolean>(editingAlarm?.snoozeEnabled ?? true);
@@ -128,7 +128,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
       const alarm: Alarm = {
         id: editingAlarm?.id || generateUniqueId(),
         time,
-        days,
+        repeatDays,
         label,
         enabled,
         snoozeEnabled,
@@ -188,7 +188,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Jours</Text>
-            <DaySelector selectedDays={days} onChange={setDays} />
+            <DaySelector selectedDays={repeatDays} onChange={setRepeatDays} />
           </View>
 
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>

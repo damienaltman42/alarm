@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { RadioStation, RadioSearchParams } from '../types';
-import { RadioStationCard } from './RadioStationCard';
+import { RadioStationCard } from './radio/RadioStationCard';
 import { useTheme, useRadio } from '../hooks';
 
 interface InfiniteRadioListProps {

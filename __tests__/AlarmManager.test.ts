@@ -1,4 +1,4 @@
-import { alarmManager } from '../src/modules/AlarmManager';
+import { alarmManager } from '../src/services/alarm/alarmManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 
@@ -61,23 +61,24 @@ describe('AlarmManager', () => {
     
     // Créer une alarme de test
     const testAlarm = {
-      id: 'test-id',
-      time: '08:00',
-      days: [1, 2, 3, 4, 5],
+      id: "test-alarm-1",
+      time: "08:00",
+      repeatDays: [1, 2, 3, 4, 5],
       enabled: true,
       radioStation: {
-        stationuuid: 'station-1',
-        name: 'Test Radio',
-        url: 'http://test.com',
-        url_resolved: 'http://test.com/stream',
-        homepage: 'http://test.com',
-        favicon: 'http://test.com/favicon.ico',
-        tags: ['test'],
-        country: 'Test Country',
+        stationuuid: "test-station-1",
+        name: "Test Station",
+        url: "https://test.com/stream",
+        url_resolved: "https://test.com/stream",
+        homepage: "https://test.com",
+        favicon: "https://test.com/favicon.png",
+        tags: ["test", "rock"],
+        country: "France"
       },
-      label: 'Test Alarm',
+      label: "Test Alarm",
       snoozeEnabled: true,
       snoozeInterval: 5,
+      alarmSound: 'radio' as 'radio'
     };
 
     // Appeler la méthode
