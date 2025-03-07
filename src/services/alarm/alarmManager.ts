@@ -214,18 +214,21 @@ class AlarmManager {
 
   /**
    * Reporte l'alarme active
-   * @param minutes Minutes de report
+   * @param minutes Minutes de report (minimum 1 minute)
    */
   public async snoozeAlarm(minutes: number = 5): Promise<void> {
     if (this.activeAlarmId) {
       // Arrêter l'alarme
       await this.stopAlarm();
       
+      // S'assurer que la valeur est au moins 1 minute
+      const snoozeMinutes = Math.max(1, minutes);
+      
       // Créer une alarme temporaire pour le snooze
       const alarm = await alarmStorage.getAlarmById(this.activeAlarmId);
       if (alarm) {
         const snoozeDate = new Date();
-        snoozeDate.setMinutes(snoozeDate.getMinutes() + minutes);
+        snoozeDate.setMinutes(snoozeDate.getMinutes() + snoozeMinutes);
         
         const snoozeTime = `${snoozeDate.getHours().toString().padStart(2, '0')}:${snoozeDate.getMinutes().toString().padStart(2, '0')}`;
         
@@ -241,7 +244,7 @@ class AlarmManager {
         // Ajouter l'alarme de snooze
         await alarmStorage.addAlarm(snoozeAlarm);
         
-        console.log(`Alarme ${alarm.id} reportée de ${minutes} minutes (nouvelle alarme: ${snoozeAlarm.id})`);
+        console.log(`Alarme ${alarm.id} reportée de ${snoozeMinutes} minutes (nouvelle alarme: ${snoozeAlarm.id})`);
       }
     }
   }

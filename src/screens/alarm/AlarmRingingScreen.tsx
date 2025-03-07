@@ -76,10 +76,13 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
       // Appeler la fonction snooze du gestionnaire d'alarmes
       await alarmManager.snoozeAlarm(alarm.snoozeInterval);
       
+      // Message adapté selon que c'est 1 minute ou plusieurs minutes
+      const minutesText = alarm.snoozeInterval === 1 ? 'minute' : 'minutes';
+      
       // Afficher un message de confirmation
       Alert.alert(
         "Alarme reportée",
-        `L'alarme sonnera à nouveau dans ${alarm.snoozeInterval} minutes.`,
+        `L'alarme sonnera à nouveau dans ${alarm.snoozeInterval} ${minutesText}.`,
         [{ text: "OK" }]
       );
       

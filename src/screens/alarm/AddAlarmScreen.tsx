@@ -360,6 +360,29 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                 <Text style={[styles.snoozeIntervalLabel, { color: theme.text }]}>
                   Intervalle de report (minutes)
                 </Text>
+                
+                <View style={styles.snoozeOptionsContainer}>
+                  {[1, 5, 10, 30].map((interval) => (
+                    <TouchableOpacity
+                      key={interval}
+                      style={[
+                        styles.snoozeOption,
+                        snoozeInterval === interval && { backgroundColor: theme.primary }
+                      ]}
+                      onPress={() => setSnoozeInterval(interval)}
+                    >
+                      <Text 
+                        style={[
+                          styles.snoozeOptionText, 
+                          snoozeInterval === interval && { color: 'white' }
+                        ]}
+                      >
+                        {interval}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                
                 <TextInput
                   style={[styles.snoozeIntervalInput, { color: theme.text, borderColor: theme.border }]}
                   value={snoozeInterval.toString()}
@@ -374,6 +397,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                   keyboardType="number-pad"
                   maxLength={2}
                   placeholderTextColor={theme.secondary}
+                  placeholder="Autre valeur..."
                 />
               </View>
             )}
@@ -463,12 +487,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   snoozeIntervalInput: {
-    height: 48,
+    height: 40,
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     fontSize: 16,
+    width: '100%',
+    marginTop: 4,
   },
   selectSoundButton: {
     flexDirection: 'row',
@@ -535,5 +560,29 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     marginLeft: 6,
+  },
+  snoozeOptionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  snoozeOption: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+    minWidth: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  snoozeOptionText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
 }); 
