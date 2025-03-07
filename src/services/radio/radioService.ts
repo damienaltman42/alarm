@@ -36,9 +36,15 @@ class RadioService {
       if (params.country) url += `country=${encodeURIComponent(params.country)}&`;
       if (params.countrycode) url += `countrycode=${encodeURIComponent(params.countrycode)}&`;
       if (params.tag) url += `tag=${encodeURIComponent(params.tag)}&`;
+      // Support pour la recherche par plusieurs tags
+      if (params.tagList && params.tagList.length > 0) {
+        // L'API Radio Browser attend une liste de tags séparés par des virgules
+        url += `tagList=${encodeURIComponent(params.tagList.join(','))}&`;
+      }
       if (params.limit) url += `limit=${params.limit}&`;
       if (params.hidebroken !== undefined) url += `hidebroken=${params.hidebroken}&`;
       if (params.is_https !== undefined) url += `is_https=${params.is_https}&`;
+      if (params.bitrateMin) url += `bitrateMin=${params.bitrateMin}&`;
       
       // Ajouter les paramètres de tri (par défaut: votes décroissant)
       const order = params.order || 'votes';
@@ -51,6 +57,11 @@ class RadioService {
       if (params.countrycode) {
         console.log('Code pays ajouté à la recherche:', params.countrycode);
         console.log('Paramètres de recherche:', params);
+      }
+      
+      // Log des tags pour le débogage
+      if (params.tagList && params.tagList.length > 0) {
+        console.log('Tags ajoutés à la recherche:', params.tagList);
       }
       
       // Effectuer la requête
