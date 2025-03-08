@@ -1,0 +1,60 @@
+{
+  "player": {
+    "title": "ラジオ",
+    "nowPlaying": "再生中",
+    "loading": "読み込み中...",
+    "errorTitle": "再生エラー",
+    "errorMessage": "ステーションを再生できません。もう一度試すか、別のステーションを選択してください。",
+    "emptyState": "ステーションが選択されていません",
+    "emptyStateSubtitle": "人気のステーションリストから選ぶか、検索してください。",
+    "favorites": "お気に入り",
+    "popular": "人気のステーション",
+    "recentlyPlayed": "最近再生したもの",
+    "searchResults": "検索結果",
+    "noStations": "ステーションが見つかりません",
+    "addToFavorites": "お気に入りに追加",
+    "removeFromFavorites": "お気に入りから削除"
+  },
+  "search": {
+    "searchPlaceholder": "ラジオを検索...",
+    "errors": {
+      "title": "検索エラー",
+      "message": "検索中にエラーが発生しました。もう一度お試しください。"
+    },
+    "filters": {
+      "country": "国",
+      "tags": "ジャンル",
+      "selectedTags": "{{count}}ジャンル",
+      "more": "もっと見る"
+    },
+    "countries": {
+      "title": "国を選択",
+      "searchPlaceholder": "国を検索..."
+    },
+    "tags": {
+      "title": "ジャンルを選択",
+      "searchPlaceholder": "ジャンルを検索...",
+      "validate": "確認 ({{count}} 選択済み)"
+    },
+    "sortOptions": {
+      "votes": "投票数（人気順）",
+      "clicktrend": "最近の傾向",
+      "name": "名前",
+      "country": "国",
+      "bitrate": "音質"
+    },
+    "advanced": {
+      "quality": "品質",
+      "minBitrate": "最低ビットレート",
+      "bitrateExample": "例: 128",
+      "kbps": "kbps",
+      "httpsOnly": "HTTPSのみ",
+      "sort": "並べ替え",
+      "descending": "降順",
+      "other": "その他",
+      "hideBroken": "再生できないステーションを非表示",
+      "reset": "リセット",
+      "apply": "適用"
+    }
+  }
+}

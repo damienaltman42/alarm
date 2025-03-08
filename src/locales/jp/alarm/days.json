@@ -1,0 +1,40 @@
+{
+  "days": {
+    "single": {
+      "sunday": {
+        "short": "日",
+        "long": "日曜日"
+      },
+      "monday": {
+        "short": "月",
+        "long": "月曜日"
+      },
+      "tuesday": {
+        "short": "火",
+        "long": "火曜日"
+      },
+      "wednesday": {
+        "short": "水",
+        "long": "水曜日"
+      },
+      "thursday": {
+        "short": "木",
+        "long": "木曜日"
+      },
+      "friday": {
+        "short": "金",
+        "long": "金曜日"
+      },
+      "saturday": {
+        "short": "土",
+        "long": "土曜日"
+      }
+    },
+    "presets": {
+      "allDays": "毎日",
+      "weekdays": "平日",
+      "weekends": "週末",
+      "clear": "クリア"
+    }
+  }
+}

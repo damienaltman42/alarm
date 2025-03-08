@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "title": "設定",
+    "appearance": {
+      "title": "外観",
+      "theme": "テーマ",
+      "darkMode": "ダークモード",
+      "lightMode": "ライトモード",
+      "systemDefault": "システムデフォルト"
+    },
+    "notifications": {
+      "title": "通知",
+      "enabled": "通知が有効",
+      "sound": "通知音",
+      "vibration": "バイブレーション",
+      "preview": "通知のプレビュー"
+    },
+    "language": {
+      "title": "言語",
+      "selected": "選択された言語",
+      "system": "システム言語",
+      "french": "フランス語",
+      "english": "英語",
+      "german": "ドイツ語",
+      "spanish": "スペイン語",
+      "portuguese": "ポルトガル語",
+      "italian": "イタリア語",
+      "japanese": "日本語"
+    },
+    "about": {
+      "title": "アプリ情報",
+      "version": "バージョン",
+      "developer": "開発者",
+      "website": "ウェブサイト",
+      "privacy": "プライバシーポリシー",
+      "terms": "利用規約"
+    },
+    "advanced": {
+      "title": "詳細設定",
+      "checkInterval": "チェック間隔",
+      "backgroundRefresh": "バックグラウンド更新",
+      "resetApp": "アプリのリセット"
+    }
+  }
+}

@@ -19,7 +19,8 @@ const LanguageSettingsScreen = () => {
     { code: 'de', name: t('settings.language.german') },
     { code: 'es', name: t('settings.language.spanish') },
     { code: 'pt', name: t('settings.language.portuguese') },
-    { code: 'it', name: t('settings.language.italian') }
+    { code: 'it', name: t('settings.language.italian') },
+    { code: 'jp', name: t('settings.language.japanese') }
   ];
 
   // Gestionnaire de sélection de langue

@@ -1,0 +1,26 @@
+{
+  "service": {
+    "start": "通知サービスを開始しました",
+    "stop": "通知サービスを停止しました",
+    "checking": "アラームをチェック中",
+    "triggered": "アラーム {{id}} を起動中",
+    "snoozeWakeup": "スヌーズ後にアラーム {{id}} を起動中",
+    "disableOneTime": "一度きりのアラーム {{id}} を起動後に無効化",
+    "error": "アラーム起動エラー",
+    "silentMode": {
+      "init": "サイレントオーディオモードを初期化中",
+      "activate": "サイレントオーディオモードを起動中",
+      "stop": "サイレントオーディオモードを停止中"
+    }
+  },
+  "alarmCheck": {
+    "start": "アラームチェッカーを開始中 (間隔: {{seconds}}秒)",
+    "stop": "アラームチェッカーを停止中",
+    "running": "アラームチェッカーはすでに実行中です"
+  },
+  "messages": {
+    "upcomingAlarm": "{{time}}後にアラーム",
+    "missedAlarm": "見逃したアラーム: {{name}}",
+    "permissionRequired": "アラームには通知の許可が必要です"
+  }
+}

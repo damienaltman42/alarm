@@ -1,0 +1,19 @@
+{
+  "timeSelector": {
+    "hours": "時間",
+    "minutes": "分",
+    "seconds": "秒",
+    "pickTime": "時間を選択",
+    "label": "アラーム時刻"
+  },
+  "alarmSwitch": {
+    "enabled": "有効",
+    "disabled": "無効"
+  },
+  "soundSelector": {
+    "title": "サウンド選択",
+    "noSound": "サウンドなし",
+    "radio": "ラジオ",
+    "spotify": "Spotify"
+  }
+}

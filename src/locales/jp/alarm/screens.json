@@ -1,0 +1,30 @@
+{
+  "addAlarm": {
+    "title": "アラーム追加",
+    "editTitle": "アラーム編集",
+    "alarmName": "アラーム名",
+    "alarmNamePlaceholder": "このアラームの名前を入力してください",
+    "time": "アラーム時刻",
+    "days": "繰り返し日",
+    "noDays": "日付が選択されていません（一回限り）",
+    "sound": "アラーム音",
+    "radioStation": "ラジオ局",
+    "spotifyPlaylist": "Spotifyプレイリスト",
+    "noSound": "アラーム音が選択されていません",
+    "selectRadio": "ラジオを選択",
+    "selectSpotify": "プレイリストを選択",
+    "clear": "クリア",
+    "enableSnooze": "スヌーズを有効にする",
+    "snoozeInterval": "スヌーズ間隔（分）",
+    "snoozeCustom": "その他の値...",
+    "vibration": "バイブレーション",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "errors": {
+      "nameRequired": "アラームの名前を入力してください",
+      "timeRequired": "時刻を選択してください",
+      "saveFailed": "アラームの保存に失敗しました"
+    },
+    "enabled": "アラームを有効にする"
+  }
+}

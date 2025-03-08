@@ -1,0 +1,24 @@
+{
+  "timer": {
+    "title": "スリープタイマー",
+    "active": "有効",
+    "stop": "タイマーを停止",
+    "errors": {
+      "title": "エラー",
+      "zeroTime": "ゼロより大きい時間を設定してください。",
+      "startFailed": "タイマーを開始できませんでした。もう一度お試しください。"
+    }
+  },
+  "display": {
+    "nowPlaying": "再生中",
+    "noRadio": "再生中のラジオがありません",
+    "running": "実行中",
+    "ready": "準備完了"
+  },
+  "picker": {
+    "hours": "h",
+    "minutes": "m",
+    "seconds": "s",
+    "start": "タイマー開始"
+  }
+}
