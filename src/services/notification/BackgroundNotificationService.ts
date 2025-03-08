@@ -4,6 +4,13 @@ import BackgroundTimer from 'react-native-background-timer';
 import { alarmStorage } from '../alarm/alarmStorage';
 import { alarmManager } from '../alarm/alarmManager';
 
+// Ajouter au début du fichier, avant les imports
+declare global {
+  var silentAudioPlayer: any;
+  var lastTriggeredAlarms: Record<string, boolean>;
+  var _stoppingSilentAudio: boolean;
+}
+
 // État actuel de l'alarme
 let alarmAudioStarted = false;
 global.silentAudioPlayer = null;
@@ -12,6 +19,9 @@ let alarmCheckIntervalId: number | null = null;
 
 // Initialiser le registre des alarmes déclenchées
 global.lastTriggeredAlarms = {};
+
+// Initialisation de la variable au début du fichier
+let lastAppStateChangeTime = 0;
 
 // Fonction utilitaire pour les logs
 function logEvent(message: string, data?: any) {
@@ -363,18 +373,46 @@ export function initNotificationService() {
   AppState.addEventListener('change', (nextAppState) => {
     logEvent(`⚡️ Changement d'état de l'application: ${nextAppState}`);
     
-    if (nextAppState != 'active') {
+    // Protéger contre les transitions trop rapides qui pourraient causer des problèmes
+    const now = Date.now();
+    const timeSinceLastChange = now - lastAppStateChangeTime;
+    lastAppStateChangeTime = now;
+    
+    if (timeSinceLastChange < 300) {
+      logEvent('⚠️ Transition rapide détectée, ignorée pour éviter les problèmes');
+      return;
+    }
+    
+    if (nextAppState !== 'active') {
       logEvent('⚠️ App passée en arrière-plan');
       
       // Activation du mode audio silencieux si nécessaire
       if (Platform.OS === 'ios' && !alarmAudioStarted) {
-        if (AppState.currentState != 'background') {
-          activateSilentAudioMode();
+        if (AppState.currentState === 'background') {
+          // Assurer qu'il n'y a pas d'audio silencieux en cours avant d'en démarrer un nouveau
+          stopSilentAudioMode().then(() => {
+            // Attendre un court instant avant de démarrer un nouveau lecteur
+            setTimeout(() => {
+              if (AppState.currentState === 'background') {
+                activateSilentAudioMode();
+              }
+            }, 100);
+          });
         }
       }
     } else {
-      // L'application est redevenue active, vérifier les alarmes immédiatement
-      checkAlarms();
+      // L'application est redevenue active
+      logEvent('✅ App revenue au premier plan');
+      
+      // Arrêter l'audio silencieux car nous n'en avons plus besoin en mode actif
+      stopSilentAudioMode().then(() => {
+        // Vérifier les alarmes immédiatement
+        setTimeout(() => {
+          if (AppState.currentState === 'active') {
+            checkAlarms();
+          }
+        }, 200);
+      });
     }
   });
 }
@@ -540,19 +578,50 @@ async function activateSilentAudioMode() {
  * Arrête la lecture du son silencieux
  */
 export async function stopSilentAudioMode() {
+  // Protection contre les appels simultanés avec un verrouillage
+  if (global._stoppingSilentAudio) {
+    logEvent('⏱️ Arrêt de l\'audio silencieux déjà en cours, ignoré');
+    return;
+  }
+  
+  global._stoppingSilentAudio = true;
   logEvent('🔇 Tentative d\'arrêt de l\'audio silencieux');
-  console.log('======================================= global.silentAudioPlayer =======================================', global.silentAudioPlayer === null);
-  if (global.silentAudioPlayer) {
-    try {
-      await global.silentAudioPlayer.stopAsync();
-      await global.silentAudioPlayer.unloadAsync();
-      global.silentAudioPlayer = null;
-      logEvent('✅ Lecture audio silencieuse arrêtée avec succès');
-    } catch (error) {
-      logEvent('❌ ERREUR lors de l\'arrêt de l\'audio silencieux', error);
+  
+  try {
+    // Vérification plus robuste de l'état du lecteur audio
+    if (global.silentAudioPlayer && typeof global.silentAudioPlayer.stopAsync === 'function') {
+      try {
+        await global.silentAudioPlayer.stopAsync();
+        logEvent('✅ Lecture audio stoppée');
+        
+        // Petite pause pour éviter les problèmes de timing
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        if (global.silentAudioPlayer && typeof global.silentAudioPlayer.unloadAsync === 'function') {
+          await global.silentAudioPlayer.unloadAsync();
+          logEvent('✅ Ressources audio libérées');
+        }
+        
+        // Réinitialiser proprement la référence
+        global.silentAudioPlayer = null;
+        logEvent('✅ Lecture audio silencieuse arrêtée avec succès');
+      } catch (error) {
+        logEvent('❌ ERREUR lors de l\'arrêt de l\'audio silencieux', error);
+        // S'assurer que la référence est bien nulle même en cas d'erreur
+        global.silentAudioPlayer = null;
+      }
+    } else {
+      // La référence existe mais n'est pas un objet audio valide, la nettoyer
+      if (global.silentAudioPlayer) {
+        logEvent('⚠️ Référence audio invalide détectée, nettoyage forcé');
+        global.silentAudioPlayer = null;
+      } else {
+        logEvent('ℹ️ Aucun lecteur audio silencieux actif');
+      }
     }
-  } else {
-    logEvent('Aucun lecteur audio silencieux actif');
+  } finally {
+    // Toujours libérer le verrouillage, même en cas d'erreur
+    global._stoppingSilentAudio = false;
   }
 }
 
