@@ -18,7 +18,8 @@
     "add": "Ajouter",
     "confirm": "Confirmer",
     "back": "Retour",
-    "stop": "Arrêter"
+    "stop": "Arrêter",
+    "ok": "OK"
   },
   "time": {
     "days": "jours",

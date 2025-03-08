@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks';
 
 interface CircularTimerDisplayProps {
@@ -18,6 +19,7 @@ export const CircularTimerDisplay: React.FC<CircularTimerDisplayProps> = ({
   radioName
 }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation(['sleep', 'common']);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const pulseAnimation = useRef(new Animated.Value(0)).current;
   const rotateAnimation = useRef(new Animated.Value(0)).current;
@@ -124,13 +126,13 @@ export const CircularTimerDisplay: React.FC<CircularTimerDisplayProps> = ({
       {radioName ? (
         <View style={[styles.radioBadge, { backgroundColor: progressColor + '15' }]}>
           <Text style={[styles.radioName, { color: progressColor }]}>
-            En cours: {radioName}
+            {t('sleep:display.nowPlaying')}: {radioName}
           </Text>
         </View>
       ) : (
         <View style={[styles.radioBadge, { backgroundColor: theme.card }]}>
           <Text style={[styles.radioName, { color: theme.secondary }]}>
-            Aucune radio en cours
+            {t('sleep:display.noRadio')}
           </Text>
         </View>
       )}
@@ -230,11 +232,11 @@ export const CircularTimerDisplay: React.FC<CircularTimerDisplayProps> = ({
                   }
                 ]}
               >
-                En cours
+                {t('sleep:display.running')}
               </Animated.Text>
             ) : (
               <Text style={[styles.statusText, { color: theme.secondary }]}>
-                Prêt
+                {t('sleep:display.ready')}
               </Text>
             )}
           </View>

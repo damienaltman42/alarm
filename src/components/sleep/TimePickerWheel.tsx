@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks';
 
 interface TimePickerWheelProps {
@@ -25,6 +26,7 @@ export const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
   disabled = false,
 }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation(['sleep', 'common']);
   
   // Fonctions pour incrémenter/décrémenter
   const incrementHours = () => onChangeHours(hours < 12 ? hours + 1 : 0);
@@ -100,7 +102,7 @@ export const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
             <Text style={[styles.valueText, { color: theme.text }]}>
               {formatValue(hours)}
             </Text>
-            <Text style={[styles.unitText, { color: theme.secondary }]}>h</Text>
+            <Text style={[styles.unitText, { color: theme.secondary }]}>{t('sleep:picker.hours')}</Text>
           </View>
           
           <TouchableOpacity 
@@ -154,7 +156,7 @@ export const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
             <Text style={[styles.valueText, { color: theme.text }]}>
               {formatValue(minutes)}
             </Text>
-            <Text style={[styles.unitText, { color: theme.secondary }]}>m</Text>
+            <Text style={[styles.unitText, { color: theme.secondary }]}>{t('sleep:picker.minutes')}</Text>
           </View>
           
           <TouchableOpacity 
@@ -208,7 +210,7 @@ export const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
             <Text style={[styles.valueText, { color: theme.text }]}>
               {formatValue(seconds)}
             </Text>
-            <Text style={[styles.unitText, { color: theme.secondary }]}>s</Text>
+            <Text style={[styles.unitText, { color: theme.secondary }]}>{t('sleep:picker.seconds')}</Text>
           </View>
           
           <TouchableOpacity 
@@ -250,7 +252,7 @@ export const TimePickerWheel: React.FC<TimePickerWheelProps> = ({
           color={buttonTextColor} 
         />
         <Text style={[styles.startButtonText, { color: buttonTextColor }]}>
-          Démarrer le timer
+          {t('sleep:picker.start')}
         </Text>
       </TouchableOpacity>
     </View>

@@ -12,6 +12,8 @@ import enAlarmScreens from '../locales/en/alarm/screens.json';
 import enAlarmComponents from '../locales/en/alarm/components.json';
 import enNotification from '../locales/en/notification/notification.json';
 import enSettings from '../locales/en/settings/settings.json';
+import enRadio from '../locales/en/radio/radio.json';
+import enSleep from '../locales/en/sleep/sleep.json';
 
 import frCommon from '../locales/fr/common/common.json';
 import frAlarm from '../locales/fr/alarm/alarm.json';
@@ -20,6 +22,8 @@ import frAlarmScreens from '../locales/fr/alarm/screens.json';
 import frAlarmComponents from '../locales/fr/alarm/components.json';
 import frNotification from '../locales/fr/notification/notification.json';
 import frSettings from '../locales/fr/settings/settings.json';
+import frRadio from '../locales/fr/radio/radio.json';
+import frSleep from '../locales/fr/sleep/sleep.json';
 
 // Constante pour la clé de stockage
 const LANGUAGE_STORAGE_KEY = 'aurora_wake_language';
@@ -51,7 +55,9 @@ const resources = {
     'alarm.screens': enAlarmScreens,
     'alarm.components': enAlarmComponents,
     notification: enNotification,
-    settings: enSettings
+    settings: enSettings,
+    radio: enRadio,
+    sleep: enSleep
   },
   fr: {
     common: frCommon,
@@ -60,7 +66,9 @@ const resources = {
     'alarm.screens': frAlarmScreens,
     'alarm.components': frAlarmComponents,
     notification: frNotification,
-    settings: frSettings
+    settings: frSettings,
+    radio: frRadio,
+    sleep: frSleep
   }
 };
 

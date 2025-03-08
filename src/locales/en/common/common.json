@@ -18,7 +18,8 @@
     "add": "Add",
     "confirm": "Confirm",
     "back": "Back",
-    "stop": "Stop"
+    "stop": "Stop",
+    "ok": "OK"
   },
   "time": {
     "days": "days",

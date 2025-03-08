@@ -13,6 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { RadioStation, Country, Tag, RadioSearchParams } from '../../types';
 import { useTheme } from '../../hooks';
 
@@ -30,6 +31,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
   isLoading,
 }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation(['radio', 'common']);
   const [isAdvancedVisible, setIsAdvancedVisible] = useState(false);
   
   // Paramètres de recherche
@@ -50,11 +52,11 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
   
   // Options de tri
   const sortOptions = [
-    { label: 'Votes (popularité)', value: 'votes' },
-    { label: 'Tendance récente', value: 'clicktrend' },
-    { label: 'Nom', value: 'name' },
-    { label: 'Pays', value: 'country' },
-    { label: 'Qualité audio', value: 'bitrate' },
+    { label: t('radio:search.sortOptions.votes'), value: 'votes' },
+    { label: t('radio:search.sortOptions.clicktrend'), value: 'clicktrend' },
+    { label: t('radio:search.sortOptions.name'), value: 'name' },
+    { label: t('radio:search.sortOptions.country'), value: 'country' },
+    { label: t('radio:search.sortOptions.bitrate'), value: 'bitrate' },
   ];
   
   
@@ -89,9 +91,9 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
       Alert.alert(
-        'Erreur de recherche',
-        'Une erreur est survenue lors de la recherche. Veuillez réessayer.',
-        [{ text: 'OK' }]
+        t('radio:search.errors.title'),
+        t('radio:search.errors.message'),
+        [{ text: t('common:actions.ok') }]
       );
     }
   };
@@ -125,7 +127,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
       <View style={[styles.modalContainer, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
         <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Sélectionner un pays</Text>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>{t('radio:search.countries.title')}</Text>
             <TouchableOpacity onPress={() => setIsCountryModalVisible(false)}>
               <Ionicons name="close" size={24} color={theme.text} />
             </TouchableOpacity>
@@ -133,7 +135,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
           
           <TextInput
             style={[styles.modalSearchInput, { backgroundColor: theme.background, color: theme.text }]}
-            placeholder="Rechercher un pays..."
+            placeholder={t('radio:search.countries.searchPlaceholder')}
             placeholderTextColor={theme.secondary}
             value={countriesFilter}
             onChangeText={setCountriesFilter}
@@ -188,7 +190,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
       <View style={[styles.modalContainer, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
         <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Sélectionner des genres</Text>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>{t('radio:search.tags.title')}</Text>
             <TouchableOpacity onPress={() => setIsTagsModalVisible(false)}>
               <Ionicons name="close" size={24} color={theme.text} />
             </TouchableOpacity>
@@ -196,7 +198,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
           
           <TextInput
             style={[styles.modalSearchInput, { backgroundColor: theme.background, color: theme.text }]}
-            placeholder="Rechercher un genre..."
+            placeholder={t('radio:search.tags.searchPlaceholder')}
             placeholderTextColor={theme.secondary}
             value={tagsFilter}
             onChangeText={setTagsFilter}
@@ -237,7 +239,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
             onPress={() => setIsTagsModalVisible(false)}
           >
             <Text style={styles.modalButtonText}>
-              Valider ({selectedTags.length} sélectionnés)
+              {t('radio:search.tags.validate', { count: selectedTags.length })}
             </Text>
           </TouchableOpacity>
         </View>
@@ -251,7 +253,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
         <View style={styles.searchInputContainer}>
           <TextInput
             style={[styles.searchInput, { backgroundColor: theme.background, color: theme.text }]}
-            placeholder="Rechercher une radio..."
+            placeholder={t('radio:search.searchPlaceholder')}
             placeholderTextColor={theme.secondary}
             value={searchName}
             onChangeText={setSearchName}
@@ -280,7 +282,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
         >
           <Ionicons name="globe-outline" size={16} color={selectedCountry ? theme.primary : theme.text} />
           <Text style={[styles.filterChipText, { color: selectedCountry ? theme.primary : theme.text }]}>
-            {selectedCountry ? selectedCountry.name : 'Pays'}
+            {selectedCountry ? selectedCountry.name : t('radio:search.filters.country')}
           </Text>
         </TouchableOpacity>
         
@@ -290,7 +292,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
         >
           <Ionicons name="pricetag-outline" size={16} color={selectedTags.length > 0 ? theme.primary : theme.text} />
           <Text style={[styles.filterChipText, { color: selectedTags.length > 0 ? theme.primary : theme.text }]}>
-            {selectedTags.length > 0 ? `${selectedTags.length} genres` : 'Genres'}
+            {selectedTags.length > 0 ? t('radio:search.filters.selectedTags', { count: selectedTags.length }) : t('radio:search.filters.tags')}
           </Text>
         </TouchableOpacity>
         
@@ -299,7 +301,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
           onPress={() => setIsAdvancedVisible(!isAdvancedVisible)}
         >
           <Ionicons name="options-outline" size={16} color={theme.text} />
-          <Text style={[styles.filterChipText, { color: theme.text }]}>Plus</Text>
+          <Text style={[styles.filterChipText, { color: theme.text }]}>{t('radio:search.filters.more')}</Text>
         </TouchableOpacity>
       </View>
       
@@ -307,23 +309,23 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
         <View style={[styles.advancedFilters, { backgroundColor: theme.card }]}>
           <ScrollView style={styles.advancedScrollView}>
             <View style={styles.filterSection}>
-              <Text style={[styles.filterSectionTitle, { color: theme.text }]}>Qualité</Text>
+              <Text style={[styles.filterSectionTitle, { color: theme.text }]}>{t('radio:search.advanced.quality')}</Text>
               
               <View style={styles.filterRow}>
-                <Text style={[styles.filterLabel, { color: theme.text }]}>Bitrate minimum</Text>
+                <Text style={[styles.filterLabel, { color: theme.text }]}>{t('radio:search.advanced.minBitrate')}</Text>
                 <TextInput
                   style={[styles.bitrateInput, { backgroundColor: theme.background, color: theme.text }]}
-                  placeholder="ex: 128"
+                  placeholder={t('radio:search.advanced.bitrateExample')}
                   placeholderTextColor={theme.secondary}
                   value={minBitrate}
                   onChangeText={setMinBitrate}
                   keyboardType="numeric"
                 />
-                <Text style={[styles.filterUnit, { color: theme.secondary }]}>kbps</Text>
+                <Text style={[styles.filterUnit, { color: theme.secondary }]}>{t('radio:search.advanced.kbps')}</Text>
               </View>
               
               <View style={styles.filterRow}>
-                <Text style={[styles.filterLabel, { color: theme.text }]}>HTTPS uniquement</Text>
+                <Text style={[styles.filterLabel, { color: theme.text }]}>{t('radio:search.advanced.httpsOnly')}</Text>
                 <Switch
                   value={isHttps}
                   onValueChange={setIsHttps}
@@ -334,7 +336,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
             </View>
             
             <View style={styles.filterSection}>
-              <Text style={[styles.filterSectionTitle, { color: theme.text }]}>Tri</Text>
+              <Text style={[styles.filterSectionTitle, { color: theme.text }]}>{t('radio:search.advanced.sort')}</Text>
               
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sortOptionsContainer}>
                 {sortOptions.map((option) => (
@@ -359,7 +361,7 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
               </ScrollView>
               
               <View style={styles.filterRow}>
-                <Text style={[styles.filterLabel, { color: theme.text }]}>Ordre décroissant</Text>
+                <Text style={[styles.filterLabel, { color: theme.text }]}>{t('radio:search.advanced.descending')}</Text>
                 <Switch
                   value={sortReverse}
                   onValueChange={setSortReverse}
@@ -370,10 +372,10 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
             </View>
             
             <View style={styles.filterSection}>
-              <Text style={[styles.filterSectionTitle, { color: theme.text }]}>Autres</Text>
+              <Text style={[styles.filterSectionTitle, { color: theme.text }]}>{t('radio:search.advanced.other')}</Text>
               
               <View style={styles.filterRow}>
-                <Text style={[styles.filterLabel, { color: theme.text }]}>Masquer les stations HS</Text>
+                <Text style={[styles.filterLabel, { color: theme.text }]}>{t('radio:search.advanced.hideBroken')}</Text>
                 <Switch
                   value={hidebroken}
                   onValueChange={setHidebroken}
@@ -388,14 +390,14 @@ export const AdvancedRadioSearch: React.FC<AdvancedRadioSearchProps> = ({
                 style={[styles.resetButton, { borderColor: theme.border }]}
                 onPress={resetFilters}
               >
-                <Text style={[styles.resetButtonText, { color: theme.text }]}>Réinitialiser</Text>
+                <Text style={[styles.resetButtonText, { color: theme.text }]}>{t('radio:search.advanced.reset')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
                 style={[styles.applyButton, { backgroundColor: theme.primary }]}
                 onPress={handleSearch}
               >
-                <Text style={styles.applyButtonText}>Appliquer</Text>
+                <Text style={styles.applyButtonText}>{t('radio:search.advanced.apply')}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>

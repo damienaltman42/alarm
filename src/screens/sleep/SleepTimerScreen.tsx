@@ -12,6 +12,7 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme, useRadio, useSleepTimer } from '../../hooks';
 import { CircularTimerDisplay } from '../../components/sleep/CircularTimerDisplay';
 import { TimePickerWheel } from '../../components/sleep/TimePickerWheel';
@@ -21,6 +22,7 @@ export const SleepTimerScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
+  const { t } = useTranslation(['sleep', 'common']);
   
   const { 
     currentPlayingStation,
@@ -89,7 +91,10 @@ export const SleepTimerScreen = ({ navigation }: any) => {
     console.log(`[SleepTimerScreen] Démarrage du timer : ${hours}h ${minutes}m ${seconds}s = ${totalMinutes} minutes`);
     
     if (totalMinutes <= 0) {
-      Alert.alert("Erreur", "Veuillez définir une durée supérieure à zéro.");
+      Alert.alert(
+        t('sleep:timer.errors.title'), 
+        t('sleep:timer.errors.zeroTime')
+      );
       return;
     }
     
@@ -129,9 +134,12 @@ export const SleepTimerScreen = ({ navigation }: any) => {
       }, 500);
     } catch (error) {
       console.error('[SleepTimerScreen] Erreur lors du démarrage du timer:', error);
-      Alert.alert("Erreur", "Impossible de démarrer le timer. Veuillez réessayer.");
+      Alert.alert(
+        t('sleep:timer.errors.title'), 
+        t('sleep:timer.errors.startFailed')
+      );
     }
-  }, [hours, minutes, seconds, fadeAnim]);
+  }, [hours, minutes, seconds, fadeAnim, t]);
   
   // Gérer l'arrêt du timer
   const handleStopTimer = useCallback(() => {
@@ -168,10 +176,10 @@ export const SleepTimerScreen = ({ navigation }: any) => {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>Sleep Timer</Text>
+        <Text style={[styles.title, { color: theme.text }]}>{t('sleep:timer.title')}</Text>
         {remainingMs > 0 && (
           <View style={[styles.activeIndicator, { backgroundColor: theme.primary }]}>
-            <Text style={styles.activeIndicatorText}>Actif</Text>
+            <Text style={styles.activeIndicatorText}>{t('sleep:timer.active')}</Text>
           </View>
         )}
       </View>
@@ -198,7 +206,7 @@ export const SleepTimerScreen = ({ navigation }: any) => {
             onPress={handleStopTimer}
           >
             <Ionicons name="stop-circle" size={24} color="#FFFFFF" />
-            <Text style={styles.cancelButtonText}>Arrêter le timer</Text>
+            <Text style={styles.cancelButtonText}>{t('sleep:timer.stop')}</Text>
           </TouchableOpacity>
         ) : (
           <TimePickerWheel
