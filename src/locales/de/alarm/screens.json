@@ -1,20 +1,30 @@
 {
   "addAlarm": {
-    "title": "Neuer Wecker",
-    "editTitle": "Wecker bearbeiten",
-    "time": "Weckzeit",
-    "days": "Tage",
-    "alarmName": "Bezeichnung",
-    "alarmNamePlaceholder": "Bezeichnung (optional)",
-    "sound": "Tonquelle",
-    "radioStation": "Radio",
-    "spotifyPlaylist": "Spotify",
-    "selectRadio": "Radiosender auswählen",
-    "selectSpotify": "Playlist auswählen",
-    "enabled": "Wecker aktivieren",
-    "enableSnooze": "Schlummern aktivieren",
+    "title": "Alarm hinzufügen",
+    "editTitle": "Alarm bearbeiten",
+    "alarmName": "Alarmname",
+    "alarmNamePlaceholder": "Gib einen Namen für diesen Alarm ein",
+    "time": "Alarmzeit",
+    "days": "Wiederholungstage",
+    "noDays": "Keine Tage ausgewählt (einmalig)",
+    "sound": "Alarmton",
+    "radioStation": "Radiostation",
+    "spotifyPlaylist": "Spotify-Wiedergabeliste",
+    "noSound": "Kein Ton ausgewählt",
+    "selectRadio": "Wähle ein Radio",
+    "selectSpotify": "Wähle eine Wiedergabeliste",
+    "clear": "Löschen",
+    "enableSnooze": "Schlummerfunktion aktivieren",
     "snoozeInterval": "Schlummerintervall (Minuten)",
     "snoozeCustom": "Anderer Wert...",
-    "save": "Speichern"
+    "vibration": "Vibration",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "errors": {
+      "nameRequired": "Bitte gib einen Namen für den Alarm ein",
+      "timeRequired": "Bitte wähle eine Zeit aus",
+      "saveFailed": "Fehler beim Speichern des Alarms"
+    },
+    "enabled": "Alarm aktivieren"
   }
-} 
+}

@@ -1,24 +1,24 @@
 {
   "timer": {
-    "title": "Schlaf-Timer",
+    "title": "Schlaftimer",
     "active": "Aktiv",
     "stop": "Timer stoppen",
     "errors": {
       "title": "Fehler",
-      "zeroTime": "Bitte stellen Sie eine Dauer über Null ein.",
-      "startFailed": "Timer konnte nicht gestartet werden. Bitte versuchen Sie es erneut."
+      "zeroTime": "Bitte eine Dauer größer als Null einstellen.",
+      "startFailed": "Timer konnte nicht gestartet werden. Bitte versuche es erneut."
     }
   },
   "display": {
     "nowPlaying": "Jetzt läuft",
-    "noRadio": "Kein Radio spielt",
+    "noRadio": "Keine Radioübertragung",
     "running": "Läuft",
     "ready": "Bereit"
   },
   "picker": {
-    "hours": "h",
-    "minutes": "m",
-    "seconds": "s",
+    "hours": "Std",
+    "minutes": "Min",
+    "seconds": "Sek",
     "start": "Timer starten"
   }
-} 
+}

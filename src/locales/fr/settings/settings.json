@@ -20,7 +20,9 @@
       "selected": "Langue sélectionnée",
       "system": "Langue du système",
       "french": "Français",
-      "english": "Anglais"
+      "english": "Anglais",
+      "spanish": "Espagnol",
+      "german": "Allemand"
     },
     "about": {
       "title": "À propos",

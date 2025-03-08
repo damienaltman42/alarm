@@ -4,22 +4,22 @@
     "nowPlaying": "Jetzt läuft",
     "loading": "Wird geladen...",
     "errorTitle": "Wiedergabefehler",
-    "errorMessage": "Der Sender kann nicht wiedergegeben werden. Bitte versuchen Sie es erneut oder wählen Sie einen anderen Sender.",
-    "emptyState": "Kein Sender ausgewählt",
-    "emptyStateSubtitle": "Wählen Sie einen Sender aus der Liste der beliebten Sender oder suchen Sie nach einem.",
+    "errorMessage": "Die Station konnte nicht abgespielt werden. Bitte versuche es erneut oder wähle eine andere Station.",
+    "emptyState": "Keine Station ausgewählt",
+    "emptyStateSubtitle": "Wähle eine Station aus der Liste der beliebten Sender oder suche eine.",
     "favorites": "Favoriten",
     "popular": "Beliebte Sender",
-    "recentlyPlayed": "Kürzlich gehört",
+    "recentlyPlayed": "Kürzlich gespielt",
     "searchResults": "Suchergebnisse",
     "noStations": "Keine Sender gefunden",
     "addToFavorites": "Zu Favoriten hinzufügen",
     "removeFromFavorites": "Aus Favoriten entfernen"
   },
   "search": {
-    "searchPlaceholder": "Nach einem Radio suchen...",
+    "searchPlaceholder": "Suche nach einem Radiosender...",
     "errors": {
       "title": "Suchfehler",
-      "message": "Bei der Suche ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+      "message": "Bei der Suche ist ein Fehler aufgetreten. Bitte versuche es erneut."
     },
     "filters": {
       "country": "Land",
@@ -28,17 +28,17 @@
       "more": "Mehr"
     },
     "countries": {
-      "title": "Land auswählen",
-      "searchPlaceholder": "Nach einem Land suchen..."
+      "title": "Wähle ein Land",
+      "searchPlaceholder": "Suche nach einem Land..."
     },
     "tags": {
-      "title": "Genres auswählen",
-      "searchPlaceholder": "Nach einem Genre suchen...",
+      "title": "Wähle Genres",
+      "searchPlaceholder": "Suche nach einem Genre...",
       "validate": "Bestätigen ({{count}} ausgewählt)"
     },
     "sortOptions": {
       "votes": "Stimmen (Beliebtheit)",
-      "clicktrend": "Aktuelle Tendenz",
+      "clicktrend": "Aktueller Trend",
       "name": "Name",
       "country": "Land",
       "bitrate": "Audioqualität"
@@ -49,12 +49,12 @@
       "bitrateExample": "z.B.: 128",
       "kbps": "kbps",
       "httpsOnly": "Nur HTTPS",
-      "sort": "Sortierung",
-      "descending": "Absteigend",
+      "sort": "Sortieren",
+      "descending": "Absteigende Reihenfolge",
       "other": "Andere",
       "hideBroken": "Defekte Sender ausblenden",
       "reset": "Zurücksetzen",
       "apply": "Anwenden"
     }
   }
-} 
+}

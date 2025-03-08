@@ -1,10 +1,10 @@
 {
   "alarms": {
-    "title": "Meine Wecker",
-    "new": "Neuer Wecker",
-    "edit": "Wecker bearbeiten",
-    "name": "Weckername",
-    "time": "Zeit",
+    "title": "Meine Alarme",
+    "new": "Neuer Alarm",
+    "edit": "Alarm bearbeiten",
+    "name": "Alarmname",
+    "time": "Uhrzeit",
     "days": "Tage",
     "repeatDays": "Wiederholungstage",
     "noRepeat": "Keine Wiederholung",
@@ -13,9 +13,9 @@
     "snooze": "Schlummern",
     "snoozeTime": "Schlummerdauer",
     "enabled": "Aktiviert",
-    "noAlarms": "Keine Wecker eingestellt",
-    "addFirst": "Fügen Sie Ihren ersten Wecker hinzu",
-    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Wecker löschen möchten?",
+    "noAlarms": "Keine Alarme gesetzt",
+    "addFirst": "Füge deinen ersten Alarm hinzu",
+    "deleteConfirm": "Bist du sicher, dass du diesen Alarm löschen möchtest?",
     "weekdays": {
       "monday": "Montag",
       "tuesday": "Dienstag",
@@ -42,10 +42,10 @@
     }
   },
   "triggers": {
-    "ring": "Wecker {{name}} klingelt",
-    "snoozed": "Wecker schlummert",
-    "snoozedMessage": "Der Wecker klingelt in {{minutes}} {{minutesText}} wieder.",
-    "dismissed": "Wecker ausgeschaltet"
+    "ring": "Alarm {{name}} klingelt",
+    "snoozed": "Alarm verschoben",
+    "snoozedMessage": "Der Alarm wird in {{minutes}} {{minutesText}} wieder klingeln.",
+    "dismissed": "Alarm abgestellt"
   },
   "time": {
     "minute": "Minute",
@@ -53,10 +53,10 @@
   },
   "snooze": "Schlummern ({{minutes}} Min)",
   "wakeup": {
-    "message1": "Aufstehen! Sogar dein Kaffee ist schon vor dir wach! ☕",
+    "message1": "Steh auf! Sogar dein Kaffee war schon wach, bevor du es warst! ☕",
     "message2": "Wenn du nochmal schlummerst, melde ich dich automatisch für einen Marathon an. 🏃‍♂️",
-    "message3": "Auf geht's! Ein neuer Tag beginnt... oder zurück unter die Decke? 😴",
-    "message4": "Die Sonne ist schon aufgegangen, warum du nicht? 🌞",
+    "message3": "Lass uns einen neuen Tag beginnen... oder doch wieder unter die Decke?",
+    "message4": "Die Sonne ist schon aufgegangen, warum du nicht?",
     "message5": "Du wachst auf... aber dein Gehirn braucht noch 5 Minuten. 🧠💤"
   }
-} 
+}

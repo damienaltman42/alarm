@@ -1,18 +1,19 @@
 {
   "timeSelector": {
-    "label": "Weckzeit"
+    "hours": "Stunden",
+    "minutes": "Minuten",
+    "seconds": "Sekunden",
+    "pickTime": "Zeit auswählen",
+    "label": "Alarmzeit"
   },
-  "daySelector": {
-    "monday": "Mo",
-    "tuesday": "Di",
-    "wednesday": "Mi",
-    "thursday": "Do",
-    "friday": "Fr",
-    "saturday": "Sa",
-    "sunday": "So",
-    "everyDay": "Jeden Tag",
-    "weekdays": "Wochentage",
-    "weekends": "Wochenenden",
-    "clear": "Löschen"
+  "alarmSwitch": {
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert"
+  },
+  "soundSelector": {
+    "title": "Ton-Auswahl",
+    "noSound": "Kein Ton",
+    "radio": "Radio",
+    "spotify": "Spotify"
   }
-} 
+}

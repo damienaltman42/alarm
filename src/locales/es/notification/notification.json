@@ -1,0 +1,26 @@
+{
+  "service": {
+    "start": "Servicio de notificaciones iniciado",
+    "stop": "Servicio de notificaciones detenido",
+    "checking": "Comprobando alarmas",
+    "triggered": "Activando la alarma {{id}}",
+    "snoozeWakeup": "La alarma {{id}} se está activando después de posponer",
+    "disableOneTime": "Desactivando la alarma única {{id}} tras activarse",
+    "error": "Error al activar la alarma",
+    "silentMode": {
+      "init": "Inicializando el modo de audio silencioso",
+      "activate": "Activando el modo de audio silencioso",
+      "stop": "Deteniendo el modo de audio silencioso"
+    }
+  },
+  "alarmCheck": {
+    "start": "Iniciando el verificador de alarmas (intervalo: {{seconds}}s)",
+    "stop": "Deteniendo el verificador de alarmas",
+    "running": "El verificador de alarmas ya está en ejecución"
+  },
+  "messages": {
+    "upcomingAlarm": "Próxima alarma en {{time}}",
+    "missedAlarm": "Alarma perdida: {{name}}",
+    "permissionRequired": "Se requiere permiso de notificación para las alarmas"
+  }
+}

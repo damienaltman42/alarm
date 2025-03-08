@@ -1,0 +1,30 @@
+{
+  "addAlarm": {
+    "title": "Agregar alarma",
+    "editTitle": "Editar alarma",
+    "alarmName": "Nombre de la alarma",
+    "alarmNamePlaceholder": "Introduce un nombre para esta alarma",
+    "time": "Hora de la alarma",
+    "days": "Repetir días",
+    "noDays": "No se han seleccionado días (única vez)",
+    "sound": "Sonido de alarma",
+    "radioStation": "Estación de radio",
+    "spotifyPlaylist": "Lista de reproducción de Spotify",
+    "noSound": "No se ha seleccionado ningún sonido",
+    "selectRadio": "Selecciona una radio",
+    "selectSpotify": "Selecciona una lista de reproducción",
+    "clear": "Borrar",
+    "enableSnooze": "Habilitar posponer",
+    "snoozeInterval": "Intervalo de posponer (minutos)",
+    "snoozeCustom": "Otro valor...",
+    "vibration": "Vibración",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "errors": {
+      "nameRequired": "Por favor, introduce un nombre para la alarma",
+      "timeRequired": "Por favor, selecciona una hora",
+      "saveFailed": "Error al guardar la alarma"
+    },
+    "enabled": "Activar alarma"
+  }
+}

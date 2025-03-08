@@ -1,0 +1,62 @@
+{
+  "alarms": {
+    "title": "Mis alarmas",
+    "new": "Nueva alarma",
+    "edit": "Editar alarma",
+    "name": "Nombre de la alarma",
+    "time": "Hora",
+    "days": "Días",
+    "repeatDays": "Repetir días",
+    "noRepeat": "No repetir",
+    "sound": "Sonido",
+    "vibration": "Vibración",
+    "snooze": "Posponer",
+    "snoozeTime": "Tiempo de posposición",
+    "enabled": "Activado",
+    "noAlarms": "No hay alarmas configuradas",
+    "addFirst": "Agrega tu primera alarma",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar esta alarma?",
+    "weekdays": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    },
+    "shortWeekdays": {
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mié",
+      "thursday": "Jue",
+      "friday": "Vie",
+      "saturday": "Sáb",
+      "sunday": "Dom"
+    },
+    "repeatFormat": {
+      "everyday": "Todos los días",
+      "once": "Una vez",
+      "weekdays": "Días laborables",
+      "weekends": "Fines de semana"
+    }
+  },
+  "triggers": {
+    "ring": "La alarma {{name}} está sonando",
+    "snoozed": "Alarma pospuesta",
+    "snoozedMessage": "La alarma sonará de nuevo en {{minutes}} {{minutesText}}.",
+    "dismissed": "Alarma cancelada"
+  },
+  "time": {
+    "minute": "minuto",
+    "minutes": "minutos"
+  },
+  "snooze": "Posponer ({{minutes}} min)",
+  "wakeup": {
+    "message1": "¡Levántate! ¡Incluso tu café ya ha estado despierto antes que tú! ☕",
+    "message2": "Si pospones de nuevo, te inscribiré automáticamente en un maratón. 🏃‍♂️",
+    "message3": "¿Empezamos un nuevo día... o volvemos a la cama? 😴",
+    "message4": "El sol ya salió, ¿por qué tú no? 🌞",
+    "message5": "Te estás despertando... pero tu cerebro necesita 5 minutos más. 🧠💤"
+  }
+}

@@ -1,15 +1,26 @@
 {
-  "alarm": {
-    "title": "Wecker {{name}}",
-    "body": "Zeit aufzuwachen!"
+  "service": {
+    "start": "Benachrichtigungsdienst gestartet",
+    "stop": "Benachrichtigungsdienst gestoppt",
+    "checking": "Überprüfe Alarme",
+    "triggered": "Alarm {{id}} wird ausgelöst",
+    "snoozeWakeup": "Weckealarm {{id}} nach Schlummermodus",
+    "disableOneTime": "Einmalalarm {{id}} nach Auslösung deaktivieren",
+    "error": "Fehler beim Auslösen des Alarms",
+    "silentMode": {
+      "init": "Stiller Audio-Modus wird initialisiert",
+      "activate": "Stiller Audio-Modus wird aktiviert",
+      "stop": "Stiller Audio-Modus wird beendet"
+    }
   },
-  "sleep": {
-    "timerEnded": "Schlaf-Timer beendet",
-    "radioStopped": "Radio wurde gestoppt"
+  "alarmCheck": {
+    "start": "Alarmprüfer wird gestartet (Intervall: {{seconds}}s)",
+    "stop": "Alarmprüfer wird gestoppt",
+    "running": "Alarmprüfer läuft bereits"
   },
-  "permissions": {
-    "title": "Benachrichtigungen erlauben",
-    "message": "Bitte erlauben Sie Benachrichtigungen, damit die App Sie wecken kann.",
-    "settings": "Einstellungen öffnen"
+  "messages": {
+    "upcomingAlarm": "Nächster Alarm in {{time}}",
+    "missedAlarm": "Verpasster Alarm: {{name}}",
+    "permissionRequired": "Benachrichtigungsberechtigung für Alarme erforderlich"
   }
-} 
+}

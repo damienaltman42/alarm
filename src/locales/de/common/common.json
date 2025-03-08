@@ -29,6 +29,6 @@
   },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
-    "retry": "Wiederholen"
+    "retry": "Erneut versuchen"
   }
-} 
+}
