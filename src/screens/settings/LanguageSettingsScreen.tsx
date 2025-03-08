@@ -14,8 +14,10 @@ const LanguageSettingsScreen = () => {
 
   // Liste des langues disponibles
   const languages = [
-    { code: 'fr', name: t('settings:settings.language.french') },
-    { code: 'en', name: t('settings:settings.language.english') },
+    { code: 'fr', name: t('settings.language.french') },
+    { code: 'en', name: t('settings.language.english') },
+    { code: 'de', name: t('settings.language.german') },
+    { code: 'es', name: t('settings.language.spanish') }
   ];
 
   // Gestionnaire de sélection de langue
@@ -77,20 +79,16 @@ const LanguageSettingsScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings:settings.language.title')}</Text>
+        <Text style={styles.headerTitle}>{t('settings.language.title')}</Text>
         <View style={styles.headerRight} />
       </View>
       
       <View style={styles.container}>
-        <Text style={styles.subtitle}>{t('settings:settings.language.selected')}</Text>
+        <Text style={styles.subtitle}>{t('settings.language.selected')}</Text>
         
         <View style={styles.languageList}>
           {languages.map(lang => renderLanguageOption(lang.code, lang.name))}
         </View>
-        
-        <Text style={styles.note}>
-          {t('settings:settings.language.system')}
-        </Text>
       </View>
 
       <View style={styles.footer}>

@@ -4,29 +4,17 @@ import RNLanguageDetector from 'i18next-react-native-language-detector';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, NativeModules } from 'react-native';
 
-// Importation des fichiers de traduction
-import enCommon from '../locales/en/common/common.json';
-import enAlarm from '../locales/en/alarm/alarm.json';
-import enAlarmDays from '../locales/en/alarm/days.json';
-import enAlarmScreens from '../locales/en/alarm/screens.json';
-import enAlarmComponents from '../locales/en/alarm/components.json';
-import enNotification from '../locales/en/notification/notification.json';
-import enSettings from '../locales/en/settings/settings.json';
-import enRadio from '../locales/en/radio/radio.json';
-import enSleep from '../locales/en/sleep/sleep.json';
-
-import frCommon from '../locales/fr/common/common.json';
-import frAlarm from '../locales/fr/alarm/alarm.json';
-import frAlarmDays from '../locales/fr/alarm/days.json';
-import frAlarmScreens from '../locales/fr/alarm/screens.json';
-import frAlarmComponents from '../locales/fr/alarm/components.json';
-import frNotification from '../locales/fr/notification/notification.json';
-import frSettings from '../locales/fr/settings/settings.json';
-import frRadio from '../locales/fr/radio/radio.json';
-import frSleep from '../locales/fr/sleep/sleep.json';
+// Import des traductions via les fichiers index pour chaque langue
+import enTranslations from '../locales/en';
+import frTranslations from '../locales/fr';
+import deTranslations from '../locales/de';
+import esTranslations from '../locales/es';
 
 // Constante pour la clé de stockage
 const LANGUAGE_STORAGE_KEY = 'aurora_wake_language';
+
+// Liste des langues supportées
+const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es'];
 
 // Fonction pour obtenir la langue du système
 const getDeviceLanguage = (): string => {
@@ -48,29 +36,22 @@ const getDeviceLanguage = (): string => {
 
 // Ressources de traduction
 const resources = {
-  en: {
-    common: enCommon,
-    alarm: enAlarm,
-    'alarm.days': enAlarmDays,
-    'alarm.screens': enAlarmScreens,
-    'alarm.components': enAlarmComponents,
-    notification: enNotification,
-    settings: enSettings,
-    radio: enRadio,
-    sleep: enSleep
-  },
-  fr: {
-    common: frCommon,
-    alarm: frAlarm,
-    'alarm.days': frAlarmDays,
-    'alarm.screens': frAlarmScreens,
-    'alarm.components': frAlarmComponents,
-    notification: frNotification,
-    settings: frSettings,
-    radio: frRadio,
-    sleep: frSleep
-  }
+  en: enTranslations,
+  fr: frTranslations,
+  de: deTranslations,
+  es: esTranslations
 };
+
+/**
+ * Comment ajouter une nouvelle langue :
+ * 1. Créer un nouveau dossier dans src/locales/ (ex: src/locales/es/)
+ * 2. Copier la structure de dossiers et fichiers JSON d'une langue existante
+ * 3. Traduire les fichiers JSON
+ * 4. Créer un fichier index.ts dans le nouveau dossier pour exporter toutes les traductions
+ * 5. Importer ce fichier ici
+ * 6. Ajouter la langue à SUPPORTED_LANGUAGES
+ * 7. Ajouter l'entrée correspondante dans resources
+ */
 
 // Fonction pour stocker la langue sélectionnée
 export const storeLanguage = async (language: string) => {
@@ -93,13 +74,18 @@ export const getStoredLanguage = async (): Promise<string | null> => {
 
 // Fonction pour changer la langue de l'application
 export const changeLanguage = async (language: string) => {
+  if (!SUPPORTED_LANGUAGES.includes(language)) {
+    console.warn(`Langue ${language} non supportée, utilisation de l'anglais par défaut`);
+    language = 'en';
+  }
+  
   await storeLanguage(language);
   return i18n.changeLanguage(language);
 };
 
 // Utiliser une langue par défaut basée sur le système si disponible
 const systemLanguage = getDeviceLanguage();
-const defaultLanguage = (resources as any)[systemLanguage] ? systemLanguage : 'en';
+const defaultLanguage = SUPPORTED_LANGUAGES.includes(systemLanguage) ? systemLanguage : 'en';
 
 // Initialisation de i18next
 i18n
@@ -109,7 +95,7 @@ i18n
     resources,
     lng: defaultLanguage,
     fallbackLng: 'en',      // Langue par défaut si la traduction est manquante
-    ns: ['common', 'alarm', 'alarm.days', 'alarm.screens', 'alarm.components', 'notification', 'settings'],
+    ns: Object.keys(resources.en),
     defaultNS: 'common',    // Espace de noms par défaut
     debug: __DEV__,         // Activer le mode debug uniquement en développement
     interpolation: {
@@ -129,7 +115,8 @@ i18n
 // Afficher la langue utilisée en mode debug
 if (__DEV__) {
   console.log('Langue initiale :', i18n.language);
-  console.log('Ressources chargées :', Object.keys(resources));
+  console.log('Langues supportées :', SUPPORTED_LANGUAGES);
+  console.log('Namespaces chargés :', Object.keys(resources.en));
 }
 
 export default i18n; 
