@@ -1,0 +1,24 @@
+{
+  "timer": {
+    "title": "Timer del sonno",
+    "active": "Attivo",
+    "stop": "Ferma timer",
+    "errors": {
+      "title": "Errore",
+      "zeroTime": "Imposta una durata maggiore di zero.",
+      "startFailed": "Impossibile avviare il timer. Riprova."
+    }
+  },
+  "display": {
+    "nowPlaying": "In riproduzione",
+    "noRadio": "Nessuna radio in riproduzione",
+    "running": "In esecuzione",
+    "ready": "Pronto"
+  },
+  "picker": {
+    "hours": "h",
+    "minutes": "m",
+    "seconds": "s",
+    "start": "Avvia timer"
+  }
+}

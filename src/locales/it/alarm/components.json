@@ -1,0 +1,19 @@
+{
+  "timeSelector": {
+    "hours": "Ore",
+    "minutes": "Minuti",
+    "seconds": "Secondi",
+    "pickTime": "Seleziona orario",
+    "label": "Orario dell'allarme"
+  },
+  "alarmSwitch": {
+    "enabled": "Abilitato",
+    "disabled": "Disabilitato"
+  },
+  "soundSelector": {
+    "title": "Selezione del suono",
+    "noSound": "Nessun suono",
+    "radio": "Radio",
+    "spotify": "Spotify"
+  }
+}

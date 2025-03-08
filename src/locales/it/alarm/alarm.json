@@ -1,0 +1,62 @@
+{
+  "alarms": {
+    "title": "I miei allarmi",
+    "new": "Nuovo allarme",
+    "edit": "Modifica allarme",
+    "name": "Nome dell'allarme",
+    "time": "Ora",
+    "days": "Giorni",
+    "repeatDays": "Ripeti giorni",
+    "noRepeat": "Nessuna ripetizione",
+    "sound": "Suono",
+    "vibration": "Vibrazione",
+    "snooze": "Snooze",
+    "snoozeTime": "Durata del snooze",
+    "enabled": "Abilitato",
+    "noAlarms": "Nessun allarme impostato",
+    "addFirst": "Aggiungi il tuo primo allarme",
+    "deleteConfirm": "Sei sicuro di voler eliminare questo allarme?",
+    "weekdays": {
+      "monday": "Lunedì",
+      "tuesday": "Martedì",
+      "wednesday": "Mercoledì",
+      "thursday": "Giovedì",
+      "friday": "Venerdì",
+      "saturday": "Sabato",
+      "sunday": "Domenica"
+    },
+    "shortWeekdays": {
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mer",
+      "thursday": "Gio",
+      "friday": "Ven",
+      "saturday": "Sab",
+      "sunday": "Dom"
+    },
+    "repeatFormat": {
+      "everyday": "Ogni giorno",
+      "once": "Una volta",
+      "weekdays": "Giorni feriali",
+      "weekends": "Weekend"
+    }
+  },
+  "triggers": {
+    "ring": "L'allarme {{name}} sta suonando",
+    "snoozed": "Allarme rimandato",
+    "snoozedMessage": "L'allarme suonerà di nuovo tra {{minutes}} {{minutesText}}.",
+    "dismissed": "Allarme disattivato"
+  },
+  "time": {
+    "minute": "minuto",
+    "minutes": "minuti"
+  },
+  "snooze": "Snooze ({{minutes}} min)",
+  "wakeup": {
+    "message1": "Alzati! Anche il tuo caffè si è svegliato prima di te! ☕",
+    "message2": "Se fai snooze ancora, ti iscriverò automaticamente a una maratona. 🏃‍♂️",
+    "message3": "Iniziamo una nuova giornata... o torniamo sotto le coperte? 😴",
+    "message4": "Il sole è già sorto, perché non ti alzi?",
+    "message5": "Ti stai svegliando... ma il tuo cervello ha bisogno di altri 5 minuti. 🧠💤"
+  }
+}

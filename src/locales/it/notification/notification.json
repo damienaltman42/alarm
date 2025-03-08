@@ -1,0 +1,26 @@
+{
+  "service": {
+    "start": "Servizio di notifiche avviato",
+    "stop": "Servizio di notifiche arrestato",
+    "checking": "Controllo degli allarmi",
+    "triggered": "Attivazione dell'allarme {{id}}",
+    "snoozeWakeup": "Allarme {{id}} attivato dopo il snooze",
+    "disableOneTime": "Disattivazione dell'allarme una tantum {{id}} dopo l'attivazione",
+    "error": "Errore nell'attivazione dell'allarme",
+    "silentMode": {
+      "init": "Inizializzazione della modalità audio silenziosa",
+      "activate": "Attivazione della modalità audio silenziosa",
+      "stop": "Disattivazione della modalità audio silenziosa"
+    }
+  },
+  "alarmCheck": {
+    "start": "Avvio del controllo allarmi (intervallo: {{seconds}}s)",
+    "stop": "Arresto del controllo allarmi",
+    "running": "Il controllo allarmi è già in esecuzione"
+  },
+  "messages": {
+    "upcomingAlarm": "Allarme imminente tra {{time}}",
+    "missedAlarm": "Allarme mancato: {{name}}",
+    "permissionRequired": "È necessario il permesso per le notifiche degli allarmi"
+  }
+}

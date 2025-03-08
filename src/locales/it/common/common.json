@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "Aurora Wake",
+    "tagline": "Svegliati naturalmente"
+  },
+  "navigation": {
+    "alarm": "Allarmi",
+    "sleep": "Sonno",
+    "radio": "Radio",
+    "spotify": "Spotify",
+    "settings": "Impostazioni"
+  },
+  "actions": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "stop": "Ferma",
+    "ok": "OK"
+  },
+  "time": {
+    "days": "giorni",
+    "hours": "ore",
+    "minutes": "minuti",
+    "seconds": "secondi"
+  },
+  "errors": {
+    "generic": "Si è verificato un errore",
+    "retry": "Riprova"
+  }
+}

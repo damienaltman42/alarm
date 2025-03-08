@@ -1,0 +1,44 @@
+{
+  "settings": {
+    "title": "Impostazioni",
+    "appearance": {
+      "title": "Aspetto",
+      "theme": "Tema",
+      "darkMode": "Modalità scura",
+      "lightMode": "Modalità chiara",
+      "systemDefault": "Predefinito di sistema"
+    },
+    "notifications": {
+      "title": "Notifiche",
+      "enabled": "Notifiche abilitate",
+      "sound": "Suono della notifica",
+      "vibration": "Vibrazione",
+      "preview": "Anteprima della notifica"
+    },
+    "language": {
+      "title": "Lingua",
+      "selected": "Lingua selezionata",
+      "system": "Lingua di sistema",
+      "french": "Francese",
+      "english": "Inglese",
+      "german": "Tedesco",
+      "spanish": "Spagnolo",
+      "portuguese": "Portoghese",
+      "italian": "Italiano"
+    },
+    "about": {
+      "title": "Informazioni",
+      "version": "Versione",
+      "developer": "Sviluppatore",
+      "website": "Sito web",
+      "privacy": "Privacy",
+      "terms": "Termini di utilizzo"
+    },
+    "advanced": {
+      "title": "Impostazioni avanzate",
+      "checkInterval": "Intervallo di controllo",
+      "backgroundRefresh": "Aggiornamento in background",
+      "resetApp": "Resetta applicazione"
+    }
+  }
+}

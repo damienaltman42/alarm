@@ -1,0 +1,30 @@
+{
+  "addAlarm": {
+    "title": "Aggiungi allarme",
+    "editTitle": "Modifica allarme",
+    "alarmName": "Nome dell'allarme",
+    "alarmNamePlaceholder": "Inserisci un nome per questo allarme",
+    "time": "Orario dell'allarme",
+    "days": "Giorni di ripetizione",
+    "noDays": "Nessun giorno selezionato (una tantum)",
+    "sound": "Suono dell'allarme",
+    "radioStation": "Stazione radio",
+    "spotifyPlaylist": "Playlist Spotify",
+    "noSound": "Nessun suono selezionato",
+    "selectRadio": "Seleziona una radio",
+    "selectSpotify": "Seleziona una playlist",
+    "clear": "Cancella",
+    "enableSnooze": "Abilita snooze",
+    "snoozeInterval": "Intervallo di snooze (minuti)",
+    "snoozeCustom": "Altro valore...",
+    "vibration": "Vibrazione",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "errors": {
+      "nameRequired": "Per favore, inserisci un nome per l'allarme",
+      "timeRequired": "Per favore, seleziona un orario",
+      "saveFailed": "Errore nel salvataggio dell'allarme"
+    },
+    "enabled": "Abilita allarme"
+  }
+}
