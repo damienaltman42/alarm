@@ -97,7 +97,21 @@ async function checkAlarms() {
 function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: number): boolean {
   const currentHours = now.getHours();
   const currentMinutes = now.getMinutes();
-  const currentSeconds = now.getSeconds();
+  
+  // Logs détaillés pour debug
+  logEvent(`🔍 Vérification alarme ${alarm.id} (${alarm.name || 'Sans nom'})`, {
+    alarmTime: `${hours}:${minutes}`,
+    currentTime: `${currentHours}:${currentMinutes}`,
+    repeatDays: alarm.repeatDays || [],
+    snoozeUntil: alarm.snoozeUntil,
+    enabled: alarm.enabled
+  });
+  
+  // Si l'alarme est désactivée, ne pas la déclencher
+  if (!alarm.enabled) {
+    logEvent(`🔍 Alarme ${alarm.id} désactivée, ignorée`);
+    return false;
+  }
   
   // Clé unique pour cette alarme à cette heure précise
   // Pour éviter de déclencher plusieurs fois la même alarme dans la même minute
@@ -106,6 +120,7 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   // Vérifier si cette alarme a déjà sonné durant cette minute
   const lastTriggeredAlarms = global.lastTriggeredAlarms || {};
   if (lastTriggeredAlarms[alarmTimeKey]) {
+    logEvent(`🔍 Alarme ${alarm.id} déjà déclenchée à ${currentHours}:${currentMinutes}`);
     return false;
   }
   
@@ -117,10 +132,15 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   // Vérification spéciale pour les alarmes en mode snooze
   if (alarm.snoozeUntil) {
     const snoozeTime = new Date(alarm.snoozeUntil);
+    const snoozeHours = snoozeTime.getHours();
+    const snoozeMinutes = snoozeTime.getMinutes();
     
-    // Si l'heure de snooze est dépassée (avec une marge de 15 secondes)
-    if (now >= snoozeTime && currentSeconds < 15) {
-      logEvent(`⏰ L'alarme ${alarm.id} se réveille après un snooze (jusqu'à ${snoozeTime.toLocaleTimeString()})`);
+    // Si l'heure actuelle correspond ou dépasse l'heure de snooze
+    // On compare maintenant uniquement les heures et minutes
+    if (currentHours > snoozeHours || 
+        (currentHours === snoozeHours && currentMinutes >= snoozeMinutes)) {
+      
+      logEvent(`⏰ L'alarme ${alarm.id} se réveille après un snooze (jusqu'à ${snoozeHours}:${snoozeMinutes})`);
       
       // Marquer cette alarme comme déclenchée pour cette minute
       lastTriggeredAlarms[alarmTimeKey] = true;
@@ -136,6 +156,7 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
       return true;
     }
     
+    logEvent(`🔍 Alarme ${alarm.id} encore en snooze jusqu'à ${snoozeHours}:${snoozeMinutes}`);
     // Si on est encore en période de snooze, ne pas déclencher l'alarme
     return false;
   }
@@ -143,14 +164,15 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   // Pour les alarmes normales sans jours de répétition
   if (alarm.repeatDays.length === 0) {
     // Vérifier si l'heure actuelle correspond à l'heure de l'alarme
-    // et que les secondes sont inférieures à 15 (pour limiter la fenêtre de déclenchement)
+    // On a supprimé la vérification des secondes
     const shouldRing = (
       currentHours === hours &&
-      currentMinutes === minutes &&
-      currentSeconds < 15
+      currentMinutes === minutes
     );
     
     if (shouldRing) {
+      logEvent(`⏰ Déclenchement de l'alarme ${alarm.id} (sans répétition) à ${currentHours}:${currentMinutes}`);
+      
       // Marquer cette alarme comme déclenchée pour cette minute
       lastTriggeredAlarms[alarmTimeKey] = true;
       global.lastTriggeredAlarms = lastTriggeredAlarms;
@@ -161,6 +183,11 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
         delete updatedTriggeredAlarms[alarmTimeKey];
         global.lastTriggeredAlarms = updatedTriggeredAlarms;
       }, 60000);
+    } else {
+      const reason = currentHours !== hours 
+        ? `heure ne correspond pas (${currentHours} ≠ ${hours})` 
+        : `minute ne correspond pas (${currentMinutes} ≠ ${minutes})`;
+      logEvent(`🔍 Alarme ${alarm.id} ne sonne pas: ${reason}`);
     }
     
     return shouldRing;
@@ -173,14 +200,19 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   // Vérifier si aujourd'hui est un jour configuré pour l'alarme
   const isDayConfigured = alarm.repeatDays.includes(repeatDay);
   
+  if (!isDayConfigured) {
+    logEvent(`🔍 Alarme ${alarm.id} ne sonne pas: jour non configuré (jour ${repeatDay})`);
+    return false;
+  }
+  
   const shouldRing = (
-    isDayConfigured &&
     currentHours === hours &&
-    currentMinutes === minutes &&
-    currentSeconds < 15
+    currentMinutes === minutes
   );
   
   if (shouldRing) {
+    logEvent(`⏰ Déclenchement de l'alarme ${alarm.id} (répétitive) à ${currentHours}:${currentMinutes}`);
+    
     // Marquer cette alarme comme déclenchée pour cette minute
     lastTriggeredAlarms[alarmTimeKey] = true;
     global.lastTriggeredAlarms = lastTriggeredAlarms;
@@ -191,6 +223,11 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
       delete updatedTriggeredAlarms[alarmTimeKey];
       global.lastTriggeredAlarms = updatedTriggeredAlarms;
     }, 60000);
+  } else {
+    const reason = currentHours !== hours 
+      ? `heure ne correspond pas (${currentHours} ≠ ${hours})` 
+      : `minute ne correspond pas (${currentMinutes} ≠ ${minutes})`;
+    logEvent(`🔍 Alarme ${alarm.id} ne sonne pas: ${reason}`);
   }
   
   return shouldRing;
@@ -386,66 +423,82 @@ async function activateSilentAudioMode() {
       shouldDuckAndroid: false,
     });
     
-    // MÉTHODE 1: Utiliser l'API about:blank
-    logEvent('Tentative avec méthode 1: URI about:blank');
+    // MÉTHODE 1: Utiliser le fichier MP3 local (plus économe en énergie)
+    logEvent('Tentative avec méthode 1: Fichier MP3 silencieux local');
     try {
-      // Créer un silence via l'API Web Audio
-      const { sound } = await Audio.Sound.createAsync(
-        // Utiliser une URL valide pour iOS
-        { uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
-        { 
-          shouldPlay: true,
-          isLooping: true,
-          volume: 0.0001,  // Volume minimum pour éviter la consommation de batterie
-        }
-      );
+      const sound = new Audio.Sound();
+      logEvent('Chargement du fichier MP3 silencieux depuis les assets');
+      await sound.loadAsync(require('../../../assets/sounds/silent.mp3'));
+      logEvent('Fichier MP3 silencieux chargé avec succès');
       
-      // Configurer l'événement d'erreur pour le debug
+      await sound.setIsLoopingAsync(true);
+      logEvent('Mode boucle activé');
+      
+      await sound.setVolumeAsync(0.0001);  // Volume minimum pour éviter la consommation de batterie
+      logEvent('Volume défini au minimum pour économiser la batterie');
+      
+      // Configurer l'événement de statut pour le monitoring
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {
           if (status.isPlaying) {
-            // logEvent('✓ Audio en lecture active');
+            // logEvent('✓ Audio local en lecture active');
             if (AppState.currentState === 'active') {
               stopSilentAudioMode();
             }
           } else {
-            logEvent('⚠️ Audio chargé mais pas en lecture');
+            logEvent('⚠️ Audio local chargé mais pas en lecture');
           }
         } else if (status.error) {
-          logEvent(`❌ Erreur de lecture: ${status.error}`);
+          logEvent(`❌ Erreur de lecture locale: ${status.error}`);
         }
       });
       
+      logEvent('Démarrage de la lecture audio locale...');
+      await sound.playAsync();
+      logEvent('Lecture audio locale démarrée avec succès');
+      
       global.silentAudioPlayer = sound;
-      logEvent('✅ Méthode 1 réussie: Audio silencieux démarré avec URL distante');
+      logEvent('✅ Méthode 1 réussie: Audio silencieux démarré avec fichier MP3 local');
     }
     catch (method1Error) {
-      // MÉTHODE 2: Utiliser le fichier MP3 silencieux
-      logEvent('❌ Échec méthode 1', method1Error);
-      logEvent('Tentative avec méthode 2: Fichier MP3 silencieux');
+      // MÉTHODE 2: Utiliser l'URL distante (consomme plus d'énergie)
+      logEvent('❌ Échec méthode 1 (fichier local)', method1Error);
+      logEvent('Tentative avec méthode 2: URL distante');
       
       try {
-        const sound = new Audio.Sound();
-        logEvent('Chargement du fichier MP3 silencieux depuis les assets');
-        await sound.loadAsync(require('../../../assets/sounds/silent.mp3'));
-        logEvent('Fichier MP3 silencieux chargé avec succès');
+        // Créer un silence via l'URL distante
+        const { sound } = await Audio.Sound.createAsync(
+          // Utiliser une URL valide pour iOS
+          { uri: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+          { 
+            shouldPlay: true,
+            isLooping: true,
+            volume: 0.0001,  // Volume minimum pour éviter la consommation de batterie
+          }
+        );
         
-        await sound.setIsLoopingAsync(true);
-        logEvent('Mode boucle activé');
-        
-        await sound.setVolumeAsync(0.0001);  // Volume minimum pour éviter la consommation de batterie
-        logEvent('Volume défini au minimum pour économiser la batterie');
-        
-        logEvent('Démarrage de la lecture audio...');
-        await sound.playAsync();
-        logEvent('Lecture audio démarrée avec succès');
+        // Configurer l'événement d'erreur pour le debug
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded) {
+            if (status.isPlaying) {
+              // logEvent('✓ Audio URL en lecture active');
+              if (AppState.currentState === 'active') {
+                stopSilentAudioMode();
+              }
+            } else {
+              logEvent('⚠️ Audio URL chargé mais pas en lecture');
+            }
+          } else if (status.error) {
+            logEvent(`❌ Erreur de lecture URL: ${status.error}`);
+          }
+        });
         
         global.silentAudioPlayer = sound;
-        logEvent('✅ Méthode 2 réussie: Audio silencieux démarré avec fichier MP3');
+        logEvent('✅ Méthode 2 réussie: Audio silencieux démarré avec URL distante');
       }
       catch (method2Error) {
         // MÉTHODE 3: Dernière tentative avec l'API native
-        logEvent('❌ Échec méthode 2', method2Error);
+        logEvent('❌ Échec méthode 2 (URL distante)', method2Error);
         logEvent('Tentative avec méthode 3: API AVAudioSession native');
         
         try {
