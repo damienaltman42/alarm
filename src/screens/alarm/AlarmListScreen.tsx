@@ -11,6 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { Alarm } from '../../types';
 import { AlarmItem } from '../../components/alarm/AlarmItem';
 import { useAlarm, useTheme } from '../../hooks';
@@ -24,6 +25,7 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
   const alarmHook = useAlarm();
   const { alarms, loading } = alarmHook;
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { t } = useTranslation(['alarm', 'common']);
 
   // Charger les alarmes lorsque l'écran est affiché
   useFocusEffect(
@@ -38,41 +40,40 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
   // Rafraîchir la liste
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Attendre un peu pour simuler le rafraîchissement
+    // Simuler un rafraîchissement, car il semble que la méthode loadAlarms n'existe pas
+    // dans le hook alarmHook. Nous utilisons setTimeout pour simuler une charge.
     setTimeout(() => {
       setIsRefreshing(false);
     }, 1000);
   };
 
-  // Gérer l'activation/désactivation d'une alarme
+  // Activer/désactiver une alarme
   const handleToggleAlarm = async (id: string, enabled: boolean): Promise<void> => {
     try {
       await alarmHook.toggleAlarm(id, enabled);
     } catch (error) {
       console.error('Erreur lors de la modification de l\'alarme:', error);
-      Alert.alert('Erreur', 'Impossible de modifier l\'alarme');
     }
   };
 
   // Gérer la suppression d'une alarme
   const handleDeleteAlarm = (alarm: Alarm) => {
     Alert.alert(
-      'Supprimer l\'alarme',
-      `Êtes-vous sûr de vouloir supprimer l'alarme de ${alarm.time} ?`,
+      t('common:actions.delete'),
+      t('alarm:alarms.deleteConfirm'),
       [
         {
-          text: 'Annuler',
+          text: t('common:actions.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Supprimer',
+          text: t('common:actions.confirm'),
           style: 'destructive',
           onPress: async () => {
             try {
               await alarmHook.deleteAlarm(alarm.id);
-            } catch (error) {
-              console.error('Erreur lors de la suppression de l\'alarme:', error);
-              Alert.alert('Erreur', 'Impossible de supprimer l\'alarme');
+            } catch (error: any) {
+              Alert.alert(t('common:errors.generic'), error.message);
             }
           },
         },
@@ -80,23 +81,20 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
     );
   };
 
-  // Gérer l'édition d'une alarme
+  // Modifier une alarme existante
   const handleEditAlarm = (alarm: Alarm): void => {
     navigation.navigate('AddAlarm', { alarm });
   };
 
-  // Gérer l'appui long sur une alarme (pour la supprimer)
-  const handleLongPressAlarm = (alarm: Alarm): void => {
-    handleDeleteAlarm(alarm);
-  };
-
-  // Rendu d'un élément vide si aucune alarme n'est configurée
+  // Rendu de la liste vide
   const renderEmptyList = (): JSX.Element => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="alarm-outline" size={80} color="#ccc" />
-      <Text style={styles.emptyText}>Aucune alarme configurée</Text>
-      <Text style={styles.emptySubtext}>
-        Appuyez sur le bouton + pour ajouter votre première alarme
+      <Ionicons name="alarm-outline" size={80} color={theme.primary} />
+      <Text style={[styles.emptyText, { color: theme.text }]}>
+        {t('alarm:alarms.noAlarms')}
+      </Text>
+      <Text style={[styles.emptySubText, { color: theme.secondary }]}>
+        {t('alarm:alarms.addFirst')}
       </Text>
     </View>
   );
@@ -104,34 +102,37 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>Mes alarmes</Text>
+        <Text style={[styles.title, { color: theme.text }]}>{t('alarm:alarms.title')}</Text>
         <TouchableOpacity
-          style={[styles.headerAddButton, { backgroundColor: theme.primary }]}
+          style={[styles.addButton, { backgroundColor: theme.primary }]}
           onPress={() => navigation.navigate('AddAlarm')}
         >
-          <Ionicons name="add" size={24} color="#fff" />
+          <Ionicons name="add" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={alarms}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <AlarmItem
-            alarm={item}
-            onToggle={handleToggleAlarm}
-            onPress={() => handleEditAlarm(item)}
-            onDelete={handleDeleteAlarm}
-          />
-        )}
-        contentContainerStyle={[
-          styles.listContent,
-          alarms.length === 0 && styles.emptyList,
-        ]}
-        ListEmptyComponent={renderEmptyList}
-        refreshing={isRefreshing}
-        onRefresh={handleRefresh}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={alarms}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <AlarmItem
+              alarm={item}
+              onToggle={handleToggleAlarm}
+              onPress={() => handleEditAlarm(item)}
+              onDelete={() => handleDeleteAlarm(item)}
+            />
+          )}
+          contentContainerStyle={alarms.length === 0 ? { flex: 1 } : styles.list}
+          ListEmptyComponent={renderEmptyList}
+          refreshing={isRefreshing}
+          onRefresh={handleRefresh}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -139,14 +140,12 @@ export const AlarmListScreen: React.FC<AlarmListScreenProps> = ({ navigation }) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    padding: 16,
     paddingBottom: 8,
   },
   title: {
@@ -154,41 +153,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  headerAddButton: {
+  addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#0066cc',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     elevation: 4,
   },
-  listContent: {
+  list: {
     padding: 16,
   },
-  emptyList: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyContainer: {
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    alignItems: 'center',
   },
   emptyText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#666',
     marginTop: 16,
   },
-  emptySubtext: {
+  emptySubText: {
     fontSize: 14,
     color: '#999',
-    textAlign: 'center',
     marginTop: 8,
-  },
+  }
 }); 

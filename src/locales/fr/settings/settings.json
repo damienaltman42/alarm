@@ -1,0 +1,40 @@
+{
+  "settings": {
+    "title": "Paramètres",
+    "appearance": {
+      "title": "Apparence",
+      "theme": "Thème",
+      "darkMode": "Mode sombre",
+      "lightMode": "Mode clair",
+      "systemDefault": "Par défaut système"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "enabled": "Notifications activées",
+      "sound": "Son de notification",
+      "vibration": "Vibration",
+      "preview": "Aperçu des notifications"
+    },
+    "language": {
+      "title": "Langue",
+      "selected": "Langue sélectionnée",
+      "system": "Langue du système",
+      "french": "Français",
+      "english": "Anglais"
+    },
+    "about": {
+      "title": "À propos",
+      "version": "Version",
+      "developer": "Développeur",
+      "website": "Site Web",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation"
+    },
+    "advanced": {
+      "title": "Paramètres avancés",
+      "checkInterval": "Intervalle de vérification",
+      "backgroundRefresh": "Actualisation en arrière-plan",
+      "resetApp": "Réinitialiser l'application"
+    }
+  }
+} 

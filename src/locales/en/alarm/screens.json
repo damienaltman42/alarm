@@ -1,0 +1,29 @@
+{
+  "addAlarm": {
+    "title": "Add Alarm",
+    "editTitle": "Edit Alarm",
+    "alarmName": "Alarm name",
+    "alarmNamePlaceholder": "Enter a name for this alarm",
+    "time": "Alarm time",
+    "days": "Repeat days",
+    "noDays": "No days selected (one-time)",
+    "sound": "Alarm sound",
+    "radioStation": "Radio station",
+    "spotifyPlaylist": "Spotify playlist",
+    "noSound": "No sound selected",
+    "selectRadio": "Select a radio",
+    "selectSpotify": "Select a playlist",
+    "clear": "Clear",
+    "enableSnooze": "Enable snooze",
+    "snoozeInterval": "Snooze interval (minutes)",
+    "snoozeCustom": "Other value...",
+    "vibration": "Vibration",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errors": {
+      "nameRequired": "Please enter a name for the alarm",
+      "timeRequired": "Please select a time",
+      "saveFailed": "Error saving the alarm"
+    }
+  }
+} 

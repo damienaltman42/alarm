@@ -1,0 +1,49 @@
+{
+  "alarms": {
+    "title": "Mes Alarmes",
+    "new": "Nouvelle Alarme",
+    "edit": "Modifier l'Alarme",
+    "name": "Nom de l'alarme",
+    "time": "Heure",
+    "days": "Jours",
+    "repeatDays": "Jours de répétition",
+    "noRepeat": "Sans répétition",
+    "sound": "Son",
+    "vibration": "Vibration",
+    "snooze": "Répétition",
+    "snoozeTime": "Durée de répétition",
+    "enabled": "Activée",
+    "noAlarms": "Aucune alarme configurée",
+    "addFirst": "Ajoutez votre première alarme",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette alarme ?",
+    "weekdays": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "shortWeekdays": {
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mer",
+      "thursday": "Jeu",
+      "friday": "Ven",
+      "saturday": "Sam",
+      "sunday": "Dim"
+    },
+    "repeatFormat": {
+      "everyday": "Tous les jours",
+      "once": "Une fois",
+      "weekdays": "Jours de semaine",
+      "weekends": "Week-ends"
+    }
+  },
+  "triggers": {
+    "ring": "L'alarme {{name}} sonne",
+    "snoozed": "Alarme reportée pour {{minutes}} minutes",
+    "dismissed": "Alarme désactivée"
+  }
+} 

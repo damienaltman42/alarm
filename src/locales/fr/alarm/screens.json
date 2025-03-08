@@ -1,0 +1,29 @@
+{
+  "addAlarm": {
+    "title": "Ajouter une alarme",
+    "editTitle": "Modifier l'alarme",
+    "alarmName": "Nom de l'alarme",
+    "alarmNamePlaceholder": "Entrez un nom pour cette alarme",
+    "time": "Heure de l'alarme",
+    "days": "Jours de répétition",
+    "noDays": "Aucun jour sélectionné (unique)",
+    "sound": "Son de l'alarme",
+    "radioStation": "Station radio",
+    "spotifyPlaylist": "Playlist Spotify",
+    "noSound": "Aucun son sélectionné",
+    "selectRadio": "Sélectionner une radio",
+    "selectSpotify": "Sélectionner une playlist",
+    "clear": "Effacer",
+    "enableSnooze": "Activer le report",
+    "snoozeInterval": "Intervalle de report (minutes)",
+    "snoozeCustom": "Autre valeur...",
+    "vibration": "Vibration",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "errors": {
+      "nameRequired": "Veuillez entrer un nom pour l'alarme",
+      "timeRequired": "Veuillez sélectionner une heure",
+      "saveFailed": "Erreur lors de l'enregistrement de l'alarme"
+    }
+  }
+} 

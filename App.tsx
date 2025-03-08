@@ -11,6 +11,8 @@ import * as TaskManager from 'expo-task-manager';
 import { initializeServices } from './src/services';
 import TrackPlayer from 'react-native-track-player';
 import { stopSilentAudioMode } from './src/services/notification/BackgroundNotificationService';
+import { LanguageProvider } from './src/contexts/LanguageContext';
+import './src/i18n'; // Importer la configuration i18n
 
 /**
  * Component principal de l'application
@@ -125,12 +127,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <ThemeProvider>
-        <AlarmProvider>
-          <StatusBar style="auto" />
-          <AppNavigator />
-        </AlarmProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AlarmProvider>
+            <StatusBar style="auto" />
+            <AppNavigator />
+          </AlarmProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 } 

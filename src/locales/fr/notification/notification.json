@@ -1,0 +1,26 @@
+{
+  "service": {
+    "start": "Service de notification démarré",
+    "stop": "Service de notification arrêté",
+    "checking": "Vérification des alarmes en cours",
+    "triggered": "Déclenchement de l'alarme {{id}}",
+    "snoozeWakeup": "L'alarme {{id}} se réveille après un snooze",
+    "disableOneTime": "Désactivation de l'alarme ponctuelle {{id}} après déclenchement",
+    "error": "Erreur lors du déclenchement de l'alarme",
+    "silentMode": {
+      "init": "Initialisation du mode audio silencieux",
+      "activate": "Activation du mode audio silencieux",
+      "stop": "Arrêt du mode audio silencieux"
+    }
+  },
+  "alarmCheck": {
+    "start": "Démarrage du vérificateur d'alarmes (intervalle: {{seconds}}s)",
+    "stop": "Arrêt du vérificateur d'alarmes",
+    "running": "Le vérificateur d'alarmes est déjà en cours d'exécution"
+  },
+  "messages": {
+    "upcomingAlarm": "Alarme prévue dans {{time}}",
+    "missedAlarm": "Alarme manquée : {{name}}",
+    "permissionRequired": "Autorisation de notification requise pour les alarmes"
+  }
+} 

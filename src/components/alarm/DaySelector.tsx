@@ -1,22 +1,54 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface DaySelectorProps {
   selectedDays: number[];
   onChange: (days: number[]) => void;
 }
 
-const daysOfWeek = [
-  { id: 0, short: 'D', long: 'Dimanche' },
-  { id: 1, short: 'L', long: 'Lundi' },
-  { id: 2, short: 'M', long: 'Mardi' },
-  { id: 3, short: 'M', long: 'Mercredi' },
-  { id: 4, short: 'J', long: 'Jeudi' },
-  { id: 5, short: 'V', long: 'Vendredi' },
-  { id: 6, short: 'S', long: 'Samedi' },
-];
-
 export const DaySelector: React.FC<DaySelectorProps> = ({ selectedDays, onChange }) => {
+  const { t } = useTranslation('alarm.days');
+
+  // Définir les jours de la semaine avec leurs traductions
+  const daysOfWeek = [
+    { 
+      id: 0, 
+      short: t('days.single.sunday.short'), 
+      long: t('days.single.sunday.long') 
+    },
+    { 
+      id: 1, 
+      short: t('days.single.monday.short'), 
+      long: t('days.single.monday.long') 
+    },
+    { 
+      id: 2, 
+      short: t('days.single.tuesday.short'), 
+      long: t('days.single.tuesday.long') 
+    },
+    { 
+      id: 3, 
+      short: t('days.single.wednesday.short'), 
+      long: t('days.single.wednesday.long') 
+    },
+    { 
+      id: 4, 
+      short: t('days.single.thursday.short'), 
+      long: t('days.single.thursday.long') 
+    },
+    { 
+      id: 5, 
+      short: t('days.single.friday.short'), 
+      long: t('days.single.friday.long') 
+    },
+    { 
+      id: 6, 
+      short: t('days.single.saturday.short'), 
+      long: t('days.single.saturday.long') 
+    },
+  ];
+
   // Fonction pour vérifier si un jour est sélectionné
   const isDaySelected = (dayId: number): boolean => {
     return selectedDays.includes(dayId);
@@ -79,19 +111,19 @@ export const DaySelector: React.FC<DaySelectorProps> = ({ selectedDays, onChange
 
       <View style={styles.presetContainer}>
         <TouchableOpacity style={styles.presetButton} onPress={selectAllDays}>
-          <Text style={styles.presetText}>Tous les jours</Text>
+          <Text style={styles.presetText}>{t('days.presets.allDays')}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.presetButton} onPress={selectWeekdays}>
-          <Text style={styles.presetText}>Jours de semaine</Text>
+          <Text style={styles.presetText}>{t('days.presets.weekdays')}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.presetButton} onPress={selectWeekends}>
-          <Text style={styles.presetText}>Week-ends</Text>
+          <Text style={styles.presetText}>{t('days.presets.weekends')}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.presetButton} onPress={clearSelection}>
-          <Text style={styles.presetText}>Effacer</Text>
+          <Text style={styles.presetText}>{t('days.presets.clear')}</Text>
         </TouchableOpacity>
       </View>
     </View>

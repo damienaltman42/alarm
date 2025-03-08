@@ -3,6 +3,7 @@ import { Audio, InterruptionModeIOS } from 'expo-av';
 import BackgroundTimer from 'react-native-background-timer';
 import { alarmStorage } from '../alarm/alarmStorage';
 import { alarmManager } from '../alarm/alarmManager';
+import i18n from '../../i18n';
 
 // Ajouter au début du fichier, avant les imports
 declare global {
@@ -41,7 +42,7 @@ function logEvent(message: string, data?: any) {
  */
 async function checkAlarms() {
   try {
-    logEvent('🔍 Vérification des alarmes...');
+    logEvent(i18n.t('notification:service.checking'));
     
     // Ne pas vérifier si une alarme est déjà en cours
     if (alarmManager.isAlarmActive()) {
@@ -97,7 +98,7 @@ async function checkAlarms() {
       }
     }
   } catch (error) {
-    logEvent('❌ Erreur lors de la vérification des alarmes', error);
+    console.error('Erreur lors de la vérification des alarmes:', error);
   }
 }
 
@@ -248,7 +249,7 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
  */
 async function triggerAlarm(alarm: any) {
   try {
-    logEvent(`🔔 Déclenchement de l'alarme ${alarm.id}`);
+    logEvent(i18n.t('notification:service.triggered', { id: alarm.id }));
     
     // S'assurer que repeatDays est initialisé
     if (!alarm.repeatDays) {
@@ -258,7 +259,7 @@ async function triggerAlarm(alarm: any) {
     // Vérifier si c'est une alarme qui sort du mode snooze
     const isSnoozeWakeup = !!alarm.snoozeUntil;
     if (isSnoozeWakeup) {
-      logEvent(`🔔 L'alarme ${alarm.id} se réveille après un snooze`);
+      logEvent(i18n.t('notification:service.snoozeWakeup', { id: alarm.id }));
     }
     
     // Utiliser la méthode de l'AlarmManager pour déclencher l'alarme
@@ -266,13 +267,13 @@ async function triggerAlarm(alarm: any) {
     
     // Si l'alarme n'a pas de jours de répétition, la désactiver
     if (alarm.repeatDays.length === 0 && !isSnoozeWakeup) {
-      logEvent(`⏱️ Désactivation de l'alarme ponctuelle ${alarm.id} après déclenchement`);
+      logEvent(i18n.t('notification:service.disableOneTime', { id: alarm.id }));
       
       const updatedAlarm = { ...alarm, enabled: false };
       await alarmStorage.updateAlarm(updatedAlarm);
     }
   } catch (error) {
-    logEvent('❌ Erreur lors du déclenchement de l\'alarme', error);
+    logEvent(i18n.t('notification:service.error'), error);
   }
 }
 
@@ -281,7 +282,7 @@ async function triggerAlarm(alarm: any) {
  * @param checkIntervalSeconds Intervalle de vérification en secondes
  */
 function startAlarmChecker(checkIntervalSeconds: number = 30) {
-  logEvent(`⏰ Démarrage du vérificateur d'alarmes (intervalle: ${checkIntervalSeconds}s)`);
+  logEvent(i18n.t('notification:alarmCheck.start', { seconds: checkIntervalSeconds }));
   
   // Arrêter le vérificateur existant si nécessaire
   stopAlarmChecker();
@@ -311,50 +312,47 @@ function startAlarmChecker(checkIntervalSeconds: number = 30) {
  * Arrête la vérification périodique des alarmes
  */
 function stopAlarmChecker() {
+  logEvent(i18n.t('notification:alarmCheck.stop'));
+  
   if (alarmCheckIntervalId !== null) {
-    logEvent('⏹️ Arrêt du vérificateur d\'alarmes');
-    
-    if (Platform.OS === 'ios') {
-      BackgroundTimer.clearInterval(alarmCheckIntervalId);
-    } else {
-      clearInterval(alarmCheckIntervalId as unknown as NodeJS.Timeout);
-    }
-    
+    clearInterval(alarmCheckIntervalId);
     alarmCheckIntervalId = null;
-    logEvent('✅ Vérificateur d\'alarmes arrêté avec succès');
+  } else {
+    logEvent('⚠️ Le vérificateur d\'alarmes n\'est pas en cours d\'exécution');
   }
 }
 
 /**
- * Vérifie immédiatement toutes les alarmes
- * Cette fonction est exportée pour permettre une vérification manuelle
+ * Vérifie les alarmes immédiatement et exporte cette fonction
  */
 export async function checkAlarmsNow() {
-  logEvent('⚡️ Vérification manuelle des alarmes');
   await checkAlarms();
 }
 
 /**
- * Démarre le vérificateur d'alarmes avec l'intervalle spécifié
- * @param intervalSeconds Intervalle en secondes (par défaut 30s)
+ * Démarre la vérification périodique des alarmes et exporte cette fonction
  */
 export function startPeriodicAlarmCheck(intervalSeconds: number = 30) {
+  if (alarmCheckIntervalId !== null) {
+    logEvent(i18n.t('notification:alarmCheck.running'));
+    return;
+  }
+  
   startAlarmChecker(intervalSeconds);
 }
 
 /**
- * Arrête le vérificateur d'alarmes
+ * Arrête la vérification périodique des alarmes
  */
 export function stopPeriodicAlarmCheck() {
   stopAlarmChecker();
 }
 
 /**
- * Initialise le service de notifications
- * Cette fonction configure le système d'alarmes en arrière-plan
+ * Initialise le service de notification
  */
 export function initNotificationService() {
-  logEvent('⭐️ DÉMARRAGE initBackgroundAlarmService');
+  logEvent(i18n.t('notification:service.start'));
   
   // Configurations spécifiques pour les modes d'arrière-plan
   if (Platform.OS === 'ios') {
@@ -422,6 +420,8 @@ export function initNotificationService() {
  * Ce trick permet de maintenir l'application active en arrière-plan
  */
 async function initSilentAudioMode() {
+  logEvent(i18n.t('notification:service.silentMode.init'));
+  
   if (Platform.OS !== 'ios') return;
   
   logEvent('⚙️ Initialisation du mode audio silencieux');
@@ -445,6 +445,8 @@ async function initSilentAudioMode() {
  * Active la lecture d'un son silencieux pour maintenir l'app active
  */
 async function activateSilentAudioMode() {
+  logEvent(i18n.t('notification:service.silentMode.activate'));
+  
   if (Platform.OS !== 'ios') return;
   
   logEvent('🔈 Activation du mode audio silencieux');
@@ -578,6 +580,8 @@ async function activateSilentAudioMode() {
  * Arrête la lecture du son silencieux
  */
 export async function stopSilentAudioMode() {
+  logEvent(i18n.t('notification:service.silentMode.stop'));
+  
   // Protection contre les appels simultanés avec un verrouillage
   if (global._stoppingSilentAudio) {
     logEvent('⏱️ Arrêt de l\'audio silencieux déjà en cours, ignoré');

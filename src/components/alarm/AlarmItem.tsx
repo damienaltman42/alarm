@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Alarm } from '../../types';
 
 interface AlarmItemProps {
@@ -10,9 +11,20 @@ interface AlarmItemProps {
   onDelete: (alarm: Alarm) => void;
 }
 
-const daysOfWeek = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-
 export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, onDelete }) => {
+  const { t } = useTranslation('alarm');
+  
+  // Obtenir les jours courts de la semaine depuis les traductions
+  const getShortWeekDays = () => [
+    t('alarms.shortWeekdays.sunday'),
+    t('alarms.shortWeekdays.monday'),
+    t('alarms.shortWeekdays.tuesday'),
+    t('alarms.shortWeekdays.wednesday'),
+    t('alarms.shortWeekdays.thursday'),
+    t('alarms.shortWeekdays.friday'),
+    t('alarms.shortWeekdays.saturday')
+  ];
+  
   // Formater l'heure pour l'affichage
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(':');
@@ -22,15 +34,16 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, 
   // Formater les jours pour l'affichage
   const formatDays = (days: number[]): string => {
     if (days.length === 7) {
-      return 'Tous les jours';
+      return t('alarms.repeatFormat.everyday');
     } else if (days.length === 0) {
-      return 'Une fois';
+      return t('alarms.repeatFormat.once');
     } else if (days.length === 5 && !days.includes(0) && !days.includes(6)) {
-      return 'Jours de semaine';
+      return t('alarms.repeatFormat.weekdays');
     } else if (days.length === 2 && days.includes(0) && days.includes(6)) {
-      return 'Week-ends';
+      return t('alarms.repeatFormat.weekends');
     } else {
-      return days.map(day => daysOfWeek[day]).join(', ');
+      const shortWeekDays = getShortWeekDays();
+      return days.map(day => shortWeekDays[day]).join(', ');
     }
   };
 

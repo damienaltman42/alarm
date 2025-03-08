@@ -1,0 +1,26 @@
+{
+  "service": {
+    "start": "Notification service started",
+    "stop": "Notification service stopped",
+    "checking": "Checking alarms",
+    "triggered": "Triggering alarm {{id}}",
+    "snoozeWakeup": "Alarm {{id}} waking up after snooze",
+    "disableOneTime": "Disabling one-time alarm {{id}} after triggering",
+    "error": "Error triggering alarm",
+    "silentMode": {
+      "init": "Initializing silent audio mode",
+      "activate": "Activating silent audio mode",
+      "stop": "Stopping silent audio mode"
+    }
+  },
+  "alarmCheck": {
+    "start": "Starting alarm checker (interval: {{seconds}}s)",
+    "stop": "Stopping alarm checker",
+    "running": "Alarm checker is already running"
+  },
+  "messages": {
+    "upcomingAlarm": "Upcoming alarm in {{time}}",
+    "missedAlarm": "Missed alarm: {{name}}",
+    "permissionRequired": "Notification permission required for alarms"
+  }
+} 

@@ -1,0 +1,40 @@
+{
+  "days": {
+    "single": {
+      "sunday": {
+        "short": "D",
+        "long": "Dimanche"
+      },
+      "monday": {
+        "short": "L",
+        "long": "Lundi"
+      },
+      "tuesday": {
+        "short": "M",
+        "long": "Mardi"
+      },
+      "wednesday": {
+        "short": "M",
+        "long": "Mercredi"
+      },
+      "thursday": {
+        "short": "J",
+        "long": "Jeudi"
+      },
+      "friday": {
+        "short": "V",
+        "long": "Vendredi"
+      },
+      "saturday": {
+        "short": "S",
+        "long": "Samedi"
+      }
+    },
+    "presets": {
+      "allDays": "Tous les jours",
+      "weekdays": "Jours de semaine",
+      "weekends": "Week-ends",
+      "clear": "Effacer"
+    }
+  }
+} 

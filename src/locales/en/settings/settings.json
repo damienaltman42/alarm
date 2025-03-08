@@ -1,0 +1,40 @@
+{
+  "settings": {
+    "title": "Settings",
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "darkMode": "Dark Mode",
+      "lightMode": "Light Mode",
+      "systemDefault": "System Default"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "enabled": "Notifications Enabled",
+      "sound": "Notification Sound",
+      "vibration": "Vibration",
+      "preview": "Notification Preview"
+    },
+    "language": {
+      "title": "Language",
+      "selected": "Selected Language",
+      "system": "System Language",
+      "french": "French",
+      "english": "English"
+    },
+    "about": {
+      "title": "About",
+      "version": "Version",
+      "developer": "Developer",
+      "website": "Website",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use"
+    },
+    "advanced": {
+      "title": "Advanced Settings",
+      "checkInterval": "Check Interval",
+      "backgroundRefresh": "Background Refresh",
+      "resetApp": "Reset Application"
+    }
+  }
+} 

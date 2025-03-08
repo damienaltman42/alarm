@@ -2,13 +2,22 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme } from '../../hooks';
+import { useTranslation } from 'react-i18next';
 
 interface TimeSelectorProps {
   time: string; // Format "HH:MM"
   onChange: (time: string) => void;
+  useScreenLabel?: boolean; // Indique si on utilise le label de l'écran ou du composant
 }
 
-export const TimeSelector: React.FC<TimeSelectorProps> = ({ time, onChange }) => {
+export const TimeSelector: React.FC<TimeSelectorProps> = ({ 
+  time, 
+  onChange, 
+  useScreenLabel = false 
+}) => {
+  const { theme } = useTheme();
+  const { t } = useTranslation(['alarm.components', 'alarm.screens']);
+
   // Convertir la chaîne de temps en objet Date
   const getDateFromTimeString = (timeString: string): Date => {
     const [hours, minutes] = timeString.split(':').map(Number);
@@ -44,13 +53,23 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({ time, onChange }) =>
     setShowPicker(true);
   };
 
+  // Obtenir le label approprié en fonction du contexte
+  const getLabel = () => {
+    return useScreenLabel 
+      ? t('alarm.screens:addAlarm.time') 
+      : t('alarm.components:timeSelector.label');
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Heure de l'alarme</Text>
+      <Text style={[styles.label, { color: theme.text }]}>{getLabel()}</Text>
       
       {Platform.OS === 'android' && (
-        <TouchableOpacity style={styles.timeDisplay} onPress={showTimePicker}>
-          <Text style={styles.timeText}>
+        <TouchableOpacity 
+          style={[styles.timeDisplay, { backgroundColor: theme.card }]} 
+          onPress={showTimePicker}
+        >
+          <Text style={[styles.timeText, { color: theme.text }]}>
             {date.getHours().toString().padStart(2, '0')}:
             {date.getMinutes().toString().padStart(2, '0')}
           </Text>
@@ -79,18 +98,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 8,
-    color: '#333',
   },
   timeDisplay: {
     padding: 16,
-    backgroundColor: '#f0f0f0',
     borderRadius: 8,
     alignItems: 'center',
   },
   timeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
   },
   picker: {
     width: '100%',
