@@ -24,6 +24,7 @@
       "nameRequired": "Please enter a name for the alarm",
       "timeRequired": "Please select a time",
       "saveFailed": "Error saving the alarm"
-    }
+    },
+    "enabled": "Enable alarm"
   }
 } 

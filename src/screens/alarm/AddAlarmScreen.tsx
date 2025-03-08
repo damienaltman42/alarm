@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { Alarm, RadioStation, SpotifyPlaylist } from '../../types';
 import { TimeSelector } from '../../components/alarm/TimeSelector';
 import { DaySelector } from '../../components/alarm/DaySelector';
@@ -44,6 +45,7 @@ interface AddAlarmScreenProps {
 export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigation }) => {
   const { theme } = useTheme();
   const { addAlarm, updateAlarm } = useAlarm();
+  const { t } = useTranslation(['alarm.screens', 'common']);
   
   // Récupérer l'alarme à modifier si elle existe
   const editingAlarm = route.params?.alarm;
@@ -160,42 +162,45 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'right', 'left']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <KeyboardAvoidingView
-        style={[styles.container, { backgroundColor: theme.background }]}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={100}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color={theme.text} />
             </TouchableOpacity>
-            <Text style={[styles.title, { color: theme.text }]}>
-              {isEditing ? 'Modifier l\'alarme' : 'Nouvelle alarme'}
+            <Text style={[styles.headerTitle, { color: theme.text }]}>
+              {isEditing ? t('alarm.screens:addAlarm.editTitle') : t('alarm.screens:addAlarm.title')}
             </Text>
-            <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleSaveAlarm}>
-              <Text style={styles.saveButtonText}>Enregistrer</Text>
+            <TouchableOpacity 
+              style={[styles.saveButton, { backgroundColor: theme.primary }]} 
+              onPress={handleSaveAlarm}
+            >
+              <Text style={styles.saveButtonText}>
+                {t('alarm.screens:addAlarm.save')}
+              </Text>
             </TouchableOpacity>
           </View>
-
+          
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
-            <TimeSelector time={time} onChange={setTime} />
-          </View>
-
-          <View style={[styles.formSection, { backgroundColor: theme.card }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Jours</Text>
+            <TimeSelector time={time} onChange={setTime} useScreenLabel={true} />
+            <View style={styles.divider} />
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              {t('alarm.screens:addAlarm.days')}
+            </Text>
             <DaySelector selectedDays={repeatDays} onChange={setRepeatDays} />
           </View>
-
+          
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Étiquette</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              {t('alarm.screens:addAlarm.alarmName')}
+            </Text>
             <TextInput
               style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="Étiquette (optionnel)"
+              placeholder={t('alarm.screens:addAlarm.alarmNamePlaceholder')}
               placeholderTextColor={theme.secondary}
               value={label}
               onChangeText={setLabel}
@@ -204,7 +209,9 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
           </View>
 
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Source sonore</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              {t('alarm.screens:addAlarm.sound')}
+            </Text>
             <View style={styles.soundSourceContainer}>
               <TouchableOpacity
                 style={[
@@ -225,7 +232,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                     { color: alarmSound === 'radio' ? '#fff' : theme.secondary }
                   ]}
                 >
-                  Radio
+                  {t('alarm.screens:addAlarm.radioStation')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -247,7 +254,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                     { color: alarmSound === 'spotify' ? '#fff' : theme.secondary }
                   ]}
                 >
-                  Spotify
+                  {t('alarm.screens:addAlarm.spotifyPlaylist')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -286,7 +293,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                   >
                     <Ionicons name="radio-outline" size={24} color={theme.primary} />
                     <Text style={[styles.selectSoundText, { color: theme.primary }]}>
-                      Sélectionner une station
+                      {t('alarm.screens:addAlarm.selectRadio')}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -325,7 +332,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                   >
                     <Ionicons name="musical-notes" size={24} color="#1DB954" />
                     <Text style={[styles.selectSoundText, { color: '#1DB954' }]}>
-                      Sélectionner une playlist
+                      {t('alarm.screens:addAlarm.selectSpotify')}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -335,7 +342,9 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
             <View style={styles.switchRow}>
-              <Text style={[styles.switchLabel, { color: theme.text }]}>Activer l'alarme</Text>
+              <Text style={[styles.switchLabel, { color: theme.text }]}>
+                {t('alarm.screens:addAlarm.enabled')}
+              </Text>
               <Switch
                 value={enabled}
                 onValueChange={setEnabled}
@@ -347,7 +356,9 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
           <View style={[styles.formSection, { backgroundColor: theme.card }]}>
             <View style={styles.switchRow}>
-              <Text style={[styles.switchLabel, { color: theme.text }]}>Activer le report</Text>
+              <Text style={[styles.switchLabel, { color: theme.text }]}>
+                {t('alarm.screens:addAlarm.enableSnooze')}
+              </Text>
               <Switch
                 value={snoozeEnabled}
                 onValueChange={setSnoozeEnabled}
@@ -358,7 +369,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
             {snoozeEnabled && (
               <View style={styles.snoozeIntervalContainer}>
                 <Text style={[styles.snoozeIntervalLabel, { color: theme.text }]}>
-                  Intervalle de report (minutes)
+                  {t('alarm.screens:addAlarm.snoozeInterval')}
                 </Text>
                 
                 <View style={styles.snoozeOptionsContainer}>
@@ -397,7 +408,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                   keyboardType="number-pad"
                   maxLength={2}
                   placeholderTextColor={theme.secondary}
-                  placeholder="Autre valeur..."
+                  placeholder={t('alarm.screens:addAlarm.snoozeCustom')}
                 />
               </View>
             )}
@@ -409,11 +420,11 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
   },
-  container: {
+  keyboardAvoidingView: {
     flex: 1,
     backgroundColor: '#f8f8f8',
   },
@@ -429,20 +440,13 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 8,
   },
-  title: {
+  headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },
-  saveButton: {
-    backgroundColor: '#0066cc',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: '500',
+  headerRight: {
+    // Supprimer cette propriété car elle n'est plus nécessaire
   },
   formSection: {
     backgroundColor: '#fff',
@@ -454,6 +458,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 16,
   },
   sectionTitle: {
     fontSize: 16,
@@ -583,6 +592,16 @@ const styles = StyleSheet.create({
   },
   snoozeOptionText: {
     fontSize: 16,
+    fontWeight: '500',
+  },
+  saveButton: {
+    backgroundColor: '#0066cc',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  saveButtonText: {
+    color: '#fff',
     fontWeight: '500',
   },
 }); 

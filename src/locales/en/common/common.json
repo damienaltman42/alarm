@@ -17,7 +17,8 @@
     "edit": "Edit",
     "add": "Add",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "stop": "Stop"
   },
   "time": {
     "days": "days",

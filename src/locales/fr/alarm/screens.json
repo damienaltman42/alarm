@@ -24,6 +24,7 @@
       "nameRequired": "Veuillez entrer un nom pour l'alarme",
       "timeRequired": "Veuillez sélectionner une heure",
       "saveFailed": "Erreur lors de l'enregistrement de l'alarme"
-    }
+    },
+    "enabled": "Activer l'alarme"
   }
 } 

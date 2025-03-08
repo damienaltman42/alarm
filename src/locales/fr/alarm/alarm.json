@@ -43,7 +43,13 @@
   },
   "triggers": {
     "ring": "L'alarme {{name}} sonne",
-    "snoozed": "Alarme reportée pour {{minutes}} minutes",
+    "snoozed": "Alarme reportée",
+    "snoozedMessage": "L'alarme sonnera à nouveau dans {{minutes}} {{minutesText}}.",
     "dismissed": "Alarme désactivée"
-  }
+  },
+  "time": {
+    "minute": "minute",
+    "minutes": "minutes"
+  },
+  "snooze": "Snooze ({{minutes}} min)"
 } 

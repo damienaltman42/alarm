@@ -43,7 +43,13 @@
   },
   "triggers": {
     "ring": "Alarm {{name}} is ringing",
-    "snoozed": "Alarm snoozed for {{minutes}} minutes",
+    "snoozed": "Alarm Snoozed",
+    "snoozedMessage": "Alarm will ring again in {{minutes}} {{minutesText}}.",
     "dismissed": "Alarm dismissed"
-  }
+  },
+  "time": {
+    "minute": "minute",
+    "minutes": "minutes"
+  },
+  "snooze": "Snooze ({{minutes}} min)"
 } 

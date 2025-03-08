@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, Easin
 import { useNavigation, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Alarm } from '../../types';
 import { useTheme } from '../../hooks';
 import { alarmManager } from '../../services/alarm/alarmManager';
@@ -35,6 +36,7 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
   const { alarm } = route.params;
   const { theme } = useTheme();
   const navigation = useNavigation<AlarmRingingScreenNavigationProp>();
+  const { t } = useTranslation(['alarm', 'common']);
   
   // États pour les boutons
   const [isSnoozing, setIsSnoozing] = useState(false);
@@ -77,12 +79,15 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
       await alarmManager.snoozeAlarm(alarm.snoozeInterval);
       
       // Message adapté selon que c'est 1 minute ou plusieurs minutes
-      const minutesText = alarm.snoozeInterval === 1 ? 'minute' : 'minutes';
+      const minutesText = alarm.snoozeInterval === 1 ? t('alarm:time.minute') : t('alarm:time.minutes');
       
       // Afficher un message de confirmation
       Alert.alert(
-        "Alarme reportée",
-        `L'alarme sonnera à nouveau dans ${alarm.snoozeInterval} ${minutesText}.`,
+        t('alarm:triggers.snoozed'),
+        t('alarm:triggers.snoozedMessage', { 
+          minutes: alarm.snoozeInterval, 
+          minutesText: minutesText 
+        }),
         [{ text: "OK" }]
       );
       
@@ -179,7 +184,7 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
             >
               <Ionicons name="alarm-outline" size={24} color={theme.text} />
               <Text style={[styles.buttonText, { color: theme.text }]}>
-                Snooze ({alarm.snoozeInterval} min)
+                {t('alarm:snooze', { minutes: alarm.snoozeInterval })}
               </Text>
             </TouchableOpacity>
           )}
@@ -191,7 +196,7 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
           >
             <Ionicons name="stop-circle-outline" size={24} color="#fff" />
             <Text style={[styles.buttonText, { color: '#fff' }]}>
-              Arrêter
+              {t('common:actions.stop')}
             </Text>
           </TouchableOpacity>
         </View>
