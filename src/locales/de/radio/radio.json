@@ -1,0 +1,60 @@
+{
+  "player": {
+    "title": "Radio",
+    "nowPlaying": "Jetzt läuft",
+    "loading": "Wird geladen...",
+    "errorTitle": "Wiedergabefehler",
+    "errorMessage": "Der Sender kann nicht wiedergegeben werden. Bitte versuchen Sie es erneut oder wählen Sie einen anderen Sender.",
+    "emptyState": "Kein Sender ausgewählt",
+    "emptyStateSubtitle": "Wählen Sie einen Sender aus der Liste der beliebten Sender oder suchen Sie nach einem.",
+    "favorites": "Favoriten",
+    "popular": "Beliebte Sender",
+    "recentlyPlayed": "Kürzlich gehört",
+    "searchResults": "Suchergebnisse",
+    "noStations": "Keine Sender gefunden",
+    "addToFavorites": "Zu Favoriten hinzufügen",
+    "removeFromFavorites": "Aus Favoriten entfernen"
+  },
+  "search": {
+    "searchPlaceholder": "Nach einem Radio suchen...",
+    "errors": {
+      "title": "Suchfehler",
+      "message": "Bei der Suche ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "filters": {
+      "country": "Land",
+      "tags": "Genres",
+      "selectedTags": "{{count}} Genres",
+      "more": "Mehr"
+    },
+    "countries": {
+      "title": "Land auswählen",
+      "searchPlaceholder": "Nach einem Land suchen..."
+    },
+    "tags": {
+      "title": "Genres auswählen",
+      "searchPlaceholder": "Nach einem Genre suchen...",
+      "validate": "Bestätigen ({{count}} ausgewählt)"
+    },
+    "sortOptions": {
+      "votes": "Stimmen (Beliebtheit)",
+      "clicktrend": "Aktuelle Tendenz",
+      "name": "Name",
+      "country": "Land",
+      "bitrate": "Audioqualität"
+    },
+    "advanced": {
+      "quality": "Qualität",
+      "minBitrate": "Minimale Bitrate",
+      "bitrateExample": "z.B.: 128",
+      "kbps": "kbps",
+      "httpsOnly": "Nur HTTPS",
+      "sort": "Sortierung",
+      "descending": "Absteigend",
+      "other": "Andere",
+      "hideBroken": "Defekte Sender ausblenden",
+      "reset": "Zurücksetzen",
+      "apply": "Anwenden"
+    }
+  }
+} 

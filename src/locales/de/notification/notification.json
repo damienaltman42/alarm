@@ -1,0 +1,15 @@
+{
+  "alarm": {
+    "title": "Wecker {{name}}",
+    "body": "Zeit aufzuwachen!"
+  },
+  "sleep": {
+    "timerEnded": "Schlaf-Timer beendet",
+    "radioStopped": "Radio wurde gestoppt"
+  },
+  "permissions": {
+    "title": "Benachrichtigungen erlauben",
+    "message": "Bitte erlauben Sie Benachrichtigungen, damit die App Sie wecken kann.",
+    "settings": "Einstellungen öffnen"
+  }
+} 

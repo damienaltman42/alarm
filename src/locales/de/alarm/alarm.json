@@ -1,0 +1,62 @@
+{
+  "alarms": {
+    "title": "Meine Wecker",
+    "new": "Neuer Wecker",
+    "edit": "Wecker bearbeiten",
+    "name": "Weckername",
+    "time": "Zeit",
+    "days": "Tage",
+    "repeatDays": "Wiederholungstage",
+    "noRepeat": "Keine Wiederholung",
+    "sound": "Ton",
+    "vibration": "Vibration",
+    "snooze": "Schlummern",
+    "snoozeTime": "Schlummerdauer",
+    "enabled": "Aktiviert",
+    "noAlarms": "Keine Wecker eingestellt",
+    "addFirst": "Fügen Sie Ihren ersten Wecker hinzu",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diesen Wecker löschen möchten?",
+    "weekdays": {
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
+    },
+    "shortWeekdays": {
+      "monday": "Mo",
+      "tuesday": "Di",
+      "wednesday": "Mi",
+      "thursday": "Do",
+      "friday": "Fr",
+      "saturday": "Sa",
+      "sunday": "So"
+    },
+    "repeatFormat": {
+      "everyday": "Jeden Tag",
+      "once": "Einmal",
+      "weekdays": "Wochentage",
+      "weekends": "Wochenenden"
+    }
+  },
+  "triggers": {
+    "ring": "Wecker {{name}} klingelt",
+    "snoozed": "Wecker schlummert",
+    "snoozedMessage": "Der Wecker klingelt in {{minutes}} {{minutesText}} wieder.",
+    "dismissed": "Wecker ausgeschaltet"
+  },
+  "time": {
+    "minute": "Minute",
+    "minutes": "Minuten"
+  },
+  "snooze": "Schlummern ({{minutes}} Min)",
+  "wakeup": {
+    "message1": "Aufstehen! Sogar dein Kaffee ist schon vor dir wach! ☕",
+    "message2": "Wenn du nochmal schlummerst, melde ich dich automatisch für einen Marathon an. 🏃‍♂️",
+    "message3": "Auf geht's! Ein neuer Tag beginnt... oder zurück unter die Decke? 😴",
+    "message4": "Die Sonne ist schon aufgegangen, warum du nicht? 🌞",
+    "message5": "Du wachst auf... aber dein Gehirn braucht noch 5 Minuten. 🧠💤"
+  }
+} 

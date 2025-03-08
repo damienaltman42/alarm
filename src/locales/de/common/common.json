@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "Aurora Wake",
+    "tagline": "Natürlich aufwachen"
+  },
+  "navigation": {
+    "alarm": "Wecker",
+    "sleep": "Schlaf",
+    "radio": "Radio",
+    "spotify": "Spotify",
+    "settings": "Einstellungen"
+  },
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "stop": "Stopp",
+    "ok": "OK"
+  },
+  "time": {
+    "days": "Tage",
+    "hours": "Stunden",
+    "minutes": "Minuten",
+    "seconds": "Sekunden"
+  },
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten",
+    "retry": "Wiederholen"
+  }
+} 

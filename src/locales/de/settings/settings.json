@@ -1,0 +1,30 @@
+{
+  "title": "Einstellungen",
+  "appearance": {
+    "title": "Erscheinungsbild",
+    "theme": {
+      "title": "Thema",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    }
+  },
+  "language": {
+    "title": "Sprache",
+    "selected": "Ausgewählte Sprache",
+    "options": {
+      "en": "Englisch",
+      "fr": "Französisch",
+      "de": "Deutsch"
+    }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "sound": "Sound",
+    "vibration": "Vibration"
+  },
+  "about": {
+    "title": "Über",
+    "version": "Version"
+  }
+} 

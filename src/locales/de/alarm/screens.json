@@ -1,0 +1,20 @@
+{
+  "addAlarm": {
+    "title": "Neuer Wecker",
+    "editTitle": "Wecker bearbeiten",
+    "time": "Weckzeit",
+    "days": "Tage",
+    "alarmName": "Bezeichnung",
+    "alarmNamePlaceholder": "Bezeichnung (optional)",
+    "sound": "Tonquelle",
+    "radioStation": "Radio",
+    "spotifyPlaylist": "Spotify",
+    "selectRadio": "Radiosender auswählen",
+    "selectSpotify": "Playlist auswählen",
+    "enabled": "Wecker aktivieren",
+    "enableSnooze": "Schlummern aktivieren",
+    "snoozeInterval": "Schlummerintervall (Minuten)",
+    "snoozeCustom": "Anderer Wert...",
+    "save": "Speichern"
+  }
+} 

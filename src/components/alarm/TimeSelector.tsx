@@ -54,7 +54,6 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
       hours = hours ? hours : 12; // 0 devient 12
       setDisplayTime(`${hours}:${minutes} ${period}`);
     } else {
-      // Format 24h pour les autres langues
       const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
       setDisplayTime(`${hours}:${minutes}`);

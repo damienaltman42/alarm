@@ -1,0 +1,18 @@
+{
+  "timeSelector": {
+    "label": "Weckzeit"
+  },
+  "daySelector": {
+    "monday": "Mo",
+    "tuesday": "Di",
+    "wednesday": "Mi",
+    "thursday": "Do",
+    "friday": "Fr",
+    "saturday": "Sa",
+    "sunday": "So",
+    "everyDay": "Jeden Tag",
+    "weekdays": "Wochentage",
+    "weekends": "Wochenenden",
+    "clear": "Löschen"
+  }
+} 

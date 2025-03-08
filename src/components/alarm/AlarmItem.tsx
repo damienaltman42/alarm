@@ -49,7 +49,6 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, 
         hour12: true
       });
     } else {
-      // Format 24h pour les autres langues (13:30)
       return date.toLocaleTimeString('fr-FR', {
         hour: '2-digit',
         minute: '2-digit',
