@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "Aurora Wake",
+    "tagline": "Пробуждайся естественно"
+  },
+  "navigation": {
+    "alarm": "Будильники",
+    "sleep": "Сон",
+    "radio": "Радио",
+    "spotify": "Spotify",
+    "settings": "Настройки"
+  },
+  "actions": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "add": "Добавить",
+    "confirm": "Подтвердить",
+    "back": "Назад",
+    "stop": "Стоп",
+    "ok": "ОК"
+  },
+  "time": {
+    "days": "дней",
+    "hours": "часов",
+    "minutes": "минут",
+    "seconds": "секунд"
+  },
+  "errors": {
+    "generic": "Произошла ошибка",
+    "retry": "Повторить попытку"
+  }
+}

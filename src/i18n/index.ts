@@ -12,12 +12,13 @@ import esTranslations from '../locales/es';
 import ptTranslations from '../locales/pt';
 import itTranslations from '../locales/it';
 import jpTranslations from '../locales/jp';
+import ruTranslations from '../locales/ru';
 
 // Constante pour la clé de stockage
 const LANGUAGE_STORAGE_KEY = 'aurora_wake_language';
 
 // Liste des langues supportées
-const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'pt', 'it', 'jp'];
+const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'pt', 'it', 'jp', 'ru'];
 
 // Fonction pour obtenir la langue du système
 const getDeviceLanguage = (): string => {
@@ -45,7 +46,8 @@ const resources = {
   es: esTranslations,
   pt: ptTranslations,
   it: itTranslations,
-  jp: jpTranslations
+  jp: jpTranslations,
+  ru: ruTranslations
 };
 
 /**

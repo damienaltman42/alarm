@@ -1,0 +1,19 @@
+{
+  "timeSelector": {
+    "hours": "Часы",
+    "minutes": "Минуты",
+    "seconds": "Секунды",
+    "pickTime": "Выбрать время",
+    "label": "Время будильника"
+  },
+  "alarmSwitch": {
+    "enabled": "Включено",
+    "disabled": "Выключено"
+  },
+  "soundSelector": {
+    "title": "Выбор звука",
+    "noSound": "Без звука",
+    "radio": "Радио",
+    "spotify": "Spotify"
+  }
+}

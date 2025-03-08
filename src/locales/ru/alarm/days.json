@@ -1,0 +1,40 @@
+{
+  "days": {
+    "single": {
+      "sunday": {
+        "short": "Вс",
+        "long": "Воскресенье"
+      },
+      "monday": {
+        "short": "Пн",
+        "long": "Понедельник"
+      },
+      "tuesday": {
+        "short": "Вт",
+        "long": "Вторник"
+      },
+      "wednesday": {
+        "short": "Ср",
+        "long": "Среда"
+      },
+      "thursday": {
+        "short": "Чт",
+        "long": "Четверг"
+      },
+      "friday": {
+        "short": "Пт",
+        "long": "Пятница"
+      },
+      "saturday": {
+        "short": "Сб",
+        "long": "Суббота"
+      }
+    },
+    "presets": {
+      "allDays": "Каждый день",
+      "weekdays": "Будние дни",
+      "weekends": "Выходные",
+      "clear": "Очистить"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "player": {
+    "title": "Радио",
+    "nowPlaying": "Сейчас играет",
+    "loading": "Загрузка...",
+    "errorTitle": "Ошибка воспроизведения",
+    "errorMessage": "Не удалось воспроизвести станцию. Пожалуйста, попробуйте еще раз или выберите другую станцию.",
+    "emptyState": "Станция не выбрана",
+    "emptyStateSubtitle": "Выберите станцию из списка популярных или найдите её.",
+    "favorites": "Избранное",
+    "popular": "Популярные станции",
+    "recentlyPlayed": "Недавно проигранные",
+    "searchResults": "Результаты поиска",
+    "noStations": "Станции не найдены",
+    "addToFavorites": "Добавить в избранное",
+    "removeFromFavorites": "Удалить из избранного"
+  },
+  "search": {
+    "searchPlaceholder": "Поиск радио...",
+    "errors": {
+      "title": "Ошибка поиска",
+      "message": "Во время поиска произошла ошибка. Пожалуйста, попробуйте снова."
+    },
+    "filters": {
+      "country": "Страна",
+      "tags": "Жанры",
+      "selectedTags": "{{count}} жанров",
+      "more": "Больше"
+    },
+    "countries": {
+      "title": "Выберите страну",
+      "searchPlaceholder": "Поиск страны..."
+    },
+    "tags": {
+      "title": "Выберите жанры",
+      "searchPlaceholder": "Поиск жанра...",
+      "validate": "Подтвердить ({{count}} выбрано)"
+    },
+    "sortOptions": {
+      "votes": "Голоса (популярность)",
+      "clicktrend": "Последние тренды",
+      "name": "Имя",
+      "country": "Страна",
+      "bitrate": "Качество звука"
+    },
+    "advanced": {
+      "quality": "Качество",
+      "minBitrate": "Минимальный битрейт",
+      "bitrateExample": "например: 128",
+      "kbps": "kbps",
+      "httpsOnly": "Только HTTPS",
+      "sort": "Сортировать",
+      "descending": "По убыванию",
+      "other": "Другие",
+      "hideBroken": "Скрыть неработающие станции",
+      "reset": "Сбросить",
+      "apply": "Применить"
+    }
+  }
+}
