@@ -1,0 +1,40 @@
+{
+  "days": {
+    "single": {
+      "sunday": {
+        "short": "日",
+        "long": "星期日"
+      },
+      "monday": {
+        "short": "一",
+        "long": "星期一"
+      },
+      "tuesday": {
+        "short": "二",
+        "long": "星期二"
+      },
+      "wednesday": {
+        "short": "三",
+        "long": "星期三"
+      },
+      "thursday": {
+        "short": "四",
+        "long": "星期四"
+      },
+      "friday": {
+        "short": "五",
+        "long": "星期五"
+      },
+      "saturday": {
+        "short": "六",
+        "long": "星期六"
+      }
+    },
+    "presets": {
+      "allDays": "每天",
+      "weekdays": "工作日",
+      "weekends": "周末",
+      "clear": "清除"
+    }
+  }
+}

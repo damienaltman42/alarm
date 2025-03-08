@@ -1,0 +1,47 @@
+{
+  "settings": {
+    "title": "设置",
+    "appearance": {
+      "title": "外观",
+      "theme": "主题",
+      "darkMode": "深色模式",
+      "lightMode": "浅色模式",
+      "systemDefault": "系统默认"
+    },
+    "notifications": {
+      "title": "通知",
+      "enabled": "启用通知",
+      "sound": "通知声音",
+      "vibration": "震动",
+      "preview": "通知预览"
+    },
+    "language": {
+      "title": "语言",
+      "selected": "所选语言",
+      "system": "系统语言",
+      "french": "法语",
+      "english": "英语",
+      "chinese": "中文",
+      "german": "德语",
+      "spanish": "西班牙语",
+      "portuguese": "葡萄牙语",
+      "italian": "意大利语",
+      "japanese": "日语",
+      "russian": "俄语"
+    },
+    "about": {
+      "title": "关于",
+      "version": "版本",
+      "developer": "开发者",
+      "website": "网站",
+      "privacy": "隐私政策",
+      "terms": "使用条款"
+    },
+    "advanced": {
+      "title": "高级设置",
+      "checkInterval": "检查间隔",
+      "backgroundRefresh": "后台刷新",
+      "resetApp": "重置应用"
+    }
+  }
+}

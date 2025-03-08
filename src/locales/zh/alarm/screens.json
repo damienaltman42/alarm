@@ -1,0 +1,30 @@
+{
+  "addAlarm": {
+    "title": "添加闹钟",
+    "editTitle": "编辑闹钟",
+    "alarmName": "闹钟名称",
+    "alarmNamePlaceholder": "输入此闹钟的名称",
+    "time": "闹钟时间",
+    "days": "重复日期",
+    "noDays": "未选择日期（一次性）",
+    "sound": "闹钟声音",
+    "radioStation": "电台",
+    "spotifyPlaylist": "Spotify 播放列表",
+    "noSound": "未选择声音",
+    "selectRadio": "选择电台",
+    "selectSpotify": "选择播放列表",
+    "clear": "清除",
+    "enableSnooze": "启用贪睡",
+    "snoozeInterval": "贪睡间隔（分钟）",
+    "snoozeCustom": "其他值...",
+    "vibration": "震动",
+    "save": "保存",
+    "cancel": "取消",
+    "errors": {
+      "nameRequired": "请输入闹钟名称",
+      "timeRequired": "请选择时间",
+      "saveFailed": "保存闹钟失败"
+    },
+    "enabled": "启用闹钟"
+  }
+}

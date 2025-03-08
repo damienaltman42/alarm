@@ -1,0 +1,60 @@
+{
+  "player": {
+    "title": "电台",
+    "nowPlaying": "正在播放",
+    "loading": "加载中...",
+    "errorTitle": "播放错误",
+    "errorMessage": "无法播放该电台。请重试或选择其他电台。",
+    "emptyState": "未选择电台",
+    "emptyStateSubtitle": "从热门电台列表中选择或搜索一个电台。",
+    "favorites": "收藏",
+    "popular": "热门电台",
+    "recentlyPlayed": "最近播放",
+    "searchResults": "搜索结果",
+    "noStations": "未找到电台",
+    "addToFavorites": "添加到收藏",
+    "removeFromFavorites": "从收藏中移除"
+  },
+  "search": {
+    "searchPlaceholder": "搜索电台...",
+    "errors": {
+      "title": "搜索错误",
+      "message": "搜索过程中出现错误。请重试。"
+    },
+    "filters": {
+      "country": "国家",
+      "tags": "类型",
+      "selectedTags": "{{count}} 个类型",
+      "more": "更多"
+    },
+    "countries": {
+      "title": "选择国家",
+      "searchPlaceholder": "搜索国家..."
+    },
+    "tags": {
+      "title": "选择类型",
+      "searchPlaceholder": "搜索类型...",
+      "validate": "确认 (已选 {{count}} 个)"
+    },
+    "sortOptions": {
+      "votes": "投票（人气）",
+      "clicktrend": "最新趋势",
+      "name": "名称",
+      "country": "国家",
+      "bitrate": "音质"
+    },
+    "advanced": {
+      "quality": "质量",
+      "minBitrate": "最低比特率",
+      "bitrateExample": "例如: 128",
+      "kbps": "kbps",
+      "httpsOnly": "仅HTTPS",
+      "sort": "排序",
+      "descending": "降序",
+      "other": "其他",
+      "hideBroken": "隐藏故障电台",
+      "reset": "重置",
+      "apply": "应用"
+    }
+  }
+}

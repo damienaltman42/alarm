@@ -1,0 +1,19 @@
+{
+  "timeSelector": {
+    "hours": "小时",
+    "minutes": "分钟",
+    "seconds": "秒",
+    "pickTime": "选择时间",
+    "label": "闹钟时间"
+  },
+  "alarmSwitch": {
+    "enabled": "启用",
+    "disabled": "禁用"
+  },
+  "soundSelector": {
+    "title": "选择声音",
+    "noSound": "无声音",
+    "radio": "电台",
+    "spotify": "Spotify"
+  }
+}

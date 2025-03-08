@@ -1,0 +1,26 @@
+{
+  "service": {
+    "start": "通知服务已启动",
+    "stop": "通知服务已停止",
+    "checking": "正在检查闹钟",
+    "triggered": "触发闹钟 {{id}}",
+    "snoozeWakeup": "闹钟 {{id}} 在贪睡后唤醒",
+    "disableOneTime": "触发后禁用一次性闹钟 {{id}}",
+    "error": "触发闹钟时出错",
+    "silentMode": {
+      "init": "正在初始化静音模式",
+      "activate": "激活静音模式",
+      "stop": "停止静音模式"
+    }
+  },
+  "alarmCheck": {
+    "start": "启动闹钟检查器（间隔：{{seconds}}秒）",
+    "stop": "停止闹钟检查器",
+    "running": "闹钟检查器已在运行"
+  },
+  "messages": {
+    "upcomingAlarm": "闹钟将在 {{time}} 后响起",
+    "missedAlarm": "错过的闹钟：{{name}}",
+    "permissionRequired": "设置闹钟需要通知权限"
+  }
+}

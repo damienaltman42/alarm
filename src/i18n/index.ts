@@ -13,12 +13,13 @@ import ptTranslations from '../locales/pt';
 import itTranslations from '../locales/it';
 import jpTranslations from '../locales/jp';
 import ruTranslations from '../locales/ru';
+import zhTranslations from '../locales/zh';
 
 // Constante pour la clé de stockage
 const LANGUAGE_STORAGE_KEY = 'aurora_wake_language';
 
 // Liste des langues supportées
-const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'pt', 'it', 'jp', 'ru'];
+const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'pt', 'it', 'jp', 'ru', 'zh'];
 
 // Fonction pour obtenir la langue du système
 const getDeviceLanguage = (): string => {
@@ -34,8 +35,27 @@ const getDeviceLanguage = (): string => {
     deviceLanguage = NativeModules.I18nManager.localeIdentifier || 'en';
   }
   
+  // Log en mode développement pour déboguer la détection de langue
+  if (__DEV__) {
+    console.log('Langue complète détectée:', deviceLanguage);
+  }
+  
   // Retourner seulement le préfixe de langue (fr, en, etc.) sans le code région
-  return deviceLanguage.substring(0, 2);
+  const baseLanguageCode = deviceLanguage.substring(0, 2);
+  
+  // Traitement spécial pour le japonais (ja → jp)
+  const finalLanguageCode = baseLanguageCode === 'ja' ? 'jp' : baseLanguageCode;
+  
+  // Log en mode développement
+  if (__DEV__) {
+    console.log('Code de langue de base extrait:', baseLanguageCode);
+    if (baseLanguageCode === 'ja') {
+      console.log('Conversion ja → jp pour le japonais');
+    }
+    console.log('Code de langue final utilisé:', finalLanguageCode);
+  }
+  
+  return finalLanguageCode;
 };
 
 // Ressources de traduction
@@ -47,7 +67,8 @@ const resources = {
   pt: ptTranslations,
   it: itTranslations,
   jp: jpTranslations,
-  ru: ruTranslations
+  ru: ruTranslations,
+  zh: zhTranslations
 };
 
 /**

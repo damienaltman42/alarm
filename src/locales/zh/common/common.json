@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "Aurora Wake",
+    "tagline": "自然唤醒"
+  },
+  "navigation": {
+    "alarm": "闹钟",
+    "sleep": "睡眠",
+    "radio": "电台",
+    "spotify": "Spotify",
+    "settings": "设置"
+  },
+  "actions": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "confirm": "确认",
+    "back": "返回",
+    "stop": "停止",
+    "ok": "确定"
+  },
+  "time": {
+    "days": "天",
+    "hours": "小时",
+    "minutes": "分钟",
+    "seconds": "秒"
+  },
+  "errors": {
+    "generic": "发生错误",
+    "retry": "重试"
+  }
+}

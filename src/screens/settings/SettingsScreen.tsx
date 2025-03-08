@@ -22,6 +22,20 @@ const SettingsScreen = () => {
         return t('settings:settings.language.french');
       case 'en':
         return t('settings:settings.language.english');
+      case 'zh':
+        return t('settings:settings.language.chinese');
+      case 'de':
+        return t('settings:settings.language.german');
+      case 'es':
+        return t('settings:settings.language.spanish');
+      case 'pt':
+        return t('settings:settings.language.portuguese');
+      case 'it':
+        return t('settings:settings.language.italian');
+      case 'jp':
+        return t('settings:settings.language.japanese');
+      case 'ru':
+        return t('settings:settings.language.russian');
       default:
         return code;
     }

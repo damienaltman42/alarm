@@ -1,0 +1,24 @@
+{
+  "timer": {
+    "title": "睡眠定时器",
+    "active": "启用",
+    "stop": "停止定时器",
+    "errors": {
+      "title": "错误",
+      "zeroTime": "请设置大于零的持续时间。",
+      "startFailed": "无法启动定时器。请再试一次。"
+    }
+  },
+  "display": {
+    "nowPlaying": "正在播放",
+    "noRadio": "没有播放的电台",
+    "running": "运行中",
+    "ready": "就绪"
+  },
+  "picker": {
+    "hours": "时",
+    "minutes": "分",
+    "seconds": "秒",
+    "start": "启动定时器"
+  }
+}
