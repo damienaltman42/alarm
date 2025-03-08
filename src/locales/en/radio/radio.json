@@ -1,0 +1,60 @@
+{
+  "player": {
+    "title": "Radio",
+    "nowPlaying": "Now Playing",
+    "loading": "Loading...",
+    "errorTitle": "Playback Error",
+    "errorMessage": "Unable to play the station. Please try again or choose another station.",
+    "emptyState": "No station selected",
+    "emptyStateSubtitle": "Choose a station from the popular stations list or search for one.",
+    "favorites": "Favorites",
+    "popular": "Popular Stations",
+    "recentlyPlayed": "Recently Played",
+    "searchResults": "Search Results",
+    "noStations": "No stations found",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites"
+  },
+  "search": {
+    "searchPlaceholder": "Search for a radio...",
+    "errors": {
+      "title": "Search Error",
+      "message": "An error occurred during the search. Please try again."
+    },
+    "filters": {
+      "country": "Country",
+      "tags": "Genres",
+      "selectedTags": "{{count}} genres",
+      "more": "More"
+    },
+    "countries": {
+      "title": "Select a country",
+      "searchPlaceholder": "Search for a country..."
+    },
+    "tags": {
+      "title": "Select genres",
+      "searchPlaceholder": "Search for a genre...",
+      "validate": "Validate ({{count}} selected)"
+    },
+    "sortOptions": {
+      "votes": "Votes (popularity)",
+      "clicktrend": "Recent trend",
+      "name": "Name",
+      "country": "Country",
+      "bitrate": "Audio quality"
+    },
+    "advanced": {
+      "quality": "Quality",
+      "minBitrate": "Minimum bitrate",
+      "bitrateExample": "e.g: 128",
+      "kbps": "kbps",
+      "httpsOnly": "HTTPS only",
+      "sort": "Sort",
+      "descending": "Descending order",
+      "other": "Others",
+      "hideBroken": "Hide broken stations",
+      "reset": "Reset",
+      "apply": "Apply"
+    }
+  }
+} 

@@ -1,0 +1,24 @@
+{
+  "timer": {
+    "title": "Sleep Timer",
+    "active": "Actif",
+    "stop": "Arrêter le timer",
+    "errors": {
+      "title": "Erreur",
+      "zeroTime": "Veuillez définir une durée supérieure à zéro.",
+      "startFailed": "Impossible de démarrer le timer. Veuillez réessayer."
+    }
+  },
+  "display": {
+    "nowPlaying": "En cours",
+    "noRadio": "Aucune radio en cours",
+    "running": "En cours",
+    "ready": "Prêt"
+  },
+  "picker": {
+    "hours": "h",
+    "minutes": "m",
+    "seconds": "s",
+    "start": "Démarrer le timer"
+  }
+} 
