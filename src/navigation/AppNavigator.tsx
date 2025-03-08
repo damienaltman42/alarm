@@ -10,6 +10,7 @@ import { SearchRadioScreen } from '../screens/radio/SearchRadioScreen';
 import { SearchSpotifyScreen } from '../screens/spotify/SearchSpotifyScreen';
 import { AlarmRingingScreen } from '../screens/alarm/AlarmRingingScreen';
 import { RadioPlayerScreen } from '../screens/radio/RadioPlayerScreen';
+import { SleepTimerScreen } from '../screens/sleep/SleepTimerScreen';
 import { Alarm, RadioStation, SpotifyPlaylist } from '../types';
 import { useTheme, useRadio } from '../hooks';
 import { setNavigateToAlarmScreen } from '../services/alarm/alarmManager';
@@ -29,11 +30,13 @@ type RootStackParamList = {
     selectedPlaylist?: SpotifyPlaylist | null;
   };
   AlarmRinging: { alarm: Alarm };
+  SleepTimer: undefined;
 };
 
 type TabStackParamList = {
   AlarmList: undefined;
   RadioPlayer: undefined;
+  SleepTimer: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -52,8 +55,12 @@ const MainTabs: React.FC = () => {
           
           if (route.name === 'AlarmList') {
             iconName = focused ? 'alarm' : 'alarm-outline';
-          } else {
+          } else if (route.name === 'RadioPlayer') {
             iconName = focused ? 'radio' : 'radio-outline';
+          } else if (route.name === 'SleepTimer') {
+            iconName = focused ? 'time' : 'time-outline';
+          } else {
+            iconName = 'help-circle';
           }
           
           return <Ionicons name={iconName as any} size={size} color={color} />;
@@ -85,6 +92,13 @@ const MainTabs: React.FC = () => {
         component={RadioPlayerScreen} 
         options={{ 
           tabBarLabel: 'Radio',
+        }} 
+      />
+      <Tab.Screen 
+        name="SleepTimer" 
+        component={SleepTimerScreen} 
+        options={{ 
+          tabBarLabel: 'Sleep Timer',
         }} 
       />
     </Tab.Navigator>
@@ -139,6 +153,7 @@ export const AppNavigator: React.FC = () => {
               gestureEnabled: false, // Empêcher de quitter l'écran par geste
             }}
           />
+          <Stack.Screen name="SleepTimer" component={SleepTimerScreen} />
         </Stack.Navigator>
         
         {/* Mini-player global */}
