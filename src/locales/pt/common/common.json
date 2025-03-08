@@ -1,0 +1,34 @@
+{
+  "app": {
+    "name": "Aurora Wake",
+    "tagline": "Acorde naturalmente"
+  },
+  "navigation": {
+    "alarm": "Alarmes",
+    "sleep": "Dormir",
+    "radio": "Rádio",
+    "spotify": "Spotify",
+    "settings": "Configurações"
+  },
+  "actions": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "add": "Adicionar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "stop": "Parar",
+    "ok": "OK"
+  },
+  "time": {
+    "days": "dias",
+    "hours": "horas",
+    "minutes": "minutos",
+    "seconds": "segundos"
+  },
+  "errors": {
+    "generic": "Ocorreu um erro",
+    "retry": "Tentar novamente"
+  }
+}

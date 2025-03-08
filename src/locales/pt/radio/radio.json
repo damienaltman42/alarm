@@ -1,0 +1,60 @@
+{
+  "player": {
+    "title": "Rádio",
+    "nowPlaying": "Tocando agora",
+    "loading": "Carregando...",
+    "errorTitle": "Erro de Reprodução",
+    "errorMessage": "Não foi possível reproduzir a estação. Por favor, tente novamente ou escolha outra estação.",
+    "emptyState": "Nenhuma estação selecionada",
+    "emptyStateSubtitle": "Escolha uma estação na lista de estações populares ou pesquise por uma.",
+    "favorites": "Favoritos",
+    "popular": "Estações Populares",
+    "recentlyPlayed": "Reproduzidas Recentemente",
+    "searchResults": "Resultados da Pesquisa",
+    "noStations": "Nenhuma estação encontrada",
+    "addToFavorites": "Adicionar aos favoritos",
+    "removeFromFavorites": "Remover dos favoritos"
+  },
+  "search": {
+    "searchPlaceholder": "Pesquisar uma rádio...",
+    "errors": {
+      "title": "Erro de Pesquisa",
+      "message": "Ocorreu um erro durante a pesquisa. Por favor, tente novamente."
+    },
+    "filters": {
+      "country": "País",
+      "tags": "Gêneros",
+      "selectedTags": "{{count}} gêneros",
+      "more": "Mais"
+    },
+    "countries": {
+      "title": "Selecione um país",
+      "searchPlaceholder": "Pesquisar um país..."
+    },
+    "tags": {
+      "title": "Selecione os gêneros",
+      "searchPlaceholder": "Pesquisar um gênero...",
+      "validate": "Validar ({{count}} selecionados)"
+    },
+    "sortOptions": {
+      "votes": "Votos (popularidade)",
+      "clicktrend": "Tendência recente",
+      "name": "Nome",
+      "country": "País",
+      "bitrate": "Qualidade do áudio"
+    },
+    "advanced": {
+      "quality": "Qualidade",
+      "minBitrate": "Taxa de bits mínima",
+      "bitrateExample": "ex: 128",
+      "kbps": "kbps",
+      "httpsOnly": "Somente HTTPS",
+      "sort": "Ordenar",
+      "descending": "Ordem decrescente",
+      "other": "Outros",
+      "hideBroken": "Ocultar estações com problemas",
+      "reset": "Redefinir",
+      "apply": "Aplicar"
+    }
+  }
+}

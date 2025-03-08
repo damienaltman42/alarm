@@ -1,0 +1,24 @@
+{
+  "timer": {
+    "title": "Temporizador de Sono",
+    "active": "Ativo",
+    "stop": "Parar temporizador",
+    "errors": {
+      "title": "Erro",
+      "zeroTime": "Por favor, defina uma duração maior que zero.",
+      "startFailed": "Não foi possível iniciar o temporizador. Por favor, tente novamente."
+    }
+  },
+  "display": {
+    "nowPlaying": "Tocando agora",
+    "noRadio": "Nenhuma rádio tocando",
+    "running": "Em execução",
+    "ready": "Pronto"
+  },
+  "picker": {
+    "hours": "h",
+    "minutes": "m",
+    "seconds": "s",
+    "start": "Iniciar temporizador"
+  }
+}
