@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme } from '../../hooks';
@@ -16,7 +16,10 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
   useScreenLabel = false 
 }) => {
   const { theme } = useTheme();
-  const { t } = useTranslation(['alarm.components', 'alarm.screens']);
+  const { t, i18n } = useTranslation(['alarm.components', 'alarm.screens']);
+
+  // Déterminer si on doit utiliser le format 24h en fonction de la langue
+  const use24HourFormat = !i18n.language.startsWith('en');
 
   // Convertir la chaîne de temps en objet Date
   const getDateFromTimeString = (timeString: string): Date => {
@@ -31,6 +34,32 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
   
   // État pour contrôler la visibilité du sélecteur sur Android
   const [showPicker, setShowPicker] = useState<boolean>(Platform.OS === 'ios');
+  
+  // État pour stocker l'affichage formaté de l'heure
+  const [displayTime, setDisplayTime] = useState<string>('');
+  
+  // Mettre à jour l'affichage formaté de l'heure quand la date ou la langue change
+  useEffect(() => {
+    formatDisplayTime();
+  }, [date, i18n.language]);
+  
+  // Formater l'heure pour l'affichage
+  const formatDisplayTime = () => {
+    if (i18n.language.startsWith('en')) {
+      // Format 12h pour l'anglais
+      let hours = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const period = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // 0 devient 12
+      setDisplayTime(`${hours}:${minutes} ${period}`);
+    } else {
+      // Format 24h pour les autres langues
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      setDisplayTime(`${hours}:${minutes}`);
+    }
+  };
 
   // Gérer le changement de temps
   const handleTimeChange = (event: DateTimePickerEvent, selectedDate?: Date): void => {
@@ -45,6 +74,9 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
       const hours = selectedDate.getHours().toString().padStart(2, '0');
       const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
       onChange(`${hours}:${minutes}`);
+      
+      // Mettre à jour l'affichage formaté
+      formatDisplayTime();
     }
   };
 
@@ -70,21 +102,28 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
           onPress={showTimePicker}
         >
           <Text style={[styles.timeText, { color: theme.text }]}>
-            {date.getHours().toString().padStart(2, '0')}:
-            {date.getMinutes().toString().padStart(2, '0')}
+            {displayTime}
           </Text>
         </TouchableOpacity>
       )}
       
       {(showPicker || Platform.OS === 'ios') && (
-        <DateTimePicker
-          value={date}
-          mode="time"
-          is24Hour={true}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleTimeChange}
-          style={styles.picker}
-        />
+        <View>
+          <DateTimePicker
+            value={date}
+            mode="time"
+            is24Hour={use24HourFormat}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleTimeChange}
+            style={styles.picker}
+          />
+          
+          {Platform.OS === 'ios' && (
+            <Text style={[styles.iOSTimeDisplay, { color: theme.text }]}>
+              {displayTime}
+            </Text>
+          )}
+        </View>
       )}
     </View>
   );
@@ -107,6 +146,12 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  iOSTimeDisplay: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10,
   },
   picker: {
     width: '100%',

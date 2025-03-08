@@ -55,25 +55,8 @@ const MainTabs: React.FC = () => {
   
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerShown: false,
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string;
-          
-          if (route.name === 'AlarmList') {
-            iconName = focused ? 'alarm' : 'alarm-outline';
-          } else if (route.name === 'RadioPlayer') {
-            iconName = focused ? 'radio' : 'radio-outline';
-          } else if (route.name === 'SleepTimer') {
-            iconName = focused ? 'time' : 'time-outline';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
-          } else {
-            iconName = 'help-circle';
-          }
-          
-          return <Ionicons name={iconName as any} size={size} color={color} />;
-        },
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.secondary,
         tabBarStyle: {
@@ -87,88 +70,70 @@ const MainTabs: React.FC = () => {
           fontSize: 12,
           fontWeight: '500',
         },
-      })}
+        tabBarIconStyle: {
+          marginBottom: 2
+        }
+      }}
     >
       <Tab.Screen 
         name="AlarmList" 
         component={AlarmListScreen} 
         options={{ 
-          tabBarLabel: ({ focused, color }) => (
-            <View style={{ alignItems: 'center' }}>
-              <Ionicons 
-                name={focused ? 'alarm' : 'alarm-outline'} 
-                size={24} 
-                color={color} 
-                style={{ marginBottom: 2 }}
-              />
-              <TabBarLabel label={t('navigation.alarm')} color={color} />
-            </View>
-          ),
+          tabBarLabel: t('navigation.alarm'),
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons 
+              name={focused ? 'alarm' : 'alarm-outline'} 
+              size={24} 
+              color={color} 
+            />
+          )
         }} 
       />
       <Tab.Screen 
         name="RadioPlayer" 
         component={RadioPlayerScreen} 
         options={{ 
-          tabBarLabel: ({ focused, color }) => (
-            <View style={{ alignItems: 'center' }}>
-              <Ionicons 
-                name={focused ? 'radio' : 'radio-outline'} 
-                size={24} 
-                color={color} 
-                style={{ marginBottom: 2 }}
-              />
-              <TabBarLabel label={t('navigation.radio')} color={color} />
-            </View>
-          ),
+          tabBarLabel: t('navigation.radio'),
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons 
+              name={focused ? 'radio' : 'radio-outline'} 
+              size={24} 
+              color={color} 
+            />
+          )
         }} 
       />
       <Tab.Screen 
         name="SleepTimer" 
         component={SleepTimerScreen} 
         options={{ 
-          tabBarLabel: ({ focused, color }) => (
-            <View style={{ alignItems: 'center' }}>
-              <Ionicons 
-                name={focused ? 'time' : 'time-outline'} 
-                size={24} 
-                color={color} 
-                style={{ marginBottom: 2 }}
-              />
-              <TabBarLabel label={t('navigation.sleep')} color={color} />
-            </View>
-          ),
+          tabBarLabel: t('navigation.sleep'),
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons 
+              name={focused ? 'moon' : 'moon-outline'} 
+              size={24} 
+              color={color} 
+            />
+          )
         }} 
       />
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen} 
         options={{ 
-          tabBarLabel: ({ focused, color }) => (
-            <View style={{ alignItems: 'center' }}>
-              <Ionicons 
-                name={focused ? 'settings' : 'settings-outline'} 
-                size={24} 
-                color={color} 
-                style={{ marginBottom: 2 }}
-              />
-              <TabBarLabel label={t('navigation.settings')} color={color} />
-            </View>
-          ),
+          tabBarLabel: t('navigation.settings'),
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons 
+              name={focused ? 'settings' : 'settings-outline'} 
+              size={24} 
+              color={color} 
+            />
+          )
         }} 
       />
     </Tab.Navigator>
   );
 };
-
-// Composant pour les étiquettes de l'onglet
-const TabBarLabel: React.FC<{ label: string; color: string }> = ({ label, color }) => (
-  <View>
-    <Text style={{ color, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
-      {label}
-    </Text>
-  </View>
-);
 
 // Composant pour afficher le mini-player global
 const GlobalMiniPlayer: React.FC = () => {

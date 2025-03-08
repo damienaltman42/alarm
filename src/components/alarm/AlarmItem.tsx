@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Alarm } from '../../types';
+import { useColorScheme } from 'react-native';
 
 interface AlarmItemProps {
   alarm: Alarm;
@@ -12,7 +13,8 @@ interface AlarmItemProps {
 }
 
 export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, onDelete }) => {
-  const { t } = useTranslation('alarm');
+  const { t, i18n } = useTranslation('alarm');
+  const colorScheme = useColorScheme();
   
   // Obtenir les jours courts de la semaine depuis les traductions
   const getShortWeekDays = () => [
@@ -25,10 +27,35 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, 
     t('alarms.shortWeekdays.saturday')
   ];
   
-  // Formater l'heure pour l'affichage
+  // Formater l'heure pour l'affichage selon la locale (12h pour anglais, 24h pour français)
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(':');
-    return `${hours}:${minutes}`;
+    const hoursNum = parseInt(hours, 10);
+    const minutesNum = parseInt(minutes, 10);
+    
+    // Créer un objet Date avec les heures et minutes
+    const date = new Date();
+    date.setHours(hoursNum);
+    date.setMinutes(minutesNum);
+    
+    // Vérifier la langue actuelle
+    const currentLanguage = i18n.language;
+    
+    if (currentLanguage.startsWith('en')) {
+      // Format 12h pour l'anglais (1:30 PM)
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true
+      });
+    } else {
+      // Format 24h pour les autres langues (13:30)
+      return date.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
   };
 
   // Formater les jours pour l'affichage
@@ -60,29 +87,57 @@ export const AlarmItem: React.FC<AlarmItemProps> = ({ alarm, onPress, onToggle, 
 
   return (
     <TouchableOpacity
-      style={[styles.container, !alarm.enabled && styles.disabled]}
+      style={[
+        styles.container, 
+        !alarm.enabled && styles.disabled,
+        { backgroundColor: colorScheme === 'dark' ? '#1c1c1e' : '#fff' }
+      ]}
       onPress={() => onPress(alarm)}
       activeOpacity={0.7}
     >
       <View style={styles.content}>
-        <Text style={[styles.time, !alarm.enabled && styles.disabledText]}>
+        <Text style={[
+          styles.time, 
+          !alarm.enabled && styles.disabledText,
+          { color: colorScheme === 'dark' ? '#fff' : '#000' }
+        ]}>
           {formatTime(alarm.time)}
         </Text>
         
         <View style={styles.detailsContainer}>
           {alarm.label && (
-            <Text style={[styles.label, !alarm.enabled && styles.disabledText]}>
+            <Text style={[
+              styles.label, 
+              !alarm.enabled && styles.disabledText,
+              { color: colorScheme === 'dark' ? '#fff' : '#000' }
+            ]}>
               {alarm.label}
             </Text>
           )}
           
-          <Text style={[styles.days, !alarm.enabled && styles.disabledText]}>
+          <Text style={[
+            styles.days, 
+            !alarm.enabled && styles.disabledText,
+            { color: colorScheme === 'dark' ? '#aaa' : '#666' }
+          ]}>
             {formatDays(alarm.repeatDays)}
           </Text>
           
           {alarm.radioStation && (
-            <Text style={[styles.radio, !alarm.enabled && styles.disabledText]}>
+            <Text style={[
+              styles.radio, 
+              !alarm.enabled && styles.disabledText
+            ]}>
               📻 {alarm.radioStation.name}
+            </Text>
+          )}
+          
+          {alarm.spotifyPlaylist && (
+            <Text style={[
+              styles.spotify, 
+              !alarm.enabled && styles.disabledText
+            ]}>
+              🎵 {alarm.spotifyPlaylist.name}
             </Text>
           )}
         </View>
@@ -153,6 +208,10 @@ const styles = StyleSheet.create({
   radio: {
     fontSize: 14,
     color: '#0066cc',
+  },
+  spotify: {
+    fontSize: 14,
+    color: '#1DB954',
   },
   disabledText: {
     color: '#999',

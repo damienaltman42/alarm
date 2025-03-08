@@ -51,5 +51,12 @@
     "minute": "minute",
     "minutes": "minutes"
   },
-  "snooze": "Snooze ({{minutes}} min)"
+  "snooze": "Snooze ({{minutes}} min)",
+  "wakeup": {
+    "message1": "Allez debout ! Même ton café s'est déjà réveillé avant toi ! ☕",
+    "message2": "Si tu snooze encore, je t'ajoute automatiquement à un marathon. 🏃‍♂️",
+    "message3": "C'est parti pour une nouvelle journée... ou un retour sous la couette ? 😴",
+    "message4": "Le soleil est déjà levé, pourquoi pas toi ? 🌞",
+    "message5": "Tu te réveilles... mais ton cerveau a besoin d'encore 5 minutes. 🧠💤"
+  }
 } 

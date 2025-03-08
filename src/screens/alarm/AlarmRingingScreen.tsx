@@ -8,15 +8,6 @@ import { Alarm } from '../../types';
 import { useTheme } from '../../hooks';
 import { alarmManager } from '../../services/alarm/alarmManager';
 
-// Messages de réveil amusants
-const WAKE_UP_MESSAGES = [
-  "Allez debout ! Même ton café s'est déjà réveillé avant toi ! ☕",
-  "Si tu snooze encore, je t'ajoute automatiquement à un marathon. 🏃‍♂️",
-  "C'est parti pour une nouvelle journée... ou un retour sous la couette ? 😴",
-  "Le soleil est déjà levé, pourquoi pas toi ? 🌞",
-  "Tu te réveilles... mais ton cerveau a besoin d'encore 5 minutes. 🧠💤"
-];
-
 // Type pour les paramètres de navigation
 type RootStackParamList = {
   AlarmRinging: { alarm: Alarm };
@@ -47,9 +38,16 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
   const [scaleAnim] = useState(new Animated.Value(0.9));
   
   // Sélectionner un message aléatoire
-  const [wakeUpMessage] = useState(
-    WAKE_UP_MESSAGES[Math.floor(Math.random() * WAKE_UP_MESSAGES.length)]
-  );
+  const [wakeUpMessage] = useState(() => {
+    const messages = [
+      t('alarm:wakeup.message1'),
+      t('alarm:wakeup.message2'),
+      t('alarm:wakeup.message3'),
+      t('alarm:wakeup.message4'),
+      t('alarm:wakeup.message5')
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  });
   
   // Animation d'entrée
   useEffect(() => {
