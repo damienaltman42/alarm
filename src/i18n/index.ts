@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import RNLanguageDetector from 'i18next-react-native-language-detector';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, NativeModules } from 'react-native';
 
@@ -112,13 +111,28 @@ export const changeLanguage = async (language: string) => {
   return i18n.changeLanguage(language);
 };
 
-// Utiliser une langue par défaut basée sur le système si disponible
+// Essayer de récupérer la langue stockée ou utiliser la langue du système
+const initializeLanguage = async (): Promise<string> => {
+  try {
+    const storedLanguage = await getStoredLanguage();
+    if (storedLanguage && SUPPORTED_LANGUAGES.includes(storedLanguage)) {
+      return storedLanguage;
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la langue stockée:', error);
+  }
+  
+  // Utiliser la langue du système si disponible
+  const systemLanguage = getDeviceLanguage();
+  return SUPPORTED_LANGUAGES.includes(systemLanguage) ? systemLanguage : 'en';
+};
+
+// Obtenir la langue par défaut de manière synchrone pour l'initialisation
 const systemLanguage = getDeviceLanguage();
 const defaultLanguage = SUPPORTED_LANGUAGES.includes(systemLanguage) ? systemLanguage : 'en';
 
 // Initialisation de i18next
 i18n
-  .use(RNLanguageDetector) // Détection de la langue du système
   .use(initReactI18next)    // Intégration avec React
   .init({
     resources,
@@ -132,14 +146,18 @@ i18n
     },
     react: {
       useSuspense: false    // Désactiver Suspense pour éviter les problèmes avec React Native
-    },
-    detection: {
-      // Options pour le détecteur de langue
-      caches: ['AsyncStorage'],
-      lookupAsyncStorage: LANGUAGE_STORAGE_KEY,
-      order: ['querystring', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag']
     }
   });
+
+// Initialiser la langue de manière asynchrone
+initializeLanguage().then(language => {
+  i18n.changeLanguage(language);
+  if (__DEV__) {
+    console.log('Langue initialisée de manière asynchrone:', language);
+  }
+}).catch(error => {
+  console.error('Erreur lors de l\'initialisation de la langue:', error);
+});
 
 // Afficher la langue utilisée en mode debug
 if (__DEV__) {
