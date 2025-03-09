@@ -23,8 +23,6 @@ export class AlarmScheduler {
     
     // Démarrer le vérificateur périodique
     startPeriodicAlarmCheck(this.checkIntervalSeconds);
-    
-    console.log(`AlarmScheduler initialisé (intervalle: ${this.checkIntervalSeconds}s)`);
   }
 
   /**

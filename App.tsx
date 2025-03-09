@@ -27,13 +27,11 @@ export default function App() {
       try {
         // Vérifier si les services ont déjà été initialisés
         if (servicesInitialized.current) {
-          console.log('Services déjà initialisés, ignoré');
           return;
         }
 
         await initializeServices();
         servicesInitialized.current = true;
-        console.log('Services initialisés avec succès');
       } catch (error) {
         console.error('Erreur lors de l\'initialisation des services:', error);
       }

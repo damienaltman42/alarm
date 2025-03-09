@@ -109,18 +109,9 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   const currentHours = now.getHours();
   const currentMinutes = now.getMinutes();
   
-  // Logs détaillés pour debug
-  logEvent(`🔍 Vérification alarme ${alarm.id} (${alarm.name || 'Sans nom'})`, {
-    alarmTime: `${hours}:${minutes}`,
-    currentTime: `${currentHours}:${currentMinutes}`,
-    repeatDays: alarm.repeatDays || [],
-    snoozeUntil: alarm.snoozeUntil,
-    enabled: alarm.enabled
-  });
   
   // Si l'alarme est désactivée, ne pas la déclencher
   if (!alarm.enabled) {
-    logEvent(`🔍 Alarme ${alarm.id} désactivée, ignorée`);
     return false;
   }
   
@@ -131,7 +122,6 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   // Vérifier si cette alarme a déjà sonné durant cette minute
   const lastTriggeredAlarms = global.lastTriggeredAlarms || {};
   if (lastTriggeredAlarms[alarmTimeKey]) {
-    logEvent(`🔍 Alarme ${alarm.id} déjà déclenchée à ${currentHours}:${currentMinutes}`);
     return false;
   }
   
@@ -167,7 +157,6 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
       return true;
     }
     
-    logEvent(`🔍 Alarme ${alarm.id} encore en snooze jusqu'à ${snoozeHours}:${snoozeMinutes}`);
     // Si on est encore en période de snooze, ne pas déclencher l'alarme
     return false;
   }
@@ -194,11 +183,6 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
         delete updatedTriggeredAlarms[alarmTimeKey];
         global.lastTriggeredAlarms = updatedTriggeredAlarms;
       }, 60000);
-    } else {
-      const reason = currentHours !== hours 
-        ? `heure ne correspond pas (${currentHours} ≠ ${hours})` 
-        : `minute ne correspond pas (${currentMinutes} ≠ ${minutes})`;
-      logEvent(`🔍 Alarme ${alarm.id} ne sonne pas: ${reason}`);
     }
     
     return shouldRing;
@@ -212,7 +196,6 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   const isDayConfigured = alarm.repeatDays.includes(repeatDay);
   
   if (!isDayConfigured) {
-    logEvent(`🔍 Alarme ${alarm.id} ne sonne pas: jour non configuré (jour ${repeatDay})`);
     return false;
   }
   
@@ -234,11 +217,6 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
       delete updatedTriggeredAlarms[alarmTimeKey];
       global.lastTriggeredAlarms = updatedTriggeredAlarms;
     }, 60000);
-  } else {
-    const reason = currentHours !== hours 
-      ? `heure ne correspond pas (${currentHours} ≠ ${hours})` 
-      : `minute ne correspond pas (${currentMinutes} ≠ ${minutes})`;
-    logEvent(`🔍 Alarme ${alarm.id} ne sonne pas: ${reason}`);
   }
   
   return shouldRing;
@@ -304,8 +282,6 @@ function startAlarmChecker(checkIntervalSeconds: number = 30) {
       checkIntervalSeconds * 1000
     ) as unknown as number;
   }
-  
-  logEvent('✅ Vérificateur d\'alarmes démarré avec succès');
 }
 
 /**
@@ -334,7 +310,6 @@ export async function checkAlarmsNow() {
  */
 export function startPeriodicAlarmCheck(intervalSeconds: number = 30) {
   if (alarmCheckIntervalId !== null) {
-    logEvent(i18n.t('notification:alarmCheck.running'));
     return;
   }
   

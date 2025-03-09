@@ -27,7 +27,6 @@ export async function initializeServices() {
     // Attendre un petit délai pour s'assurer que l'enregistrement de la tâche est terminé
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    console.log('Services initialisés avec succès!');
     return true;
   } catch (error) {
     console.error('Erreur lors de l\'initialisation des services:', error);
