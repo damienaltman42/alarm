@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, NativeModules } from 'react-native';
+import * as Localization from 'expo-localization';
 
 // Import des traductions via les fichiers index pour chaque langue
 import enTranslations from '../locales/en';
@@ -22,21 +23,19 @@ const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'pt', 'it', 'jp', 'ru', 'zh
 
 // Fonction pour obtenir la langue du système
 const getDeviceLanguage = (): string => {
-  // Sur iOS, la langue est stockée dans la propriété AppleLocale ou AppleLanguages
-  // Sur Android, c'est dans la propriété locale
   let deviceLanguage = 'en';
   
-  if (Platform.OS === 'ios') {
-    deviceLanguage = NativeModules.SettingsManager.settings.AppleLocale || 
-                    NativeModules.SettingsManager.settings.AppleLanguages[0] || 
-                    'en';
-  } else {
-    deviceLanguage = NativeModules.I18nManager.localeIdentifier || 'en';
-  }
-  
-  // Log en mode développement pour déboguer la détection de langue
-  if (__DEV__) {
-    console.log('Langue complète détectée:', deviceLanguage);
+  try {
+    // Utiliser expo-localization comme méthode principale et fiable
+    deviceLanguage = Localization.locale || 'en';
+    
+    // Log en mode développement pour déboguer la détection de langue
+    if (__DEV__) {
+      console.log('Langue complète détectée:', deviceLanguage);
+    }
+  } catch (error) {
+    console.warn('Erreur lors de la détection de la langue:', error);
+    deviceLanguage = 'en'; // Fallback à l'anglais en cas d'erreur
   }
   
   // Retourner seulement le préfixe de langue (fr, en, etc.) sans le code région

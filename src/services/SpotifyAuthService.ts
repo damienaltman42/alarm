@@ -179,6 +179,21 @@ class SpotifyAuthService {
    */
   async authorize(): Promise<boolean> {
     try {
+      // Vérifier si les modules Spotify sont disponibles avant d'essayer d'autoriser
+      if (!isSpotifySDKAvailable() || auth === null) {
+        console.warn('Les modules Spotify ne sont pas disponibles dans cet environnement Release');
+        
+        // En mode Release, on simule une connexion réussie pour éviter le crash
+        if (!__DEV__) {
+          console.log('Mode Release détecté, simulation de connexion Spotify pour éviter le crash');
+          // Mettre à jour les états internes sans réelle connexion
+          this.connectionInfo.isConnected = false;
+          return false;
+        }
+        
+        return false;
+      }
+      
       if (!this.isInitialized) {
         console.log('Service non initialisé, tentative d\'initialisation...');
         const initialized = await this.initialize();
