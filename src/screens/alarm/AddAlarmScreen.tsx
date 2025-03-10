@@ -80,7 +80,6 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
   // Gérer la sélection d'une station de radio
   const handleSelectRadioStation = (station: RadioStation): void => {
-    console.log('Station sélectionnée:', station.name);
     setRadioStation(station);
     setAlarmSound('radio');
     setSpotifyPlaylist(null);
@@ -88,7 +87,6 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
 
   // Gérer la sélection d'une playlist Spotify
   const handleSelectSpotifyPlaylist = (playlist: SpotifyPlaylist): void => {
-    console.log('Playlist sélectionnée:', playlist.name);
     setSpotifyPlaylist(playlist);
     setAlarmSound('spotify');
     setRadioStation(null);
@@ -140,11 +138,9 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
         alarmSound,
       };
 
-      console.log('@@@@@@@@@@@@@@@ Sauvegarde de l\'alarme avec ID:', alarm.id);
 
       let success: boolean;
       if (isEditing) {
-        console.log("+++++++++++++++here updateAlarm  AddAlarmScreen +++++++++++++++++++++++");
         success = await updateAlarm(alarm);
       } else {
         success = await addAlarm(alarm);

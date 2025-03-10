@@ -193,11 +193,6 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   const repeatDay = today; // Convertir dimanche de 0 à 7 pour la compatibilité
   
   // Vérifier si aujourd'hui est un jour configuré pour l'alarme
-  console.log('============================================');
-  console.log(today);
-  console.log('alarm.repeatDays', alarm.repeatDays);
-  console.log('repeatDay', repeatDay);
-  console.log('============================================');
   const isDayConfigured = alarm.repeatDays.includes(repeatDay);
   
   if (!isDayConfigured) {
@@ -465,8 +460,6 @@ async function activateSilentAudioMode() {
             if (AppState.currentState === 'active') {
               stopSilentAudioMode();
             }
-          } else {
-            logEvent('⚠️ Audio local chargé mais pas en lecture');
           }
         } else if (status.error) {
           logEvent(`❌ Erreur de lecture locale: ${status.error}`);
