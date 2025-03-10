@@ -3,7 +3,7 @@ import { RadioStation } from '../../types';
 import { ErrorService } from '../../utils/errorHandling';
 
 // Clé pour le stockage des favoris
-const FAVORITES_STORAGE_KEY = '@aurora_wake_radio_favorites';
+const FAVORITES_STORAGE_KEY = '@rhythmee_radio_favorites';
 
 /**
  * Service responsable de la gestion des stations de radio favorites

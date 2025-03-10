@@ -23,12 +23,12 @@ const SPOTIFY_EXPIRATION_KEY = 'spotify_expiration';
 // Configuration par défaut pour Spotify
 const defaultConfig: SpotifyAuthConfig = {
   clientId: '39d474184067408497b09fad92b1c0fa',
-  tokenRefreshUrl: 'https://europe-west1-aurora-wake-spotify-auth.cloudfunctions.net/refreshSpotifyToken',
-  tokenSwapUrl: 'https://europe-west1-aurora-wake-spotify-auth.cloudfunctions.net/swapSpotifyToken',
+  tokenRefreshUrl: 'https://europe-west1-rhythmee-spotify-auth.cloudfunctions.net/refreshSpotifyToken',
+  tokenSwapUrl: 'https://europe-west1-rhythmee-spotify-auth.cloudfunctions.net/swapSpotifyToken',
   redirectUrl: Platform.select({
-    ios: 'aurorawake://spotify-auth-callback',
-    android: 'aurorawake://spotify-auth-callback',
-  }) || 'aurorawake://spotify-auth-callback',
+    ios: 'rhythmee://spotify-auth-callback',
+    android: 'rhythmee://spotify-auth-callback',
+  }) || 'rhythmee://spotify-auth-callback',
   scopes: [
     'user-read-private',
     'playlist-read-private',
@@ -48,8 +48,8 @@ const checkSpotifyRedirectConfig = () => {
   }
   
   // Vérifier le scheme spécifique à iOS
-  if (Platform.OS === 'ios' && !defaultConfig.redirectUrl.startsWith('aurorawake://')) {
-    console.warn('Sur iOS, le scheme devrait commencer par aurorawake://', defaultConfig.redirectUrl);
+  if (Platform.OS === 'ios' && !defaultConfig.redirectUrl.startsWith('rhythmee://')) {
+    console.warn('Sur iOS, le scheme devrait commencer par rhythmee://', defaultConfig.redirectUrl);
   }
   
   return true;

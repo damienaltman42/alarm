@@ -4,7 +4,7 @@ import { ThemeMode } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Clé pour le stockage du thème
-const THEME_STORAGE_KEY = '@aurora_wake_theme';
+const THEME_STORAGE_KEY = '@rhythmee_theme';
 
 // Définition des thèmes
 export const lightTheme = {

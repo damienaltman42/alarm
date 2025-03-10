@@ -16,7 +16,7 @@ import ruTranslations from '../locales/ru';
 import zhTranslations from '../locales/zh';
 
 // Constante pour la clé de stockage
-const LANGUAGE_STORAGE_KEY = 'aurora_wake_language';
+const LANGUAGE_STORAGE_KEY = 'rhythmee_language';
 
 // Liste des langues supportées
 const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'pt', 'it', 'jp', 'ru', 'zh'];

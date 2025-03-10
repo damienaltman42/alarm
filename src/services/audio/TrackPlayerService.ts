@@ -165,7 +165,7 @@ export async function startPlayback(
   url: string,
   title: string,
   artist: string = '',
-  artwork: string = 'https://aurorawake.app/default_artwork.png'
+  artwork: string = 'https://rhythmee.app/default_artwork.png'
 ) {
   try {
     console.log(`[🎵 startPlayback] Démarrage de ${mediaType}`);
@@ -190,7 +190,7 @@ export async function startPlayback(
         id: 'alarm-radio',
         url: url,
         title: title,
-        artist: artist || 'Aurora Wake Radio',
+        artist: artist || 'Rhythmee Radio',
         artwork: artwork,
         isLiveStream: true,  // Important pour les flux continus
         
@@ -209,7 +209,7 @@ export async function startPlayback(
         id: 'alarm-spotify',
         url: url,
         title: title,
-        artist: artist || 'Aurora Wake Spotify',
+        artist: artist || 'Rhythmee Spotify',
         artwork: artwork
       };
       

@@ -77,7 +77,7 @@ class RadioService {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'User-Agent': 'AuroraWake/1.0'
+          'User-Agent': 'Rhythmee/1.0'
         }
       });
       

@@ -2,9 +2,9 @@
 <coverage generated="1741114022825" clover="3.2.0">
   <project timestamp="1741114022826" name="All files">
     <metrics statements="1224" coveredstatements="23" conditionals="493" coveredconditionals="5" methods="285" coveredmethods="4" elements="2002" coveredelements="32" complexity="0" loc="1224" ncloc="1224" packages="14" files="42" classes="42"/>
-    <package name="aurora-wake">
+    <package name="rhythmee">
       <metrics statements="38" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="9" coveredmethods="0"/>
-      <file name="App.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/App.tsx">
+      <file name="App.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/App.tsx">
         <metrics statements="37" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="13" count="0" type="stmt"/>
         <line num="16" count="0" type="stmt"/>
@@ -44,14 +44,14 @@
         <line num="96" count="0" type="stmt"/>
         <line num="100" count="0" type="stmt"/>
       </file>
-      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/index.ts">
+      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/index.ts">
         <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.api">
+    <package name="rhythmee.src.api">
       <metrics statements="65" coveredstatements="0" conditionals="23" coveredconditionals="0" methods="13" coveredmethods="0"/>
-      <file name="radioApi.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/api/radioApi.ts">
+      <file name="radioApi.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/api/radioApi.ts">
         <metrics statements="65" coveredstatements="0" conditionals="23" coveredconditionals="0" methods="13" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="13" count="0" type="stmt"/>
@@ -120,9 +120,9 @@
         <line num="189" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.components">
+    <package name="rhythmee.src.components">
       <metrics statements="231" coveredstatements="0" conditionals="167" coveredconditionals="0" methods="64" coveredmethods="0"/>
-      <file name="AlarmItem.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/AlarmItem.tsx">
+      <file name="AlarmItem.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/AlarmItem.tsx">
         <metrics statements="20" coveredstatements="0" conditionals="30" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="11" count="0" type="stmt"/>
         <line num="13" count="0" type="stmt"/>
@@ -145,7 +145,7 @@
         <line num="43" count="0" type="stmt"/>
         <line num="81" count="0" type="stmt"/>
       </file>
-      <file name="AnimatedSwitch.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/AnimatedSwitch.tsx">
+      <file name="AnimatedSwitch.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/AnimatedSwitch.tsx">
         <metrics statements="12" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="18" count="0" type="stmt"/>
         <line num="24" count="0" type="stmt"/>
@@ -160,7 +160,7 @@
         <line num="54" count="0" type="stmt"/>
         <line num="79" count="0" type="stmt"/>
       </file>
-      <file name="DaySelector.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/DaySelector.tsx">
+      <file name="DaySelector.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/DaySelector.tsx">
         <metrics statements="20" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="9" count="0" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
@@ -183,7 +183,7 @@
         <line num="66" count="0" type="stmt"/>
         <line num="101" count="0" type="stmt"/>
       </file>
-      <file name="FavoriteRadioList.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/FavoriteRadioList.tsx">
+      <file name="FavoriteRadioList.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/FavoriteRadioList.tsx">
         <metrics statements="16" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="20" count="0" type="stmt"/>
         <line num="24" count="0" type="stmt"/>
@@ -202,7 +202,7 @@
         <line num="69" count="0" type="stmt"/>
         <line num="87" count="0" type="stmt"/>
       </file>
-      <file name="RadioSearch.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/RadioSearch.tsx">
+      <file name="RadioSearch.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/RadioSearch.tsx">
         <metrics statements="92" coveredstatements="0" conditionals="48" coveredconditionals="0" methods="24" coveredmethods="0"/>
         <line num="25" count="0" type="stmt"/>
         <line num="29" count="0" type="stmt"/>
@@ -297,7 +297,7 @@
         <line num="370" count="0" type="stmt"/>
         <line num="406" count="0" type="stmt"/>
       </file>
-      <file name="RadioStationItem.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/RadioStationItem.tsx">
+      <file name="RadioStationItem.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/RadioStationItem.tsx">
         <metrics statements="51" coveredstatements="0" conditionals="59" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="14" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
@@ -351,7 +351,7 @@
         <line num="268" count="0" type="stmt"/>
         <line num="381" count="0" type="stmt"/>
       </file>
-      <file name="TimeSelector.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/components/TimeSelector.tsx">
+      <file name="TimeSelector.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/components/TimeSelector.tsx">
         <metrics statements="20" coveredstatements="0" conditionals="11" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="10" count="0" type="stmt"/>
         <line num="12" count="0" type="stmt"/>
@@ -375,9 +375,9 @@
         <line num="73" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.contexts">
+    <package name="rhythmee.src.contexts">
       <metrics statements="185" coveredstatements="0" conditionals="33" coveredconditionals="0" methods="29" coveredmethods="0"/>
-      <file name="AlarmContext.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/contexts/AlarmContext.tsx">
+      <file name="AlarmContext.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/contexts/AlarmContext.tsx">
         <metrics statements="85" coveredstatements="0" conditionals="13" coveredconditionals="0" methods="14" coveredmethods="0"/>
         <line num="22" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
@@ -465,7 +465,7 @@
         <line num="184" count="0" type="stmt"/>
         <line num="198" count="0" type="stmt"/>
       </file>
-      <file name="RadioContext.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/contexts/RadioContext.tsx">
+      <file name="RadioContext.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/contexts/RadioContext.tsx">
         <metrics statements="74" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="24" count="0" type="stmt"/>
         <line num="34" count="0" type="stmt"/>
@@ -542,7 +542,7 @@
         <line num="149" count="0" type="stmt"/>
         <line num="153" count="0" type="stmt"/>
       </file>
-      <file name="ThemeContext.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/contexts/ThemeContext.tsx">
+      <file name="ThemeContext.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/contexts/ThemeContext.tsx">
         <metrics statements="26" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
@@ -571,16 +571,16 @@
         <line num="99" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="103" count="0" type="stmt"/>
       </file>
-      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/contexts/index.ts">
+      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/contexts/index.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
     </package>
-    <package name="aurora-wake.src.hooks">
+    <package name="rhythmee.src.hooks">
       <metrics statements="14" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="3" coveredmethods="0"/>
-      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/hooks/index.ts">
+      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/hooks/index.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="useAlarm.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/hooks/useAlarm.ts">
+      <file name="useAlarm.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/hooks/useAlarm.ts">
         <metrics statements="5" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="10" count="0" type="stmt"/>
         <line num="12" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -588,7 +588,7 @@
         <line num="28" count="0" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
       </file>
-      <file name="useRadio.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/hooks/useRadio.ts">
+      <file name="useRadio.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/hooks/useRadio.ts">
         <metrics statements="5" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="10" count="0" type="stmt"/>
         <line num="12" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -596,7 +596,7 @@
         <line num="30" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
       </file>
-      <file name="useTheme.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/hooks/useTheme.ts">
+      <file name="useTheme.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/hooks/useTheme.ts">
         <metrics statements="4" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="8" count="0" type="stmt"/>
         <line num="10" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -604,9 +604,9 @@
         <line num="14" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.modules">
+    <package name="rhythmee.src.modules">
       <metrics statements="265" coveredstatements="0" conditionals="103" coveredconditionals="0" methods="62" coveredmethods="0"/>
-      <file name="AlarmManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/modules/AlarmManager.ts">
+      <file name="AlarmManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/modules/AlarmManager.ts">
         <metrics statements="203" coveredstatements="0" conditionals="84" coveredconditionals="0" methods="42" coveredmethods="0"/>
         <line num="9" count="0" type="stmt"/>
         <line num="12" count="0" type="stmt"/>
@@ -812,7 +812,7 @@
         <line num="565" count="0" type="stmt"/>
         <line num="570" count="0" type="stmt"/>
       </file>
-      <file name="ErrorManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/modules/ErrorManager.ts">
+      <file name="ErrorManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/modules/ErrorManager.ts">
         <metrics statements="14" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="11" count="0" type="stmt"/>
         <line num="12" count="0" type="stmt"/>
@@ -829,7 +829,7 @@
         <line num="44" count="0" type="stmt"/>
         <line num="48" count="0" type="stmt"/>
       </file>
-      <file name="SettingsManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/modules/SettingsManager.ts">
+      <file name="SettingsManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/modules/SettingsManager.ts">
         <metrics statements="21" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="7" count="0" type="stmt"/>
@@ -853,7 +853,7 @@
         <line num="53" count="0" type="stmt"/>
         <line num="57" count="0" type="stmt"/>
       </file>
-      <file name="ThemeManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/modules/ThemeManager.ts">
+      <file name="ThemeManager.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/modules/ThemeManager.ts">
         <metrics statements="17" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -873,7 +873,7 @@
         <line num="36" count="0" type="stmt"/>
         <line num="40" count="0" type="stmt"/>
       </file>
-      <file name="TrackPlayerService.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/modules/TrackPlayerService.ts">
+      <file name="TrackPlayerService.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/modules/TrackPlayerService.ts">
         <metrics statements="10" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="0"/>
         <line num="3" count="0" type="stmt"/>
         <line num="4" count="0" type="stmt"/>
@@ -887,9 +887,9 @@
         <line num="19" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.navigation">
+    <package name="rhythmee.src.navigation">
       <metrics statements="4" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-      <file name="AppNavigator.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/navigation/AppNavigator.tsx">
+      <file name="AppNavigator.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/navigation/AppNavigator.tsx">
         <metrics statements="4" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="17" count="0" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
@@ -897,9 +897,9 @@
         <line num="22" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.screens">
+    <package name="rhythmee.src.screens">
       <metrics statements="78" coveredstatements="0" conditionals="38" coveredconditionals="0" methods="26" coveredmethods="0"/>
-      <file name="AddAlarmScreen.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/screens/AddAlarmScreen.tsx">
+      <file name="AddAlarmScreen.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/screens/AddAlarmScreen.tsx">
         <metrics statements="39" coveredstatements="0" conditionals="36" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="37" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
@@ -941,7 +941,7 @@
         <line num="225" count="0" type="stmt"/>
         <line num="247" count="0" type="stmt"/>
       </file>
-      <file name="AlarmListScreen.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/screens/AlarmListScreen.tsx">
+      <file name="AlarmListScreen.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/screens/AlarmListScreen.tsx">
         <metrics statements="34" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="15" coveredmethods="0"/>
         <line num="22" count="0" type="stmt"/>
         <line num="23" count="0" type="stmt"/>
@@ -978,7 +978,7 @@
         <line num="131" count="0" type="stmt"/>
         <line num="139" count="0" type="stmt"/>
       </file>
-      <file name="SearchRadioScreen.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/screens/SearchRadioScreen.tsx">
+      <file name="SearchRadioScreen.tsx" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/screens/SearchRadioScreen.tsx">
         <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="24" count="0" type="stmt"/>
         <line num="25" count="0" type="stmt"/>
@@ -987,9 +987,9 @@
         <line num="48" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.services.alarm">
+    <package name="rhythmee.src.services.alarm">
       <metrics statements="196" coveredstatements="0" conditionals="72" coveredconditionals="0" methods="44" coveredmethods="0"/>
-      <file name="alarmPlayer.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/alarm/alarmPlayer.ts">
+      <file name="alarmPlayer.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/alarm/alarmPlayer.ts">
         <metrics statements="42" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="10" count="0" type="stmt"/>
         <line num="11" count="0" type="stmt"/>
@@ -1034,7 +1034,7 @@
         <line num="129" count="0" type="stmt"/>
         <line num="134" count="0" type="stmt"/>
       </file>
-      <file name="alarmScheduler.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/alarm/alarmScheduler.ts">
+      <file name="alarmScheduler.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/alarm/alarmScheduler.ts">
         <metrics statements="106" coveredstatements="0" conditionals="48" coveredconditionals="0" methods="17" coveredmethods="0"/>
         <line num="11" count="0" type="stmt"/>
         <line num="14" count="0" type="stmt"/>
@@ -1143,7 +1143,7 @@
         <line num="325" count="0" type="stmt"/>
         <line num="331" count="0" type="stmt"/>
       </file>
-      <file name="alarmStorage.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/alarm/alarmStorage.ts">
+      <file name="alarmStorage.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/alarm/alarmStorage.ts">
         <metrics statements="29" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="6" count="0" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
@@ -1175,7 +1175,7 @@
         <line num="81" count="0" type="stmt"/>
         <line num="87" count="0" type="stmt"/>
       </file>
-      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/alarm/index.ts">
+      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/alarm/index.ts">
         <metrics statements="19" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="16" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
@@ -1198,9 +1198,9 @@
         <line num="105" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.services.notification">
+    <package name="rhythmee.src.services.notification">
       <metrics statements="40" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="10" coveredmethods="0"/>
-      <file name="notificationService.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/notification/notificationService.ts">
+      <file name="notificationService.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/notification/notificationService.ts">
         <metrics statements="40" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -1244,15 +1244,15 @@
         <line num="153" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.services.radio">
+    <package name="rhythmee.src.services.radio">
       <metrics statements="101" coveredstatements="23" conditionals="31" coveredconditionals="5" methods="22" coveredmethods="4"/>
-      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/radio/index.ts">
+      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/radio/index.ts">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="6" count="1" type="stmt"/>
         <line num="7" count="1" type="stmt"/>
         <line num="8" count="1" type="stmt"/>
       </file>
-      <file name="radioCache.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/radio/radioCache.ts">
+      <file name="radioCache.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/radio/radioCache.ts">
         <metrics statements="38" coveredstatements="7" conditionals="13" coveredconditionals="3" methods="7" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
         <line num="15" count="2" type="stmt"/>
@@ -1293,7 +1293,7 @@
         <line num="115" count="0" type="stmt"/>
         <line num="121" count="1" type="stmt"/>
       </file>
-      <file name="radioFavorites.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/radio/radioFavorites.ts">
+      <file name="radioFavorites.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/radio/radioFavorites.ts">
         <metrics statements="28" coveredstatements="2" conditionals="4" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="6" count="1" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
@@ -1324,7 +1324,7 @@
         <line num="80" count="0" type="stmt"/>
         <line num="86" count="1" type="stmt"/>
       </file>
-      <file name="radioService.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/services/radio/radioService.ts">
+      <file name="radioService.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/services/radio/radioService.ts">
         <metrics statements="32" coveredstatements="11" conditionals="14" coveredconditionals="2" methods="8" coveredmethods="2"/>
         <line num="18" count="2" type="stmt"/>
         <line num="19" count="2" type="stmt"/>
@@ -1360,32 +1360,32 @@
         <line num="128" count="1" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.styles">
+    <package name="rhythmee.src.styles">
       <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="theme.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/styles/theme.ts">
+      <file name="theme.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/styles/theme.ts">
         <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="3" count="0" type="stmt"/>
         <line num="31" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="aurora-wake.src.types">
+    <package name="rhythmee.src.types">
       <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="alarm.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/types/alarm.ts">
+      <file name="alarm.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/types/alarm.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/types/index.ts">
+      <file name="index.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/types/index.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="radio.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/types/radio.ts">
+      <file name="radio.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/types/radio.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="settings.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/types/settings.ts">
+      <file name="settings.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/types/settings.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
     </package>
-    <package name="aurora-wake.src.utils">
+    <package name="rhythmee.src.utils">
       <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
-      <file name="errorHandling.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/src/utils/errorHandling.ts">
+      <file name="errorHandling.ts" path="/Users/damienaltman/Desktop/projet_perso/alarm-v2/rhythmee/src/utils/errorHandling.ts">
         <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="12" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
@@ -1393,6 +1393,8 @@
         <line num="35" count="0" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
       </file>
+    </package>
+    <package name="rhythmee">
     </package>
   </project>
 </coverage>

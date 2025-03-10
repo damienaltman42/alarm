@@ -1,7 +1,7 @@
 # 📌 Projet de Réveil Intelligent avec Radio en React Native (Expo + TypeScript)
 
 **Contexte du projet**  
-Nous développons une application de réveil (aurora-wake) avancée en **React Native (Expo)** qui permettra aux utilisateurs de **configurer des alarmes réveil** avec une **station de radio** à la place d'une sonnerie classique.  
+Nous développons une application de réveil (rhythmee) avancée en **React Native (Expo)** qui permettra aux utilisateurs de **configurer des alarmes réveil** avec une **station de radio** à la place d'une sonnerie classique.  
 
 ### **📌 Spécifications du projet**  
 1. **Gestion complète des alarmes**  

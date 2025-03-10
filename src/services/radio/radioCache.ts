@@ -4,8 +4,8 @@ import { ErrorService } from '../../utils/errorHandling';
 
 // Clés pour le stockage en cache
 const CACHE_KEYS = {
-  COUNTRIES: '@aurora_wake_countries',
-  TAGS: '@aurora_wake_tags',
+  COUNTRIES: '@rhythmee_countries',
+  TAGS: '@rhythmee_tags',
 };
 
 /**

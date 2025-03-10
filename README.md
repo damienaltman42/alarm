@@ -1,6 +1,6 @@
-# Aurora Wake - Application de Réveil avec Radio
+# rhythmee - Application de Réveil avec Radio
 
-Aurora Wake est une application de réveil intelligente qui vous permet de vous réveiller avec votre station de radio préférée. Configurez des alarmes personnalisées pour chaque jour de la semaine et choisissez parmi des milliers de stations de radio du monde entier.
+rhythmee est une application de réveil intelligente qui vous permet de vous réveiller avec votre station de radio préférée. Configurez des alarmes personnalisées pour chaque jour de la semaine et choisissez parmi des milliers de stations de radio du monde entier.
 
 ## Fonctionnalités
 

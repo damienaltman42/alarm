@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Aurora Wake",
-    "slug": "aurora-wake",
+    "name": "Rhythmee",
+    "slug": "rhythmee",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,7 +19,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.aurorawake.app",
+      "bundleIdentifier": "com.rhythmee.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1E1E2E"
       },
-      "package": "com.aurorawake.app",
+      "package": "com.rhythmee.app",
       "permissions": [
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
@@ -54,7 +54,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "aurora-wake"
+        "projectId": "rhythmee"
       }
     },
     "owner": "akoubayo",

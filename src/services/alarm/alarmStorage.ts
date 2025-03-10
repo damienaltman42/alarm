@@ -3,7 +3,7 @@ import { Alarm } from '../../types';
 import { ErrorService } from '../../utils/errorHandling';
 
 // Clé pour le stockage des alarmes dans AsyncStorage
-const ALARMS_STORAGE_KEY = '@aurora_wake_alarms';
+const ALARMS_STORAGE_KEY = '@rhythmee_alarms';
 
 /**
  * Service de stockage des alarmes

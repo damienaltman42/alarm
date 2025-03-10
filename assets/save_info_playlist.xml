@@ -7,11 +7,11 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>Aurora Wake</string>
+    <string>Rhythmee</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
-    <string>com.aurorawake.app</string>
+    <string>com.rhythmee.app</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
@@ -28,16 +28,16 @@
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
         <key>CFBundleURLName</key>
-        <string>com.aurorawake.app</string>
+        <string>com.rhythmee.app</string>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>aurorawake</string>
+          <string>rhythmee</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+aurora-wake</string>
+          <string>exp+rhythmee</string>
         </array>
       </dict>
       <dict>
@@ -47,7 +47,7 @@
         <string>spotify-auth-callback</string>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>aurorawake</string>
+          <string>rhythmee</string>
         </array>
       </dict>
     </array>

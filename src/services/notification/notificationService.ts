@@ -326,7 +326,7 @@ export class NotificationService {
         title: alarm.radioStation 
           ? `${alarm.radioStation.name}` 
           : (alarm.spotifyPlaylist?.name || 'Alarme'),
-        artist: 'Aurora Wake',
+        artist: 'Rhythmee',
         artwork: alarm.radioStation?.favicon || undefined
       };
       
