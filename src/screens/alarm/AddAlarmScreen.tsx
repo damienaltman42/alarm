@@ -231,7 +231,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                   {t('alarm.screens:addAlarm.radioStation')}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={[
                   styles.soundSourceTab,
                   { borderColor: theme.border },
@@ -252,7 +252,7 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                 >
                   {t('alarm.screens:addAlarm.spotifyPlaylist')}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             
             {alarmSound === 'radio' && (
