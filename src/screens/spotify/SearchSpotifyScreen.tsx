@@ -21,6 +21,7 @@ import { useTheme } from '../../hooks';
 import SpotifyAuthService from '../../services/SpotifyAuthService';
 import SpotifyService from '../../services/SpotifyService';
 import SpotifyDiagnosticModal from '../../components/common/SpotifyDiagnosticModal';
+import { useTranslation } from 'react-i18next';
 
 type RootStackParamList = {
   AddAlarm: undefined;
@@ -41,6 +42,7 @@ interface SearchSpotifyScreenProps {
 export const SearchSpotifyScreen: React.FC<SearchSpotifyScreenProps> = ({ route, navigation }) => {
   const { theme } = useTheme();
   const { onSelectPlaylist, selectedPlaylist } = route.params;
+  const { t } = useTranslation();
 
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -245,37 +247,48 @@ export const SearchSpotifyScreen: React.FC<SearchSpotifyScreenProps> = ({ route,
     setDiagnosticVisible(false);
   };
 
-  // Afficher un message si Spotify n'est pas disponible
-  if (!isSpotifyAvailable) {
+  // Si l'utilisateur n'est pas connecté, afficher un bouton de connexion
+  if (!authenticated && spotifyCheckCompleted) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>Spotify</Text>
-          <View style={{ width: 24 }} />
+          <Text style={[styles.title, { color: theme.text }]}>
+            Playlists Spotify
+          </Text>
+          <TouchableOpacity onPress={openDiagnosticModal} style={styles.rightHeader}>
+            <Ionicons name="information-circle-outline" size={24} color={theme.primary} />
+          </TouchableOpacity>
         </View>
         <View style={styles.centeredContent}>
           <Text style={[styles.messageText, { color: theme.text }]}>
-            {isLoadingSpotify 
-              ? "Vérification de Spotify en cours..." 
-              : "Spotify n'est pas disponible sur ce périphérique.\n\nVous devez utiliser un appareil physique avec l'application Spotify installée."}
+            {t('spotify:notConnected')}
           </Text>
+          <TouchableOpacity style={styles.connectButton} onPress={handleConnectToSpotify}>
+            <Text style={styles.connectButtonText}>
+              {t('spotify:connect')}
+            </Text>
+          </TouchableOpacity>
           
-          {!isLoadingSpotify && (
-            <TouchableOpacity 
-              onPress={resetAndRetry} 
-              style={[styles.retryButton, { backgroundColor: theme.primary }]}
-            >
-              <Text style={styles.connectButtonText}>Réessayer</Text>
-            </TouchableOpacity>
-          )}
-          
-          {isLoadingSpotify && (
-            <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />
-          )}
+          {/* Bouton de diagnostic visible */}
+          <TouchableOpacity 
+            style={[styles.connectButton, { backgroundColor: '#ff9800', marginTop: 20 }]} 
+            onPress={openDiagnosticModal}
+          >
+            <Text style={styles.connectButtonText}>
+              Diagnostic Spotify
+            </Text>
+          </TouchableOpacity>
         </View>
+        <SpotifyDiagnosticModal 
+          visible={diagnosticVisible} 
+          onClose={closeDiagnosticModal} 
+        />
       </SafeAreaView>
     );
   }

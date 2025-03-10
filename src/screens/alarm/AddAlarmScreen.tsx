@@ -10,6 +10,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp } from '@react-navigation/native';
@@ -20,6 +21,8 @@ import { Alarm, RadioStation, SpotifyPlaylist } from '../../types';
 import { TimeSelector } from '../../components/alarm/TimeSelector';
 import { DaySelector } from '../../components/alarm/DaySelector';
 import { useTheme, useAlarm } from '../../hooks';
+import SpotifyDiagnosticModal from '../../components/common/SpotifyDiagnosticModal';
+import SpotifyAuthService from '../../services/SpotifyAuthService';
 
 type RootStackParamList = {
   AlarmList: undefined;
@@ -61,6 +64,26 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
   const [radioStation, setRadioStation] = useState<RadioStation | null>(editingAlarm?.radioStation || null);
   const [spotifyPlaylist, setSpotifyPlaylist] = useState<SpotifyPlaylist | null>(editingAlarm?.spotifyPlaylist || null);
   const [alarmSound, setAlarmSound] = useState<'radio' | 'spotify'>(editingAlarm?.alarmSound || 'radio');
+  const [diagnosticVisible, setDiagnosticVisible] = useState(false);
+  // Ajouter un état pour suivre si une tentative d'authentification est en cours
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  // Ajouter un état pour stocker le résultat de la dernière vérification d'authentification
+  const [spotifyAuthenticated, setSpotifyAuthenticated] = useState<boolean | null>(null);
+
+  // Effet pour vérifier le statut d'authentification Spotify au chargement
+  useEffect(() => {
+    const checkSpotifyAuth = async () => {
+      try {
+        const hasToken = await SpotifyAuthService.hasValidToken();
+        setSpotifyAuthenticated(hasToken);
+      } catch (error) {
+        console.error('Erreur lors de la vérification du token Spotify:', error);
+        setSpotifyAuthenticated(false);
+      }
+    };
+    
+    checkSpotifyAuth();
+  }, []);
 
   // Naviguer vers l'écran de recherche de radio
   const navigateToRadioSearch = (): void => {
@@ -71,11 +94,88 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
   };
 
   // Naviguer vers l'écran de recherche de playlist Spotify
-  const navigateToSpotifySearch = (): void => {
-    navigation.navigate('SearchSpotify', {
-      onSelectPlaylist: handleSelectSpotifyPlaylist,
-      selectedPlaylist: spotifyPlaylist
-    });
+  const navigateToSpotifySearch = async (): Promise<void> => {
+    try {
+      // Éviter les tentatives multiples d'authentification
+      if (isAuthenticating) {
+        console.log('🔒 Authentification déjà en cours, ignorée');
+        return;
+      }
+
+      setIsAuthenticating(true);
+      
+      // Vérifier si l'utilisateur est déjà connecté à Spotify
+      const hasToken = await SpotifyAuthService.hasValidToken();
+      
+      if (hasToken) {
+        // L'utilisateur est authentifié, mettre à jour l'état et naviguer
+        setSpotifyAuthenticated(true);
+        console.log('✅ Token valide détecté, navigation vers la recherche Spotify');
+        navigation.navigate('SearchSpotify', {
+          onSelectPlaylist: handleSelectSpotifyPlaylist,
+          selectedPlaylist: spotifyPlaylist
+        });
+        setIsAuthenticating(false);
+        return;
+      }
+      
+      console.log('🔍 Utilisateur non connecté à Spotify, lancement du processus d\'authentification...');
+      
+      // Afficher une alerte simple pour informer l'utilisateur
+      Alert.alert(
+        'Connexion Spotify requise',
+        'Vous devez vous connecter à Spotify pour accéder à vos playlists. La fenêtre d\'authentification va s\'ouvrir.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+            onPress: () => {
+              setIsAuthenticating(false);
+            }
+          },
+          {
+            text: 'Se connecter',
+            onPress: async () => {
+              try {
+                // Utiliser directement authorizeAlternative qui est plus fiable
+                const success = await SpotifyAuthService.authorizeAlternative();
+                
+                if (success) {
+                  // Mise à jour de l'état d'authentification
+                  setSpotifyAuthenticated(true);
+                  
+                  // Notification de succès simple
+                  Alert.alert('Connexion réussie', 'Vous êtes maintenant connecté à Spotify');
+                  
+                  // Naviguer vers l'écran de recherche
+                  navigation.navigate('SearchSpotify', {
+                    onSelectPlaylist: handleSelectSpotifyPlaylist,
+                    selectedPlaylist: spotifyPlaylist
+                  });
+                } else {
+                  // En cas d'échec, afficher une alerte simple
+                  Alert.alert(
+                    'Échec de connexion',
+                    'Impossible de se connecter à Spotify. Veuillez réessayer ultérieurement.'
+                  );
+                }
+              } catch (error) {
+                console.error('Erreur lors de l\'authentification Spotify:', error);
+                Alert.alert(
+                  'Erreur',
+                  'Une erreur s\'est produite lors de la connexion à Spotify.'
+                );
+              } finally {
+                setIsAuthenticating(false);
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Erreur lors de la vérification de la connexion Spotify:', error);
+      setIsAuthenticating(false);
+    }
   };
 
   // Gérer la sélection d'une station de radio
@@ -159,6 +259,14 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
       console.error('Erreur lors de la sauvegarde de l\'alarme:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder l\'alarme.');
     }
+  };
+
+  const openDiagnosticModal = () => {
+    setDiagnosticVisible(true);
+  };
+
+  const closeDiagnosticModal = () => {
+    setDiagnosticVisible(false);
   };
 
   return (
@@ -306,35 +414,42 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
                   <View style={styles.selectedRadioContainer}>
                     <View style={styles.selectedRadioInfo}>
                       <Text style={[styles.radioName, { color: theme.text }]}>{spotifyPlaylist.name}</Text>
-                      <Text style={[styles.radioDetail, { color: theme.secondary }]}>
-                        {spotifyPlaylist.owner.display_name}
-                      </Text>
+                      {spotifyPlaylist.owner && typeof spotifyPlaylist.owner === 'string' ? (
+                        <Text style={[styles.radioDetail, { color: theme.secondary }]}>
+                          {spotifyPlaylist.owner}
+                        </Text>
+                      ) : spotifyPlaylist.owner && typeof spotifyPlaylist.owner === 'object' && 'display_name' in spotifyPlaylist.owner ? (
+                        <Text style={[styles.radioDetail, { color: theme.secondary }]}>
+                          {spotifyPlaylist.owner.display_name}
+                        </Text>
+                      ) : null}
                     </View>
                     <View style={styles.radioActions}>
                       <TouchableOpacity
-                        style={[styles.radioButton, { backgroundColor: '#1DB954' }]}
+                        style={[styles.radioButton, { backgroundColor: theme.primary }]}
                         onPress={navigateToSpotifySearch}
                       >
-                        <Ionicons name="swap-horizontal" size={18} color="#fff" />
+                        <Ionicons name="search" size={16} color="#fff" />
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.radioButton, { backgroundColor: theme.error }]}
                         onPress={handleClearSpotifyPlaylist}
                       >
-                        <Ionicons name="close" size={18} color="#fff" />
+                        <Ionicons name="close" size={16} color="#fff" />
                       </TouchableOpacity>
                     </View>
                   </View>
                 ) : (
-                  <TouchableOpacity
-                    style={[styles.selectSoundButton, { borderColor: '#1DB954' }]}
-                    onPress={navigateToSpotifySearch}
-                  >
-                    <Ionicons name="musical-notes" size={24} color="#1DB954" />
-                    <Text style={[styles.selectSoundText, { color: '#1DB954' }]}>
-                      {t('alarm.screens:addAlarm.selectSpotify')}
-                    </Text>
-                  </TouchableOpacity>
+                  <View style={styles.noRadioContainer}>
+                    <TouchableOpacity
+                      style={[styles.selectRadioButton, { backgroundColor: '#1DB954' }]}
+                      onPress={navigateToSpotifySearch}
+                    >
+                      <Text style={styles.selectRadioButtonText}>
+                        {t('alarm.screens:addAlarm.selectSpotifyPlaylist')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
               </>
             )}
@@ -415,6 +530,12 @@ export const AddAlarmScreen: React.FC<AddAlarmScreenProps> = ({ route, navigatio
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Modale de diagnostic Spotify */}
+      <SpotifyDiagnosticModal
+        visible={diagnosticVisible}
+        onClose={closeDiagnosticModal}
+      />
     </SafeAreaView>
   );
 };
@@ -602,6 +723,20 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#fff',
+    fontWeight: '500',
+  },
+  noRadioContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  selectRadioButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+  },
+  selectRadioButtonText: {
+    fontSize: 16,
     fontWeight: '500',
   },
 }); 
