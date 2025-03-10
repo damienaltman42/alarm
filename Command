@@ -1,0 +1,5 @@
+Prod : 
+    npx expo prebuild --clean
+    npx expo run:ios --configuration Release --device
+Local : 
+    npx expo run:ios --device   
