@@ -190,9 +190,14 @@ function checkAlarmShouldRing(alarm: any, now: Date, hours: number, minutes: num
   
   // Si l'alarme est répétitive, vérifier si le jour actuel est un jour de répétition
   const today = now.getDay(); // 0 = dimanche, 1 = lundi, etc.
-  const repeatDay = today === 0 ? 7 : today; // Convertir dimanche de 0 à 7 pour la compatibilité
+  const repeatDay = today; // Convertir dimanche de 0 à 7 pour la compatibilité
   
   // Vérifier si aujourd'hui est un jour configuré pour l'alarme
+  console.log('============================================');
+  console.log(today);
+  console.log('alarm.repeatDays', alarm.repeatDays);
+  console.log('repeatDay', repeatDay);
+  console.log('============================================');
   const isDayConfigured = alarm.repeatDays.includes(repeatDay);
   
   if (!isDayConfigured) {
