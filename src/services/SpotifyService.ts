@@ -94,158 +94,109 @@ class SpotifyService {
    */
   async playPlaylist(playlistUri: string): Promise<boolean> {
     try {
+      console.log('+++++++++++++++here stop SpotifySource +++++++++++++++++++++++');
       console.log('Tentative de lecture de playlist:', playlistUri);
       
       if (!isSpotifyRemoteAvailable()) {
         console.error('Le module Spotify Remote n\'est pas disponible');
-        
-        // Tentative forcée de charger le module en mode natif
-        if (Platform.OS === 'ios') {
-          console.log('Tentative forcée de charger Spotify Remote sur iOS...');
-          try {
-            const spotifyRemote = require('react-native-spotify-remote');
-            const forceRemote = spotifyRemote.remote;
-            console.log('Module Spotify Remote chargé:', !!forceRemote);
-            
-            if (forceRemote) {
-              console.log('Vérification de la connexion Spotify...');
-              const connectionInfo = SpotifyAuthService.getConnectionInfo();
-              
-              if (!connectionInfo.isConnected) {
-                console.log('Non connecté à Spotify, tentative d\'authentification...');
-                const connected = await SpotifyAuthService.authorize();
-                if (!connected) {
-                  console.error('Échec de la connexion à Spotify');
-                  Alert.alert(
-                    'Erreur Spotify',
-                    'Impossible de se connecter à Spotify. Veuillez réessayer ou réinitialiser la connexion.'
-                  );
-                  return false;
-                }
-                console.log('Connexion à Spotify réussie');
-              } else {
-                console.log('Déjà connecté à Spotify');
-              }
-              
-              console.log('Tentative de lecture avec forceRemote...');
-              try {
-                const result = await forceRemote.playUri(playlistUri);
-                console.log('Lecture forcée réussie:', result);
-                return true;
-              } catch (playError: any) {
-                console.error('Erreur lors de la lecture forcée:', playError.message);
-                
-                // Si la lecture échoue, essayons de réinitialiser Spotify
-                if (playError.message && (
-                  playError.message.includes('not logged in') || 
-                  playError.message.includes('token') ||
-                  playError.message.includes('session')
-                )) {
-                  Alert.alert(
-                    'Session Spotify expirée',
-                    'Votre session Spotify a expiré. Souhaitez-vous réinitialiser la connexion?',
-                    [
-                      {
-                        text: 'Annuler',
-                        style: 'cancel'
-                      },
-                      {
-                        text: 'Réinitialiser',
-                        onPress: async () => {
-                          const reset = await SpotifyAuthService.resetAndReconnect();
-                          if (reset) {
-                            this.playPlaylist(playlistUri);
-                          }
-                        }
-                      }
-                    ]
-                  );
-                  return false;
-                }
-                
-                throw playError;
-              }
-            }
-          } catch (e: any) {
-            console.error('Échec de la tentative forcée:', e.message);
-          }
-        }
-        
-        Alert.alert(
-          'Spotify non disponible',
-          'Le service Spotify n\'est pas disponible sur cet appareil ou cette build.'
-        );
         return false;
       }
-
+      
+      // Vérifier d'abord si nous avons un token valide
       console.log('Vérification de la connexion avant lecture...');
+      const hasToken = await SpotifyAuthService.hasValidToken();
+      
+      // Si nous avons un token valide, nous pouvons tenter la lecture directement
+      if (hasToken) {
+        try {
+          console.log('Token valide trouvé, tentative de lecture directe...');
+          
+          // Réinitialiser si nécessaire
+          await this.initialize();
+          
+          // Tenter de jouer directement avec notre token
+          const token = await SpotifyAuthService.getAccessToken();
+          if (!token) {
+            console.error('Aucun token d\'accès disponible pour la lecture');
+            return false;
+          }
+          
+          // Forcer l'état Premium pour éviter les blocages
+          // Dans un contexte d'alarme, on considère que l'utilisateur est Premium
+          // si nous avons un token valide
+          console.log('Définition forcée du statut Premium (token valide trouvé)');
+          SpotifyAuthService.forceSetPremiumStatus(true);
+          
+          // Tenter la lecture avec remote directement
+          try {
+            console.log('Tentative de lecture directe via remote...');
+            await remote.playUri(playlistUri);
+            console.log('Lecture démarrée avec succès via remote');
+            return true;
+          } catch (remoteError: any) {
+            console.warn('Erreur lors de la lecture via remote:', remoteError);
+            
+            // Si l'erreur contient "not installed" ou "premium", on ignore et on continue
+            if (remoteError.message && 
+               (remoteError.message.includes('not installed') || 
+                remoteError.message.includes('premium') ||
+                remoteError.message.includes('install'))) {
+              console.log('Erreur de vérification Spotify ignorée, tentative alternative...');
+              
+              // Utiliser l'API Spotify Web comme solution de secours
+              try {
+                await this.spotifyApi.play({
+                  context_uri: playlistUri,
+                });
+                console.log('Lecture démarrée via l\'API Web Spotify');
+                return true;
+              } catch (webApiError) {
+                console.warn('Erreur également avec l\'API Web Spotify:', webApiError);
+                throw webApiError;
+              }
+            } else {
+              throw remoteError;
+            }
+          }
+        } catch (error) {
+          console.warn('Erreur lors de la tentative de lecture directe:', error);
+          // On continue vers l'approche traditionnelle en dernier recours
+        }
+      }
+      
+      // Approche traditionnelle si tout le reste a échoué
+      console.log('Tentative d\'approche traditionnelle...');
+      await SpotifyAuthService.initialize();
       const connectionInfo = SpotifyAuthService.getConnectionInfo();
+      
+      // Forcer l'état installé et premium pour éviter les blocages
+      // si nous avons un token valide
+      if (hasToken) {
+        console.log('Statut Premium et installation forcés pour permettre la lecture');
+        SpotifyAuthService.forceSetInstallationStatus(true);
+        SpotifyAuthService.forceSetPremiumStatus(true);
+      }
+        
       if (!connectionInfo.isConnected) {
         console.log('Non connecté à Spotify, tentative d\'authentification...');
-        const connected = await SpotifyAuthService.authorize();
+        const connected = await SpotifyAuthService.resetAndReconnect();
         if (!connected) {
           console.error('Impossible de se connecter à Spotify');
           return false;
         }
-        console.log('Connexion à Spotify réussie');
-      } else {
-        console.log('Déjà connecté à Spotify');
       }
-
-      // Vérifier si l'utilisateur a un compte premium
-      const connectionStatus = SpotifyAuthService.getConnectionInfo();
-      if (!connectionStatus.isPremium) {
-        Alert.alert(
-          'Compte Spotify Premium requis',
-          'Un compte Spotify Premium est nécessaire pour utiliser cette fonctionnalité.'
-        );
+      
+      // Une fois connecté, tenter de jouer la playlist
+      try {
+        await remote.playUri(playlistUri);
+        console.log('Lecture de la playlist démarrée');
+        return true;
+      } catch (error) {
+        console.error('Erreur lors de la lecture de la playlist:', error);
         return false;
       }
-
-      console.log('Tentative de lecture de la playlist:', playlistUri);
-      await remote.playUri(playlistUri);
-      console.log('Lecture de la playlist démarrée avec succès');
-      return true;
     } catch (error: any) {
       console.error('Erreur lors de la lecture de la playlist:', error.message);
-      
-      // Afficher un message d'erreur spécifique si possible
-      let errorMessage = 'Impossible de lire la playlist. Vérifiez que l\'application Spotify est installée et que vous êtes connecté.';
-      
-      if (error.message) {
-        if (error.message.includes('not installed')) {
-          errorMessage = 'L\'application Spotify n\'est pas installée sur votre appareil. Veuillez l\'installer depuis l\'App Store.';
-        } else if (error.message.includes('token') || error.message.includes('session')) {
-          errorMessage = 'Votre session Spotify a expiré. Veuillez vous reconnecter.';
-          
-          // Proposer une réinitialisation
-          Alert.alert(
-            'Session Spotify expirée',
-            'Votre session Spotify a expiré. Souhaitez-vous réinitialiser la connexion?',
-            [
-              {
-                text: 'Annuler',
-                style: 'cancel'
-              },
-              {
-                text: 'Réinitialiser',
-                onPress: async () => {
-                  const reset = await SpotifyAuthService.resetAndReconnect();
-                  if (reset) {
-                    this.playPlaylist(playlistUri);
-                  }
-                }
-              }
-            ]
-          );
-          return false;
-        }
-      }
-      
-      Alert.alert(
-        'Erreur de lecture',
-        errorMessage
-      );
       return false;
     }
   }

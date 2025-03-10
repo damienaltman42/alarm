@@ -8,7 +8,9 @@ import {
   ScrollView, 
   Platform,
   SafeAreaView,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert,
+  Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SpotifyAuthService from '../../services/SpotifyAuthService';
@@ -109,6 +111,78 @@ const SpotifyDiagnosticModal: React.FC<SpotifyDiagnosticModalProps> = ({ visible
     }
   };
 
+  const testUrlScheme = async () => {
+    try {
+      setLoading(true);
+      const config = SpotifyAuthService.getConfig();
+      const redirectUrl = config.redirectUrl;
+      
+      console.log('🔗 Test du schéma d\'URL:', redirectUrl);
+      
+      // Vérifier si l'application peut ouvrir cette URL
+      const canOpenUrl = await Linking.canOpenURL(redirectUrl);
+      
+      if (canOpenUrl) {
+        Alert.alert(
+          'Test réussi',
+          `L'application peut ouvrir l'URL ${redirectUrl}, ce qui signifie que le schéma d'URL est correctement enregistré.`
+        );
+      } else {
+        Alert.alert(
+          'Problème détecté',
+          `L'application ne peut pas ouvrir l'URL ${redirectUrl}. Le schéma d'URL n'est peut-être pas correctement enregistré dans app.json.`
+        );
+      }
+    } catch (error: any) {
+      Alert.alert('Erreur', `Erreur lors du test: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const authAlternative = async () => {
+    try {
+      setLoading(true);
+      console.log('🔄 Test de l\'authentification alternative Spotify');
+      const result = await SpotifyAuthService.authorizeAlternative();
+      if (result) {
+        // Vérifier le statut premium après une authentification réussie
+        await SpotifyAuthService.checkPremiumStatus();
+        Alert.alert('Succès', 'L\'authentification alternative a réussi!');
+        // Fermer la modale après une connexion réussie pour permettre à l'utilisateur de continuer
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      } else {
+        Alert.alert('Échec', 'L\'authentification alternative a échoué.');
+      }
+      await runDiagnostics();
+    } catch (error: any) {
+      Alert.alert('Erreur', `Erreur lors de l'authentification alternative: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bouton pour tester la configuration
+  const testPremiumStatus = async () => {
+    try {
+      setLoading(true);
+      console.log('🔍 Test du statut Premium Spotify');
+      const result = await SpotifyAuthService.checkPremiumStatus();
+      if (result) {
+        Alert.alert('Succès', 'Le compte Spotify est Premium!');
+      } else {
+        Alert.alert('Attention', 'Le compte Spotify n\'est pas détecté comme Premium ou une erreur s\'est produite.');
+      }
+      await runDiagnostics();
+    } catch (error: any) {
+      Alert.alert('Erreur', `Erreur lors de la vérification du statut Premium: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -118,7 +192,7 @@ const SpotifyDiagnosticModal: React.FC<SpotifyDiagnosticModalProps> = ({ visible
     >
       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>
             Diagnostic Spotify
           </Text>
           <TouchableOpacity 
@@ -233,7 +307,7 @@ const SpotifyDiagnosticModal: React.FC<SpotifyDiagnosticModalProps> = ({ visible
               <View style={styles.infoRow}>
                 <Text style={[styles.infoLabel, { color: theme.secondary }]}>Test Config:</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={[styles.infoValue, { color: configTestResult.includes('Erreur') || configTestResult === 'Non testé' ? theme.error : theme.success }]}>
+                  <Text style={[styles.configResult, { color: configTestResult.includes('Erreur') || configTestResult === 'Non testé' ? theme.error : theme.success }]}>
                     {configTestResult}
                   </Text>
                   <TouchableOpacity 
@@ -249,26 +323,67 @@ const SpotifyDiagnosticModal: React.FC<SpotifyDiagnosticModalProps> = ({ visible
                   </TouchableOpacity>
                 </View>
               </View>
+              
               <View style={styles.infoRow}>
-                <Text style={[styles.infoLabel, { color: theme.secondary }]}>Redirect URL:</Text>
-                <Text style={[styles.infoValue, { color: theme.text }]}>{SpotifyAuthService.getConfig().redirectUrl}</Text>
+                <Text style={[styles.infoLabel, { color: theme.secondary }]}>Test URL:</Text>
+                <TouchableOpacity 
+                  onPress={testUrlScheme} 
+                  style={[styles.testButton, { backgroundColor: theme.accent }]}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.testButtonText}>Tester URL</Text>
+                  )}
+                </TouchableOpacity>
               </View>
             </View>
 
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                onPress={runDiagnostics}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity 
+                style={[styles.actionButton, {backgroundColor: theme.primary}]}
+                onPress={handleReset}
+                disabled={loading}
               >
-                <Text style={styles.actionButtonText}>Actualiser le diagnostic</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Réinitialiser</Text>
+                )}
               </TouchableOpacity>
               
-              <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: '#1DB954', marginTop: 12 }]}
-                onPress={handleReset}
+              <TouchableOpacity 
+                style={[styles.actionButton, {backgroundColor: theme.accent}]}
+                onPress={authAlternative}
+                disabled={loading}
               >
-                <Text style={styles.actionButtonText}>Réinitialiser Spotify</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Auth Alternative</Text>
+                )}
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.infoSection}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                Vérification du statut Premium
+              </Text>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, { color: theme.secondary }]}>Test Premium:</Text>
+                <TouchableOpacity 
+                  onPress={testPremiumStatus}
+                  style={[styles.testButton, { backgroundColor: theme.accent }]}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.buttonText}>Vérifier</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         ) : (
@@ -299,12 +414,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    borderBottomColor: '#eee',
   },
-  title: {
-    fontSize: 20,
+  headerTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
   },
   closeButton: {
@@ -327,47 +442,51 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 12,
   },
   infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    marginBottom: 8,
   },
   infoLabel: {
     fontSize: 16,
-    fontWeight: '500',
+    flex: 1,
   },
   infoValue: {
     fontSize: 16,
+    fontWeight: '500',
+    flex: 2,
   },
   tokenContainer: {
-    marginTop: 12,
+    marginTop: 8,
   },
   tokenValue: {
     fontSize: 14,
-    marginTop: 4,
-    padding: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    padding: 8,
+    backgroundColor: '#f5f5f5',
     borderRadius: 5,
   },
-  actionsContainer: {
+  buttonContainer: {
     marginTop: 30,
     marginBottom: 40,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   actionButton: {
+    backgroundColor: '#0077FF',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '45%',
   },
   actionButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -384,19 +503,31 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   testButton: {
-    backgroundColor: '#1DB954',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    marginLeft: 8,
-    justifyContent: 'center',
+    backgroundColor: '#2196F3',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
     alignItems: 'center',
-    minWidth: 60,
+    justifyContent: 'center',
   },
   testButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  configResult: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 5,
+  },
+  configResultText: {
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: 14,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 
