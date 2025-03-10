@@ -19,7 +19,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rhythmee.app",
+      "bundleIdentifier": "com.rhythmee.ios",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1E1E2E"
       },
-      "package": "com.rhythmee.app",
+      "package": "com.rhythmee.ios",
       "permissions": [
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
