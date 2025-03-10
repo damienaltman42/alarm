@@ -442,15 +442,10 @@ async function activateSilentAudioMode() {
     logEvent('Tentative avec méthode 1: Fichier MP3 silencieux local');
     try {
       const sound = new Audio.Sound();
-      logEvent('Chargement du fichier MP3 silencieux depuis les assets');
+     
       await sound.loadAsync(require('../../../assets/sounds/silent.mp3'));
-      logEvent('Fichier MP3 silencieux chargé avec succès');
-      
       await sound.setIsLoopingAsync(true);
-      logEvent('Mode boucle activé');
-      
       await sound.setVolumeAsync(0.0001);  // Volume minimum pour éviter la consommation de batterie
-      logEvent('Volume défini au minimum pour économiser la batterie');
       
       // Configurer l'événement de statut pour le monitoring
       sound.setOnPlaybackStatusUpdate((status) => {
@@ -466,17 +461,13 @@ async function activateSilentAudioMode() {
         }
       });
       
-      logEvent('Démarrage de la lecture audio locale...');
       await sound.playAsync();
-      logEvent('Lecture audio locale démarrée avec succès');
       
       global.silentAudioPlayer = sound;
-      logEvent('✅ Méthode 1 réussie: Audio silencieux démarré avec fichier MP3 local');
     }
     catch (method1Error) {
       // MÉTHODE 2: Utiliser l'URL distante (consomme plus d'énergie)
       logEvent('❌ Échec méthode 1 (fichier local)', method1Error);
-      logEvent('Tentative avec méthode 2: URL distante');
       
       try {
         // Créer un silence via l'URL distante
@@ -498,8 +489,6 @@ async function activateSilentAudioMode() {
               if (AppState.currentState === 'active') {
                 stopSilentAudioMode();
               }
-            } else {
-              logEvent('⚠️ Audio URL chargé mais pas en lecture');
             }
           } else if (status.error) {
             logEvent(`❌ Erreur de lecture URL: ${status.error}`);
@@ -507,13 +496,10 @@ async function activateSilentAudioMode() {
         });
         
         global.silentAudioPlayer = sound;
-        logEvent('✅ Méthode 2 réussie: Audio silencieux démarré avec URL distante');
       }
       catch (method2Error) {
         // MÉTHODE 3: Dernière tentative avec l'API native
         logEvent('❌ Échec méthode 2 (URL distante)', method2Error);
-        logEvent('Tentative avec méthode 3: API AVAudioSession native');
-        
         try {
           // @ts-ignore - Accès direct à l'API native pour iOS
           if (NativeModules.ExpoAV && NativeModules.ExpoAV.setAudioSessionActive) {
@@ -569,19 +555,15 @@ export async function stopSilentAudioMode() {
     if (global.silentAudioPlayer && typeof global.silentAudioPlayer.stopAsync === 'function') {
       try {
         await global.silentAudioPlayer.stopAsync();
-        logEvent('✅ Lecture audio stoppée');
-        
         // Petite pause pour éviter les problèmes de timing
         await new Promise(resolve => setTimeout(resolve, 50));
         
         if (global.silentAudioPlayer && typeof global.silentAudioPlayer.unloadAsync === 'function') {
           await global.silentAudioPlayer.unloadAsync();
-          logEvent('✅ Ressources audio libérées');
         }
         
         // Réinitialiser proprement la référence
         global.silentAudioPlayer = null;
-        logEvent('✅ Lecture audio silencieuse arrêtée avec succès');
       } catch (error) {
         logEvent('❌ ERREUR lors de l\'arrêt de l\'audio silencieux', error);
         // S'assurer que la référence est bien nulle même en cas d'erreur
