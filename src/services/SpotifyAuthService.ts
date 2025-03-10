@@ -1,16 +1,14 @@
-// Importations conditionnelles pour éviter les erreurs dans Expo Go
+// Suppression des importations de react-native-spotify-remote
 let auth: any = null;
 let remote: any = null;
 let spotifyModulesLoaded = false;
 
 try {
-  const spotifyRemote = require('react-native-spotify-remote');
-  auth = spotifyRemote.auth;
-  remote = spotifyRemote.remote;
-  spotifyModulesLoaded = true;
-  console.log('Module Spotify chargé avec succès:', !!auth, !!remote);
+  // Nous n'utilisons plus react-native-spotify-remote
+  spotifyModulesLoaded = false;
+  console.log('Module Spotify Remote non utilisé');
 } catch (error: any) {
-  console.warn('Erreur lors du chargement du module Spotify:', error.message);
+  console.warn('Erreur:', error.message);
 }
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -62,9 +60,7 @@ checkSpotifyRedirectConfig();
 
 // Vérifier si les modules Spotify sont disponibles
 const isSpotifySDKAvailable = () => {
-  const result = spotifyModulesLoaded && auth !== null && remote !== null;
-  console.log('Vérification disponibilité SDK Spotify:', result);
-  return result;
+  return false; // react-native-spotify-remote n'est plus disponible
 };
 
 class SpotifyAuthService {
@@ -91,8 +87,8 @@ class SpotifyAuthService {
         if (Platform.OS === 'ios') {
           // Sur un appareil réel, essayons de forcer l'initialisation
           try {
-            const spotifyRemote = require('react-native-spotify-remote');
-            console.log('Tentative forcée de charger Spotify:', !!spotifyRemote.auth, !!spotifyRemote.remote);
+            // Nous n'utilisons plus react-native-spotify-remote
+            console.log('Tentative forcée de charger Spotify: false');
           } catch (error: any) {
             console.error('Erreur lors de la tentative forcée:', error.message);
           }
@@ -507,11 +503,8 @@ class SpotifyAuthService {
       try {
         if (Platform.OS === 'ios') {
           console.log('Tentative de recharger le module Spotify...');
-          const spotifyRemote = require('react-native-spotify-remote');
-          auth = spotifyRemote.auth; 
-          remote = spotifyRemote.remote;
-          spotifyModulesLoaded = !!(auth && remote);
-          console.log('Module Spotify rechargé:', spotifyModulesLoaded);
+          // Nous n'utilisons plus react-native-spotify-remote
+          console.log('Module Spotify rechargé: false');
         }
       } catch (reloadError) {
         console.warn('Erreur lors du rechargement du module:', reloadError);

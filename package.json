@@ -7,7 +7,10 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "echo 'Installation terminée. Pour éviter les avertissements, utilisez toujours npm install avec --legacy-peer-deps'",
+    "clean": "rm -rf node_modules && npm cache clean --force",
+    "setup": "npm run clean && npm install"
   },
   "dependencies": {
     "@expo/config-plugins": "^9.0.16",
@@ -20,6 +23,7 @@
     "@react-navigation/native": "^7.0.15",
     "@react-navigation/native-stack": "^7.2.1",
     "@react-navigation/stack": "^7.1.2",
+    "axios": "^1.8.2",
     "expo": "~52.0.37",
     "expo-av": "~15.0.2",
     "expo-background-fetch": "^13.0.5",
@@ -29,32 +33,28 @@
     "expo-status-bar": "~2.0.1",
     "expo-task-manager": "^12.0.5",
     "i18next": "^24.2.2",
-    "i18next-browser-languagedetector": "^8.0.4",
-    "i18next-react-native-language-detector": "^1.0.2",
     "react": "18.3.1",
     "react-i18next": "^15.4.1",
     "react-native": "0.76.7",
     "react-native-background-timer": "^2.4.1",
-    "react-native-events": "^1.0.21",
     "react-native-gesture-handler": "~2.20.2",
-    "react-native-locale-detector": "^1.0.1",
     "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "^4.12.0",
     "react-native-screens": "~4.4.0",
-    "react-native-spotify-remote": "^0.3.10",
-    "react-native-svg": "^15.11.2",
+    "react-native-svg": "15.8.0",
     "react-native-track-player": "^4.1.1",
     "spotify-web-api-js": "^1.5.2",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@testing-library/jest-native": "^5.4.3",
+    "@babel/plugin-transform-class-properties": "^7.23.3",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.23.4",
+    "@babel/plugin-transform-optional-chaining": "^7.23.4",
     "@testing-library/react-native": "^13.1.0",
     "@types/jest": "^29.5.14",
     "@types/react": "~18.3.12",
-    "@types/react-native": "^0.73.0",
     "expo-module-scripts": "^4.0.4",
     "jest": "^29.7.0",
     "jest-expo": "^52.0.5",
@@ -67,7 +67,7 @@
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
     ],
     "setupFilesAfterEnv": [
-      "@testing-library/jest-native/extend-expect"
+      "./jest.setup.js"
     ],
     "moduleFileExtensions": [
       "ts",

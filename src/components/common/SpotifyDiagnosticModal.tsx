@@ -48,9 +48,9 @@ const SpotifyDiagnosticModal: React.FC<SpotifyDiagnosticModalProps> = ({ visible
       // Vérifier si les modules Spotify sont disponibles
       let spotifySDKAvailable = false;
       try {
-        const spotifyRemote = require('react-native-spotify-remote');
-        spotifySDKAvailable = !!(spotifyRemote.auth && spotifyRemote.remote);
-        console.log('Module Spotify chargé avec succès:', spotifySDKAvailable);
+        // Nous n'utilisons plus react-native-spotify-remote
+        spotifySDKAvailable = false;
+        console.log('Module Spotify Remote non utilisé');
       } catch (error) {
         console.warn('Modules Spotify non disponibles:', error);
       }

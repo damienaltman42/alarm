@@ -62,3 +62,47 @@ logs/
 .env.development
 .env.test
 .env.production
+
+# OSX
+.DS_Store
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build artifacts
+android/app/build
+android/build
+android/app/release
+ios/Pods/
+ios/build/
+
+# Environment variables
+.env
+.env.*
+
+# Tests
+coverage/
+.jest/
+__snapshots__/
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temp files
+.tmp
+.temp

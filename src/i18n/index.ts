@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import RNLanguageDetector from 'i18next-react-native-language-detector';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, NativeModules } from 'react-native';
 
@@ -118,7 +117,6 @@ const defaultLanguage = SUPPORTED_LANGUAGES.includes(systemLanguage) ? systemLan
 
 // Initialisation de i18next
 i18n
-  .use(RNLanguageDetector) // Détection de la langue du système
   .use(initReactI18next)    // Intégration avec React
   .init({
     resources,

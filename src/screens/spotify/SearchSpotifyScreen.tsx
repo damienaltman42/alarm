@@ -68,12 +68,12 @@ export const SearchSpotifyScreen: React.FC<SearchSpotifyScreenProps> = ({ route,
 
     // Détection d'appareil iOS pour forcer l'initialisation
     if (Platform.OS === 'ios') {
-      console.log('Appareil iOS détecté, tentative d\'initialisation forcée');
+      console.log('Appareil iOS détecté, mais react-native-spotify-remote n\'est plus utilisé');
       try {
-        const spotifyRemote = require('react-native-spotify-remote');
-        console.log('Module Spotify chargé manuellement:', !!spotifyRemote.auth);
+        // Nous n'utilisons plus react-native-spotify-remote
+        console.log('Module Spotify Remote non utilisé');
       } catch (error) {
-        console.error('Erreur lors du chargement manuel de Spotify:', error);
+        console.error('Erreur:', error);
       }
     }
 
