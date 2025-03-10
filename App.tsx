@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
-import { AppState, AppStateStatus, Platform } from 'react-native';
+import { AppState, AppStateStatus, Platform, Linking, Alert } from 'react-native';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { alarmManager } from './src/services/alarm/alarmManager';
 import { ThemeProvider } from './src/contexts/ThemeContext';
@@ -13,6 +13,7 @@ import TrackPlayer from 'react-native-track-player';
 import { stopSilentAudioMode } from './src/services/notification/BackgroundNotificationService';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import './src/i18n'; // Importer la configuration i18n
+import SpotifyAuthService from './src/services/SpotifyAuthService';
 
 /**
  * Component principal de l'application
@@ -122,6 +123,84 @@ export default function App() {
     return () => {
       // Nettoyer les ressources de l'AlarmManager
       alarmManager.cleanup();
+    };
+  }, []);
+
+  // Vérifier s'il y a une configuration de gestion d'URL profonde pour Spotify
+  useEffect(() => {
+    // Fonction pour gérer les URL entrantes
+    const handleDeepLink = async (event: { url: string }) => {
+      const { url } = event;
+      console.log('🔗 URL profonde reçue:', url);
+      
+      // Vérifier si l'URL est une redirection de Spotify
+      if (url.includes('spotify-auth-callback')) {
+        console.log('🎵 Redirection Spotify détectée:', url);
+        
+        // Extraire le code d'autorisation
+        const code = url.includes('code=') 
+          ? url.split('code=')[1].split('&')[0] 
+          : null;
+        
+        console.log('🔑 Code d\'autorisation Spotify:', code);
+        
+        if (code) {
+          try {
+            // Traiter directement le code d'autorisation
+            console.log('🔄 Traitement du code d\'autorisation Spotify...');
+            const success = await SpotifyAuthService.handleAuthorizationCode(code);
+            
+            if (success) {
+              console.log('✅ Authentification Spotify réussie');
+              // Afficher un message de succès
+              Alert.alert(
+                'Authentification réussie',
+                'Vous êtes maintenant connecté à Spotify'
+              );
+            } else {
+              console.error('❌ Échec de l\'authentification Spotify avec le code');
+              // Afficher un message d'erreur
+              Alert.alert(
+                'Erreur d\'authentification',
+                'Impossible de se connecter à Spotify. Veuillez réessayer.'
+              );
+              // Tentative de restauration en cas d'échec
+              await SpotifyAuthService.resetAndReconnect();
+            }
+          } catch (error) {
+            console.error('❌ Erreur lors du traitement de la redirection Spotify:', error);
+            Alert.alert(
+              'Erreur d\'authentification',
+              'Une erreur est survenue lors de l\'authentification Spotify.'
+            );
+          }
+        } else {
+          console.error('❌ Code d\'autorisation manquant dans l\'URL de redirection Spotify');
+          Alert.alert(
+            'Authentification incomplète',
+            'Le code d\'autorisation est manquant. Vérifiez que les redirections sont correctement configurées.'
+          );
+        }
+      }
+    };
+
+    // Ajouter un écouteur pour les URL profondes lorsque l'application est déjà ouverte
+    console.log('📱 Ajout de l\'écouteur d\'URL profondes');
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    // Vérifier s'il y a une URL initiale (si l'application a été ouverte via une URL)
+    Linking.getInitialURL().then(initialUrl => {
+      console.log('🔍 Vérification de l\'URL initiale:', initialUrl);
+      if (initialUrl) {
+        console.log('🔗 URL initiale détectée:', initialUrl);
+        handleDeepLink({ url: initialUrl });
+      }
+    });
+
+    // Nettoyer l'écouteur à la fin
+    return () => {
+      console.log('🧹 Suppression de l\'écouteur d\'URL profondes');
+      subscription.remove();
     };
   }, []);
 
