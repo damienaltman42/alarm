@@ -80,14 +80,14 @@ export const AlarmRingingScreen: React.FC<AlarmRingingScreenProps> = ({ route })
       const minutesText = alarm.snoozeInterval === 1 ? t('alarm:time.minute') : t('alarm:time.minutes');
       
       // Afficher un message de confirmation
-      Alert.alert(
-        t('alarm:triggers.snoozed'),
-        t('alarm:triggers.snoozedMessage', { 
-          minutes: alarm.snoozeInterval, 
-          minutesText: minutesText 
-        }),
-        [{ text: "OK" }]
-      );
+      // Alert.alert(
+      //   t('alarm:triggers.snoozed'),
+      //   t('alarm:triggers.snoozedMessage', { 
+      //     minutes: alarm.snoozeInterval, 
+      //     minutesText: minutesText 
+      //   }),
+      //   [{ text: "OK" }]
+      // );
       
       // Retourner à l'écran principal
       navigation.reset({

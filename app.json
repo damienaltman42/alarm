@@ -23,8 +23,11 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
+          "remote-notification",
+          "audio",
           "remote-notification"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -54,7 +57,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "rhythmee"
+        "projectId": "7e91be1a-136b-4d77-9bf8-d37412a3895a"
       }
     },
     "owner": "akoubayo",
