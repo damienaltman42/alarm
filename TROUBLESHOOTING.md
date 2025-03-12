@@ -1,4 +1,4 @@
-# Guide de dépannage pour Aurora Wake
+# Guide de dépannage pour rhythmee
 
 Ce document répertorie les problèmes courants rencontrés lors du développement et leurs solutions.
 

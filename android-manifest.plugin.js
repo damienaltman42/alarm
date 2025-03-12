@@ -10,11 +10,11 @@ const withForegroundService = (config) => {
 
     const mainApplication = AndroidConfig.Manifest.getMainApplicationOrThrow(manifest);
 
-    // Ajouter le service de premier plan pour notifee
+    // Ajouter le service de premier plan pour la lecture audio en arrière-plan
     mainApplication["service"] = mainApplication["service"] || [];
     mainApplication["service"].push({
       $: {
-        "android:name": "app.notifee.core.ForegroundService",
+        "android:name": "com.rhythmee.ios.services.MediaPlaybackService",
         "android:foregroundServiceType": "mediaPlayback",
         "tools:replace": "android:foregroundServiceType",
       },

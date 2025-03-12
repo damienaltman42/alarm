@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -10,6 +10,8 @@ import {
   Alert,
   Platform,
   Animated,
+  AppState,
+  AppStateStatus
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -43,34 +45,80 @@ export const SleepTimerScreen = ({ navigation }: any) => {
   const [maxSeconds, setMaxSeconds] = useState(600); // 10 minutes par défaut
   // Pour forcer l'animation à s'afficher même si isActive est false
   const [timerRunning, setTimerRunning] = useState(false);
+  // Suivre l'état de l'application
+  const [appState, setAppState] = useState(AppState.currentState);
   
   // Animation pour les transitions
   const fadeAnim = useState(new Animated.Value(1))[0];
+  // Garder une référence aux animations
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+  
+  // Gestionnaire d'état de l'application
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      console.log(`[SleepTimerScreen] App state changed from ${appState} to ${nextAppState}`);
+      
+      if (nextAppState === 'background') {
+        // Arrêter toutes les animations en cours pour éviter les crashs
+        if (animationRef.current) {
+          animationRef.current.stop();
+          animationRef.current = null;
+        }
+      }
+      
+      setAppState(nextAppState);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
   
   // Mettre à jour totalSeconds quand remainingMs change
   useEffect(() => {
+    // Ne pas démarrer de nouvelles animations si l'app est en arrière-plan
+    if (appState === 'background') {
+      setTotalSeconds(Math.floor(remainingMs / 1000));
+      setTimerRunning(remainingMs > 0);
+      return;
+    }
+    
     if (remainingMs > 0) {
       console.log('[SleepTimerScreen] Temps restant mis à jour:', remainingMs);
       setTotalSeconds(Math.floor(remainingMs / 1000));
       setTimerRunning(true);
       
-      // Animation de transition
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0.7,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        })
-      ]).start();
+      // Arrêter toute animation précédente
+      if (animationRef.current) {
+        animationRef.current.stop();
+      }
+      
+      // Animation de transition (uniquement si l'app est active)
+      if (appState === 'active') {
+        try {
+          const animation = Animated.sequence([
+            Animated.timing(fadeAnim, {
+              toValue: 0.7,
+              duration: 150,
+              useNativeDriver: true,
+            }),
+            Animated.timing(fadeAnim, {
+              toValue: 1,
+              duration: 300,
+              useNativeDriver: true,
+            })
+          ]);
+          
+          animationRef.current = animation;
+          animation.start();
+        } catch (error) {
+          console.error('[SleepTimerScreen] Erreur d\'animation:', error);
+        }
+      }
     } else {
       setTimerRunning(false);
     }
-  }, [remainingMs, fadeAnim]);
+  }, [remainingMs, fadeAnim, appState]);
 
   // Formater le temps pour l'affichage
   const formatDisplayTime = () => {
@@ -99,19 +147,30 @@ export const SleepTimerScreen = ({ navigation }: any) => {
     }
     
     try {
-      // Animation de transition
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0.5,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-        })
-      ]).start();
+      // Ne pas démarrer d'animations si l'app est en arrière-plan
+      if (appState === 'active') {
+        // Arrêter toute animation précédente
+        if (animationRef.current) {
+          animationRef.current.stop();
+        }
+        
+        // Animation de transition
+        const animation = Animated.sequence([
+          Animated.timing(fadeAnim, {
+            toValue: 0.5,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          })
+        ]);
+        
+        animationRef.current = animation;
+        animation.start();
+      }
       
       // Sauvegarder le max pour l'affichage du cercle
       const totalSecs = hours * 3600 + minutes * 60 + seconds;
@@ -139,25 +198,36 @@ export const SleepTimerScreen = ({ navigation }: any) => {
         t('sleep:timer.errors.startFailed')
       );
     }
-  }, [hours, minutes, seconds, fadeAnim, t]);
+  }, [hours, minutes, seconds, fadeAnim, t, appState]);
   
   // Gérer l'arrêt du timer
   const handleStopTimer = useCallback(() => {
     console.log('[SleepTimerScreen] Arrêt du timer');
     try {
-      // Animation de transition
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0.5,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-        })
-      ]).start();
+      // Ne pas démarrer d'animations si l'app est en arrière-plan
+      if (appState === 'active') {
+        // Arrêter toute animation précédente
+        if (animationRef.current) {
+          animationRef.current.stop();
+        }
+        
+        // Animation de transition
+        const animation = Animated.sequence([
+          Animated.timing(fadeAnim, {
+            toValue: 0.5,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          })
+        ]);
+        
+        animationRef.current = animation;
+        animation.start();
+      }
       
       stopTimer();
       // Réinitialiser les compteurs
@@ -166,10 +236,16 @@ export const SleepTimerScreen = ({ navigation }: any) => {
     } catch (error) {
       console.error('[SleepTimerScreen] Erreur lors de l\'arrêt du timer:', error);
     }
-  }, [stopTimer, fadeAnim]);
+  }, [stopTimer, fadeAnim, appState]);
 
   // Vérifier si une radio est en lecture
   const isRadioPlaying = !!currentPlayingStation?.name;
+
+  // Simplifier le rendu en arrière-plan pour éviter les problèmes
+  if (appState === 'background') {
+    // Ne rien rendre quand l'app est en arrière-plan
+    return null;
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>

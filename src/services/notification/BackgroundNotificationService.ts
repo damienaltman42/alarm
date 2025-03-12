@@ -5,9 +5,12 @@ import { alarmStorage } from '../alarm/alarmStorage';
 import { alarmManager } from '../alarm/alarmManager';
 import i18n from '../../i18n';
 
+// Définir le type du Sound pour satisfaire TypeScript
+type ExpoSound = Audio.Sound;
+
 // Ajouter au début du fichier, avant les imports
 declare global {
-  var silentAudioPlayer: any;
+  var silentAudioPlayer: ExpoSound | null;
   var lastTriggeredAlarms: Record<string, boolean>;
   var _stoppingSilentAudio: boolean;
 }
@@ -268,20 +271,12 @@ function startAlarmChecker(checkIntervalSeconds: number = 30) {
   // Vérifier immédiatement
   checkAlarms();
   
-  // Configurer la vérification périodique
-  if (Platform.OS === 'ios') {
-    // Sur iOS, utiliser BackgroundTimer pour continuer en arrière-plan
-    alarmCheckIntervalId = BackgroundTimer.setInterval(
-      checkAlarms,
-      checkIntervalSeconds * 1000
-    );
-  } else {
-    // Sur Android, un intervalle normal suffit
-    alarmCheckIntervalId = setInterval(
-      checkAlarms,
-      checkIntervalSeconds * 1000
-    ) as unknown as number;
-  }
+  // Configurer la vérification périodique en utilisant BackgroundTimer pour les deux plateformes
+  // Cela permet de garantir que les vérifications fonctionnent en arrière-plan
+  alarmCheckIntervalId = BackgroundTimer.setInterval(
+    checkAlarms,
+    checkIntervalSeconds * 1000
+  );
 }
 
 /**
@@ -291,7 +286,8 @@ function stopAlarmChecker() {
   logEvent(i18n.t('notification:alarmCheck.stop'));
   
   if (alarmCheckIntervalId !== null) {
-    clearInterval(alarmCheckIntervalId);
+    // Utiliser BackgroundTimer.clearInterval pour les deux plateformes
+    BackgroundTimer.clearInterval(alarmCheckIntervalId);
     alarmCheckIntervalId = null;
   } else {
     logEvent('⚠️ Le vérificateur d\'alarmes n\'est pas en cours d\'exécution');
@@ -335,6 +331,12 @@ export function initNotificationService() {
     
     initSilentAudioMode();
     increaseiOSAppVisibility();
+  } else if (Platform.OS === 'android') {
+    // Configuration spécifique à Android
+    logEvent('Configuration Android spécifique');
+    
+    // Initialisation du mode audio pour Android
+    initAndroidBackgroundMode();
   }
   
   logEvent('Configuration du vérificateur d\'alarmes');
@@ -372,22 +374,125 @@ export function initNotificationService() {
             }, 100);
           });
         }
+      } else if (Platform.OS === 'android' && !alarmAudioStarted) {
+        // Pour Android, activer le mode audio d'arrière-plan
+        if (AppState.currentState === 'background') {
+          activateAndroidBackgroundMode();
+        }
       }
     } else {
       // L'application est redevenue active
       logEvent('✅ App revenue au premier plan');
       
       // Arrêter l'audio silencieux car nous n'en avons plus besoin en mode actif
-      stopSilentAudioMode().then(() => {
-        // Vérifier les alarmes immédiatement
-        setTimeout(() => {
-          if (AppState.currentState === 'active') {
-            checkAlarms();
-          }
-        }, 200);
-      });
+      if (Platform.OS === 'ios') {
+        stopSilentAudioMode().then(() => {
+          // Vérifier les alarmes immédiatement
+          setTimeout(() => {
+            if (AppState.currentState === 'active') {
+              checkAlarms();
+            }
+          }, 200);
+        });
+      } else if (Platform.OS === 'android') {
+        stopAndroidBackgroundMode().then(() => {
+          // Vérifier les alarmes immédiatement
+          setTimeout(() => {
+            if (AppState.currentState === 'active') {
+              checkAlarms();
+            }
+          }, 200);
+        });
+      }
     }
   });
+}
+
+/**
+ * Initialise le mode arrière-plan pour Android
+ */
+async function initAndroidBackgroundMode() {
+  logEvent('⚙️ Initialisation du mode arrière-plan pour Android');
+  
+  try {
+    // Configurer l'audio pour l'arrière-plan
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,  // Ceci est ignoré sur Android
+      staysActiveInBackground: true,
+      // Configurer pour Android
+      shouldDuckAndroid: false,
+    });
+    
+    // Démarrer un timer en arrière-plan pour maintenir l'application active
+    if (keepAliveTimer === null) {
+      keepAliveTimer = BackgroundTimer.setInterval(() => {
+        if (AppState.currentState === 'background') {
+          logEvent('🔄 Maintien de l\'activité en arrière-plan sur Android');
+          // Vous pouvez ajouter des tâches légères ici pour maintenir l'application active
+        }
+      }, 20000); // Toutes les 20 secondes
+    }
+    
+    logEvent('✅ Mode arrière-plan Android initialisé avec succès');
+  } catch (error) {
+    logEvent('❌ ERREUR lors de l\'initialisation du mode arrière-plan Android', error);
+  }
+}
+
+/**
+ * Active le mode arrière-plan pour Android
+ */
+async function activateAndroidBackgroundMode() {
+  logEvent('🔄 Activation du mode arrière-plan Android');
+  
+  try {
+    // S'assurer que le mode audio est configuré pour l'arrière-plan
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,  // Ignoré sur Android
+      staysActiveInBackground: true,
+      shouldDuckAndroid: false,
+    });
+    
+    // Réinitialiser le timer de maintien en vie si nécessaire
+    if (keepAliveTimer !== null) {
+      BackgroundTimer.clearInterval(keepAliveTimer);
+    }
+    
+    keepAliveTimer = BackgroundTimer.setInterval(() => {
+      if (AppState.currentState === 'background') {
+        const now = new Date().toISOString();
+        logEvent(`[${now}] Maintien de l'activité Android en arrière-plan`);
+        
+        // Vérifier les alarmes régulièrement
+        checkAlarms();
+      }
+    }, 25000); // Toutes les 25 secondes
+    
+    logEvent('✅ Mode arrière-plan Android activé');
+  } catch (error) {
+    logEvent('❌ ERREUR lors de l\'activation du mode arrière-plan Android', error);
+  }
+}
+
+/**
+ * Arrête le mode arrière-plan pour Android
+ */
+async function stopAndroidBackgroundMode() {
+  logEvent('🛑 Arrêt du mode arrière-plan Android');
+  
+  try {
+    // Arrêter le timer de maintien en vie
+    if (keepAliveTimer !== null) {
+      BackgroundTimer.clearInterval(keepAliveTimer);
+      keepAliveTimer = null;
+    }
+    
+    logEvent('✅ Mode arrière-plan Android arrêté');
+    return true;
+  } catch (error) {
+    logEvent('❌ ERREUR lors de l\'arrêt du mode arrière-plan Android', error);
+    return false;
+  }
 }
 
 /**

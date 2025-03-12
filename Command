@@ -3,3 +3,7 @@ Prod :
     npx expo run:ios --configuration Release --device
 Local : 
     npx expo run:ios --device   
+
+To publish :
+    npx eas prebuild
+    npx eas build --platform ios --profile development
