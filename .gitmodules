@@ -1,0 +1,3 @@
+[submodule "KotlinAudio"]
+	path = KotlinAudio
+	url = https://github.com/doublesymmetry/KotlinAudio.git
