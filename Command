@@ -5,5 +5,11 @@ Local :
     npx expo run:ios --device   
 
 To publish :
-    npx eas prebuild
-    npx eas build --platform ios --profile development
+    Modifier la version et le buidl dans : 
+        - package.json
+        - app.json
+        - app.congig.json
+    npx expo config --type prebuild
+    npx expo prebuild --platform ios --no-install
+    Build dans xcode
+    Archive xcode
