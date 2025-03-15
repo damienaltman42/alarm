@@ -13,3 +13,6 @@ To publish :
     npx expo prebuild --platform ios --no-install
     Build dans xcode
     Archive xcode
+
+Andoid
+cd /Users/damienaltman/Desktop/projet_perso/alarm-v2/aurora-wake/android && ./gradlew bundleRelease
